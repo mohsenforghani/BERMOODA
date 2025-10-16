@@ -195,7 +195,7 @@ function endGame() {
 
   // تنظیم متن وسط صفحه
   ctx.fillStyle = "white";
-  ctx.font = "80px Times New Roman";
+  ctx.font = "40px Times New Roman";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2.6);
@@ -212,7 +212,12 @@ function endGame() {
 }
 
 
-
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener("resize", resizeCanvas);
+resizeCanvas(); // اجرا در ابتدا
 
 
 
@@ -322,7 +327,7 @@ joystick.addEventListener("touchend", e=>{
 shootBtn.addEventListener("touchstart", e=>{
   if(!gameRunning) return;
   shoot(); 
-  shootInterval=setInterval(shoot,20);
+  shootInterval=setInterval(shoot,80);
 });
 shootBtn.addEventListener("touchend", e=>{
   clearInterval(shootInterval);
