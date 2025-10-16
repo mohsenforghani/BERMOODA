@@ -24,7 +24,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 32px;
+    font-size: 25px;
     padding: 15px 50px;
     background: yellow;
     color: black;
@@ -36,44 +36,44 @@
 
 #creatorName {
     position: absolute;
-    bottom: 10px;          /* فاصله از پایین صفحه */
-    right: 10px;           /* فاصله از راست صفحه */
-    font-size: 10px;       /* اندازه فونت مناسب */
-    color: rgba(255,255,255,0.5); /* شفافیت برای هماهنگی با پس‌زمینه */
-    font-style: italic;    /* فونت ایتالیک */
-    pointer-events: none;  /* جلوگیری از کلیک روی متن */
-    z-index: 10;           /* بالاتر از کانواس و عناصر دیگر */
-    text-shadow: 0 1px 2px rgba(0,0,0,0.5); /* کمی سایه برای زیبایی */
+    bottom: 10px;
+    right: 10px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.5);
+    font-style: italic;
+    pointer-events: none;
+    z-index: 10;
+    text-shadow: 0 1px 2px rgba(0,0,0,0.5);
     font-family: Arial, sans-serif;
 }
 
-  /* 🎮 جوی‌استیک */
-  #joystick {
+/* 🎮 جوی‌استیک */
+#joystick {
     position: absolute;
-    bottom: 80px;
-    right: 80px;
-    width: 140px;
-    height: 140px;
+    bottom: 30px;
+    right: 20px;
+    width: 70px;
+    height: 70px;
     background: rgba(255,255,255,0.1);
     border: 3px solid rgba(255,255,255,0.4);
     border-radius: 50%;
-  }
+}
 
-  #stick {
+#stick {
     position: absolute;
-    width: 60px;
-    height: 60px;
+    width: 30px;
+    height: 30px;
     background: orange;
     border-radius: 50%;
-    top: 40px;
-    left: 40px;
+    top: 20px;
+    right: 20px;
     transition: 0.05s;
-  }
+}
 
-  #shoot {
+#shoot {
     position: absolute;
-    bottom: 100px;
-    left: 40px;
+    bottom: 30px;
+    left: 30px;
     width: 50px;
     height: 50px;
     background: rgba(255,255,255,0.2);
@@ -83,17 +83,15 @@
     text-align: center;
     line-height: 100px;
     user-select: none;
-  }
+}
 </style>
 </head>
 <body>
 
 <canvas id="gameCanvas"></canvas>
 <button id="startBtn">شروع بازی</button>
-<!-- نام سازنده -->
 <div id="creatorName">Created by Mohsen Forghani</div>
 
-<!-- 🎮 کنترل‌ها -->
 <div id="joystick">
   <div id="stick"></div>
 </div>
@@ -110,14 +108,11 @@ let bullets = [];
 let enemies = [];
 let score = 0;
 let gameRunning = false;
-let dx = 0, dy = 0; // حرکت نرم هواپیما از جوی‌استیک
-
+let dx = 0, dy = 0;
 const airplaneImg = new Image();
-airplaneImg.src = "airplane.png"; // مسیر عکس هواپیما
-let shootInterval = null;
-// شروع شلیک پشت سر هم وقتی انگشت نگه داشته شد
-const shootBtn = document.getElementById("shoot");
+airplaneImg.src = "airplane.png";
 
+let shootInterval = null;
 
 // === حلقه بازی ===
 function gameLoop() {
@@ -153,7 +148,6 @@ function gameLoop() {
     ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
     ctx.fill();
 
-    // برخورد گلوله
     bullets.forEach((b, j) => {
       if (b.x > e.x - e.r && b.x < e.x + e.r && b.y > e.y - e.r && b.y < e.y + e.r) {
         enemies.splice(i, 1);
@@ -162,15 +156,13 @@ function gameLoop() {
       }
     });
 
-    // برخورد دشمن با هواپیما
     if (Math.abs(e.x - (airplane.x + airplane.w/2)) < e.r + airplane.w/2 &&
         Math.abs(e.y - (airplane.y + airplane.h/2)) < e.r + airplane.h/2) {
-        explodeAirplane(); // نمایش انفجار
+        explodeAirplane();
         endGame();
     }
   });
 
-  // امتیاز
   ctx.fillStyle = "white";
   ctx.font = "30px Calibri";
   ctx.fillText("Score: " + score, canvas.width - 180, 50);
@@ -204,12 +196,10 @@ function endGame() {
 }
 
 function explodeAirplane() {
-  // رسم دایره‌های قرمز و نارنجی روی موقعیت هواپیما برای چند فریم
   ctx.fillStyle = "orange";
   ctx.beginPath();
   ctx.arc(airplane.x + airplane.w/2, airplane.y + airplane.h/2, 50, 0, Math.PI*2);
   ctx.fill();
-  
   ctx.fillStyle = "red";
   ctx.beginPath();
   ctx.arc(airplane.x + airplane.w/2, airplane.y + airplane.h/2, 30, 0, Math.PI*2);
@@ -222,60 +212,35 @@ const stick = document.getElementById("stick");
 let touchId = null;
 
 joystick.addEventListener("touchstart", e => {
-  // اگر touchId قبلا گرفته شده بود، نادیده بگیر
   if (touchId !== null) return;
-  
-  // اولین لمس روی جوی‌استیک
   const touch = [...e.touches].find(t => {
     const rect = joystick.getBoundingClientRect();
     return t.clientX >= rect.left && t.clientX <= rect.right &&
            t.clientY >= rect.top && t.clientY <= rect.bottom;
   });
-  
-  if (touch) {
-    touchId = touch.identifier;
-  }
+  if (touch) touchId = touch.identifier;
 });
 
 joystick.addEventListener("touchmove", e => {
   if (touchId === null) return;
-
-  // پیدا کردن لمس مربوط به جوی‌استیک
   let touch = [...e.touches].find(t => t.identifier === touchId);
   if (!touch) return;
-
-  let rect = joystick.getBoundingClientRect();
-  let centerX = rect.left + rect.width / 2;
-  let centerY = rect.top + rect.height / 2;
-
-  let tx = touch.clientX - centerX;
-  let ty = touch.clientY - centerY;
-
+  const rect = joystick.getBoundingClientRect();
+  let tx = touch.clientX - (rect.left + rect.width/2);
+  let ty = touch.clientY - (rect.top + rect.height/2);
   const maxDist = 40;
   const distance = Math.sqrt(tx*tx + ty*ty);
-
-  // محدود کردن حرکت به دایره جوی‌استیک
   if (distance > maxDist) {
     tx = tx * maxDist / distance;
     ty = ty * maxDist / distance;
   }
-
-  // حرکت نرم stick
   stick.style.transform = `translate(${tx}px, ${ty}px)`;
-
-  // مقدار dx و dy بین -1 و 1
   dx = tx / maxDist;
   dy = ty / maxDist;
 });
 
-
-
-
 joystick.addEventListener("touchend", e => {
-  // بررسی می‌کنیم آیا این لمس مربوط به جوی‌استیک ما بوده
-  const remainingTouches = [...e.touches];
-  if (!remainingTouches.find(t => t.identifier === touchId)) {
-    // هیچ لمسی از جوی‌استیک باقی نمونده، پس برمی‌گردونیم
+  if (![...e.touches].find(t => t.identifier === touchId)) {
     stick.style.transform = "translate(0, 0)";
     dx = 0;
     dy = 0;
@@ -283,8 +248,19 @@ joystick.addEventListener("touchend", e => {
   }
 });
 
+// === شلیک پشت سر هم با نگه داشتن دکمه ===
+const shootBtn = document.getElementById("shoot");
+shootBtn.addEventListener("touchstart", e => {
+  e.preventDefault();
+  if (!gameRunning) return;
+  if (shootInterval) clearInterval(shootInterval);
+  shootInterval = setInterval(shoot, 200); // هر 200 میلی‌ثانیه تیر
+});
+shootBtn.addEventListener("touchend", e => {
+  clearInterval(shootInterval);
+});
 
-// === رویداد دکمه‌ها ===
+// === دکمه‌ها و resize ===
 function addTouchAndClick(id, handler) {
   const el = document.getElementById(id);
   el.addEventListener("click", handler);
@@ -292,14 +268,11 @@ function addTouchAndClick(id, handler) {
 }
 
 addTouchAndClick("startBtn", startGame);
-addTouchAndClick("shoot", shoot);
 
 window.addEventListener("resize", () => {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 });
 </script>
-
 </body>
 </html>
-
