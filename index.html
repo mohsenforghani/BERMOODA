@@ -150,7 +150,8 @@ function gameLoop() {
     // برخورد دشمن با هواپیما
     if (Math.abs(e.x - (airplane.x + airplane.w/2)) < e.r + airplane.w/2 &&
         Math.abs(e.y - (airplane.y + airplane.h/2)) < e.r + airplane.h/2) {
-      endGame();
+        explodeAirplane(); // نمایش انفجار
+        endGame();
     }
   });
 
@@ -185,6 +186,19 @@ function endGame() {
   ctx.font = "80px Times New Roman";
   ctx.fillText("Game Over", canvas.width / 2 - 250, canvas.height / 2);
   document.getElementById("startBtn").style.display = "block";
+}
+
+function explodeAirplane() {
+  // رسم دایره‌های قرمز و نارنجی روی موقعیت هواپیما برای چند فریم
+  ctx.fillStyle = "orange";
+  ctx.beginPath();
+  ctx.arc(airplane.x + airplane.w/2, airplane.y + airplane.h/2, 50, 0, Math.PI*2);
+  ctx.fill();
+  
+  ctx.fillStyle = "red";
+  ctx.beginPath();
+  ctx.arc(airplane.x + airplane.w/2, airplane.y + airplane.h/2, 30, 0, Math.PI*2);
+  ctx.fill();
 }
 
 // === جوی‌استیک لمسی ===
