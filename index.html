@@ -13,33 +13,12 @@
     height: 100%;
     touch-action: none;
   }
+
   canvas {
     display: block;
     background: black;
   }
-  #controls {
-    position: fixed;
-    bottom: 20px;
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    pointer-events: none;
-  }
-  .btn {
-    background: rgba(255,255,255,0.2);
-    color: white;
-    font-size: 30px;
-    border-radius: 50%;
-    width: 70px;
-    height: 70px;
-    text-align: center;
-    line-height: 70px;
-    margin: 5px;
-    pointer-events: all;
-    user-select: none;
-  }
-  #leftControls { display: flex; flex-direction: column; align-items: center; margin-left: 20px; }
-  #rightControls { display: flex; gap: 10px; margin-right: 20px; }
+
   #startBtn {
     position: fixed;
     top: 50%;
@@ -52,6 +31,45 @@
     border: none;
     border-radius: 15px;
     font-weight: bold;
+    z-index: 10;
+  }
+
+  /* 🎮 جوی‌استیک */
+  #joystick {
+    position: absolute;
+    bottom: 80px;
+    left: 80px;
+    width: 140px;
+    height: 140px;
+    background: rgba(255,255,255,0.1);
+    border: 3px solid rgba(255,255,255,0.4);
+    border-radius: 50%;
+  }
+
+  #stick {
+    position: absolute;
+    width: 60px;
+    height: 60px;
+    background: orange;
+    border-radius: 50%;
+    top: 40px;
+    left: 40px;
+    transition: 0.05s;
+  }
+
+  #shoot {
+    position: absolute;
+    bottom: 100px;
+    right: 80px;
+    width: 100px;
+    height: 100px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    color: white;
+    font-size: 40px;
+    text-align: center;
+    line-height: 100px;
+    user-select: none;
   }
 </style>
 </head>
@@ -60,19 +78,11 @@
 <canvas id="gameCanvas"></canvas>
 <button id="startBtn">شروع بازی</button>
 
-<div id="controls">
-  <div id="leftControls">
-    <div id="shoot" class="btn">🔥</div>
-  </div>
-  <div id="rightControls">
-    <div id="up" class="btn">⬆️</div>
-    <div style="display:flex;flex-direction:column;">
-      <div id="left" class="btn">⬅️</div>
-      <div id="right" class="btn">➡️</div>
-    </div>
-    <div id="down" class="btn">⬇️</div>
-  </div>
+<!-- 🎮 کنترل‌ها -->
+<div id="joystick">
+  <div id="stick"></div>
 </div>
+<div id="shoot">🔥</div>
 
 <script>
 const canvas = document.getElementById("gameCanvas");
@@ -80,26 +90,31 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-// ===== Variables =====
 let airplane = { x: canvas.width / 2, y: canvas.height - 120, w: 80, h: 80 };
 let bullets = [];
 let enemies = [];
 let score = 0;
 let gameRunning = false;
+let dx = 0, dy = 0; // حرکت نرم هواپیما از جوی‌استیک
 
-// ===== Load image =====
 const airplaneImg = new Image();
-airplaneImg.src = "airplane.png"; // فایل باید کنار HTML باشه
+airplaneImg.src = "airplane.png"; // مسیر عکس هواپیما
 
-// ===== Game Loop =====
+// === حلقه بازی ===
 function gameLoop() {
   if (!gameRunning) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // draw airplane
+  // حرکت نرم با جوی‌استیک
+  airplane.x += dx * 8;
+  airplane.y += dy * 8;
+  airplane.x = Math.max(0, Math.min(canvas.width - airplane.w, airplane.x));
+  airplane.y = Math.max(0, Math.min(canvas.height - airplane.h, airplane.y));
+
+  // هواپیما
   ctx.drawImage(airplaneImg, airplane.x, airplane.y, airplane.w, airplane.h);
 
-  // bullets
+  // گلوله‌ها
   bullets.forEach((b, i) => {
     b.y -= 10;
     ctx.fillStyle = "yellow";
@@ -107,9 +122,118 @@ function gameLoop() {
     if (b.y < 0) bullets.splice(i, 1);
   });
 
-  // enemies
+  // دشمن‌ها
   if (Math.random() < 0.03) {
     enemies.push({ x: Math.random() * canvas.width, y: -20, r: 15 });
   }
 
-  enem
+  enemies.forEach((e, i) => {
+    e.y += 2;
+    ctx.beginPath();
+    ctx.fillStyle = "red";
+    ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+    ctx.fill();
+
+    // برخورد گلوله
+    bullets.forEach((b, j) => {
+      if (b.x > e.x - e.r && b.x < e.x + e.r && b.y > e.y - e.r && b.y < e.y + e.r) {
+        enemies.splice(i, 1);
+        bullets.splice(j, 1);
+        score += 10;
+      }
+    });
+
+    // برخورد دشمن با هواپیما
+    if (Math.abs(e.x - (airplane.x + airplane.w/2)) < e.r + airplane.w/2 &&
+        Math.abs(e.y - (airplane.y + airplane.h/2)) < e.r + airplane.h/2) {
+      endGame();
+    }
+  });
+
+  // امتیاز
+  ctx.fillStyle = "white";
+  ctx.font = "30px Calibri";
+  ctx.fillText("Score: " + score, canvas.width - 180, 50);
+
+  requestAnimationFrame(gameLoop);
+}
+
+// === کنترل‌ها ===
+function shoot() {
+  if (!gameRunning) return;
+  bullets.push({ x: airplane.x + airplane.w / 2, y: airplane.y });
+}
+
+function startGame() {
+  score = 0;
+  airplane.x = canvas.width / 2 - 40;
+  airplane.y = canvas.height - 120;
+  enemies = [];
+  bullets = [];
+  gameRunning = true;
+  document.getElementById("startBtn").style.display = "none";
+  requestAnimationFrame(gameLoop);
+}
+
+function endGame() {
+  gameRunning = false;
+  ctx.fillStyle = "white";
+  ctx.font = "80px Times New Roman";
+  ctx.fillText("Game Over", canvas.width / 2 - 250, canvas.height / 2);
+  document.getElementById("startBtn").style.display = "block";
+}
+
+// === جوی‌استیک لمسی ===
+const joystick = document.getElementById("joystick");
+const stick = document.getElementById("stick");
+let touchId = null;
+
+joystick.addEventListener("touchstart", e => {
+  touchId = e.touches[0].identifier;
+});
+
+joystick.addEventListener("touchmove", e => {
+  let touch = [...e.touches].find(t => t.identifier === touchId);
+  if (!touch) return;
+
+  let rect = joystick.getBoundingClientRect();
+  let tx = touch.clientX - (rect.left + rect.width / 2);
+  let ty = touch.clientY - (rect.top + rect.height / 2);
+  const distance = Math.sqrt(tx * tx + ty * ty);
+  const maxDist = 40;
+
+  if (distance > maxDist) {
+    tx *= maxDist / distance;
+    ty *= maxDist / distance;
+  }
+
+  stick.style.transform = `translate(${tx}px, ${ty}px)`;
+
+  dx = tx / maxDist;
+  dy = ty / maxDist;
+});
+
+joystick.addEventListener("touchend", () => {
+  stick.style.transform = "translate(0, 0)";
+  dx = 0;
+  dy = 0;
+});
+
+// === رویداد دکمه‌ها ===
+function addTouchAndClick(id, handler) {
+  const el = document.getElementById(id);
+  el.addEventListener("click", handler);
+  el.addEventListener("touchstart", e => { e.preventDefault(); handler(); });
+}
+
+addTouchAndClick("startBtn", startGame);
+addTouchAndClick("shoot", shoot);
+
+window.addEventListener("resize", () => {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+});
+</script>
+
+</body>
+</html>
