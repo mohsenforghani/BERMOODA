@@ -110,7 +110,7 @@ let enemies = [];
 let score = 0;
 let gameRunning = false;
 let dx = 0, dy = 0; 
-
+let explosionRunning = false;
 const airplaneImg = new Image();
 airplaneImg.src = "airplane.png"; 
 let shootInterval = null;
@@ -173,34 +173,107 @@ function shoot() {
 }
 
 function startGame() {
-  score=0;
-  airplane.x = canvas.width/2-40;
-  airplane.y = canvas.height-120;
-  enemies=[];
-  bullets=[];
-  gameRunning=true;
-  document.getElementById("startBtn").style.display="none";
+  if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
+  score = 0;
+  airplane.x = canvas.width / 2 - 40;
+  airplane.y = canvas.height - 120;
+  enemies = [];
+  bullets = [];
+  gameRunning = true;
+  document.getElementById("startBtn").style.display = "none";
   requestAnimationFrame(gameLoop);
 }
 
 function endGame() {
-  gameRunning=false;
-  ctx.fillStyle="white";
-  ctx.font="80px Times New Roman";
-  ctx.fillText("Game Over", canvas.width/2-250, canvas.height/2);
-  document.getElementById("startBtn").style.display="block";
+  gameRunning = false;
+
+  // پاک کردن صفحه قبل از نمایش متن
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // ذخیره وضعیت قبلی
+  ctx.save();
+
+  // تنظیم متن وسط صفحه
+  ctx.fillStyle = "white";
+  ctx.font = "80px Times New Roman";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2.6);
+
+  // بازیابی تنظیمات قبلی (در صورت نیاز)
+  ctx.restore();
+
+  // دکمه شروع بعد از 3 ثانیه فعال شود
+  const startBtn = document.getElementById("startBtn");
+  startBtn.style.display = "none";
+  setTimeout(() => {
+    startBtn.style.display = "block";
+  }, 3000);
 }
 
+
+
+
+
+
 function explodeAirplane() {
-  ctx.fillStyle="orange";
-  ctx.beginPath();
-  ctx.arc(airplane.x+airplane.w/2, airplane.y+airplane.h/2,50,0,Math.PI*2);
-  ctx.fill();
-  ctx.fillStyle="red";
-  ctx.beginPath();
-  ctx.arc(airplane.x+airplane.w/2, airplane.y+airplane.h/2,30,0,Math.PI*2);
-  ctx.fill();
+  explosionRunning = true;
+  if (navigator.vibrate) navigator.vibrate(200);
+
+  const pieces = [];
+  const numPieces = 30;
+
+  for (let i = 0; i < numPieces; i++) {
+    pieces.push({
+      x: airplane.x + airplane.w/2,
+      y: airplane.y + airplane.h/2,
+      vx: (Math.random() - 0.5) * 12,
+      vy: (Math.random() - 0.5) * 12,
+      w: Math.random() * 8 + 2,
+      h: Math.random() * 8 + 2,
+      angle: Math.random() * 2 * Math.PI,
+      color: ["orange","red","yellow","gray"][Math.floor(Math.random()*4)]
+    });
+  }
+
+  let frames = 0;
+  function animateExplosion() {
+    if (frames > 25) {
+      explosionRunning = false;
+      return;
+    }
+
+    ctx.clearRect(airplane.x-50, airplane.y-50, airplane.w+100, airplane.h+100);
+
+    pieces.forEach(p => {
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vx *= 0.92;
+      p.vy *= 0.92;
+      p.angle += 0.2;
+
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.angle);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
+      ctx.restore();
+    });
+
+    frames++;
+    requestAnimationFrame(animateExplosion);
+  }
+
+  animateExplosion();
 }
+
+
+
+
+
+
+
+
 
 // === جوی‌استیک لمسی ===
 const joystick = document.getElementById("joystick");
