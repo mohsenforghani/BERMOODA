@@ -52,8 +52,8 @@
     position: absolute;
     bottom: 30px;
     right: 20px;
-    width: 70px;
-    height: 70px;
+    width: 80px;
+    height: 80px;
     background: rgba(255,255,255,0.1);
     border: 3px solid rgba(255,255,255,0.4);
     border-radius: 50%;
@@ -62,11 +62,11 @@
   #stick {
     position: absolute;
     width: 30px;
-    height: 30px;
+    height:30px;
     background: orange;
     border-radius: 50%;
-    top: 20px;
-    left: 20px;
+    top: 25px;
+    left: 25px;
     transition: 0.05s;
   }
 
@@ -94,7 +94,6 @@
 
 <!-- 🎮 کنترل‌ها -->
 <div id="joystick">
-  <canvas id="joystickTextCanvas" width="70" height="70" style="position:absolute; top:0; left:0; pointer-events:none;"></canvas>
   <div id="stick"></div>
 </div>
 <div id="shoot">🔥</div>
@@ -162,7 +161,7 @@ function gameLoop() {
 
   ctx.fillStyle="white";
   ctx.font="30px Calibri";
-  ctx.fillText("Score: "+score, canvas.width-180,50);
+  ctx.fillText("Score: "+score, canvas.width-120,40);
 
   requestAnimationFrame(gameLoop);
 }
@@ -250,35 +249,13 @@ joystick.addEventListener("touchend", e=>{
 shootBtn.addEventListener("touchstart", e=>{
   if(!gameRunning) return;
   shoot(); 
-  shootInterval=setInterval(shoot,200);
+  shootInterval=setInterval(shoot,20);
 });
 shootBtn.addEventListener("touchend", e=>{
   clearInterval(shootInterval);
 });
 
-// === متن دایره‌ای روی جوی‌استیک ===
-const jtCanvas=document.getElementById("joystickTextCanvas");
-const jtCtx=jtCanvas.getContext("2d");
-const radius = jtCanvas.width/2 - 5;
-const text = "Mehrad Game";
-const angleStep = (2*Math.PI)/(text.length*1.5);
 
-jtCtx.font="10px Arial";
-jtCtx.fillStyle="white";
-jtCtx.textAlign="center";
-jtCtx.textBaseline="middle";
-
-for(let i=0;i<text.length;i++){
-  const char=text[i];
-  const angle=-Math.PI/2 + i*angleStep;
-  const x=jtCanvas.width/2 + radius*Math.cos(angle);
-  const y=jtCanvas.height/2 + radius*Math.sin(angle);
-  jtCtx.save();
-  jtCtx.translate(x,y);
-  jtCtx.rotate(angle+Math.PI/2);
-  jtCtx.fillText(char,0,0);
-  jtCtx.restore();
-}
 
 // === دکمه‌ها ===
 function addTouchAndClick(id, handler){
