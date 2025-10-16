@@ -135,7 +135,7 @@ function gameLoop() {
     if(b.y<0) bullets.splice(i,1);
   });
 
- if (Math.random() < 0.03) {
+ if (Math.random() < 0.7) {
   const padding = 20; // فاصله از لبه‌ها
   enemies.push({
     x: Math.random() * (canvas.width - 2 * padding) + padding, // بین 20 تا canvas.width-20
@@ -360,3 +360,4 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
