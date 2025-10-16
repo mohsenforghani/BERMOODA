@@ -24,17 +24,17 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 25px;
-    padding: 15px 50px;
+    font-size: 20px;
+    padding: 20px 60px;
     background: yellow;
     color: black;
     border: none;
-    border-radius: 15px;
-    font-weight: bold;
+    border-radius: 20px;
+    font-weight: normal;
     z-index: 10;
   }
 
-#creatorName {
+  #creatorName {
     position: absolute;
     bottom: 10px;
     right: 10px;
@@ -45,10 +45,10 @@
     z-index: 10;
     text-shadow: 0 1px 2px rgba(0,0,0,0.5);
     font-family: Arial, sans-serif;
-}
+  }
 
-/* 🎮 جوی‌استیک */
-#joystick {
+  /* 🎮 جوی‌استیک */
+  #joystick {
     position: absolute;
     bottom: 30px;
     right: 20px;
@@ -57,34 +57,33 @@
     background: rgba(255,255,255,0.1);
     border: 3px solid rgba(255,255,255,0.4);
     border-radius: 50%;
-}
+  }
 
-#stick {
+  #stick {
     position: absolute;
     width: 30px;
     height: 30px;
     background: orange;
     border-radius: 50%;
     top: 20px;
-    right: 20px;
+    left: 20px;
     transition: 0.05s;
-}
+  }
 
-#shoot {
-  position: absolute;
-  bottom: 30px;
-  left: 30px;
-  width: 50px;
-  height: 50px;
-  background: rgba(255,255,255,0.2);
-  border-radius: 50%;
-  color: white;
-  font-size: 30px;          /* اندازه آیکون */
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  user-select: none;
-}
+  #shoot {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    color: white;
+    font-size: 25px;
+    text-align: center;
+    line-height: 50px;
+    user-select: none;
+  }
 </style>
 </head>
 <body>
@@ -93,7 +92,9 @@
 <button id="startBtn">شروع بازی</button>
 <div id="creatorName">Created by Mohsen Forghani</div>
 
+<!-- 🎮 کنترل‌ها -->
 <div id="joystick">
+  <canvas id="joystickTextCanvas" width="70" height="70" style="position:absolute; top:0; left:0; pointer-events:none;"></canvas>
   <div id="stick"></div>
 </div>
 <div id="shoot">🔥</div>
@@ -109,101 +110,96 @@ let bullets = [];
 let enemies = [];
 let score = 0;
 let gameRunning = false;
-let dx = 0, dy = 0;
-const airplaneImg = new Image();
-airplaneImg.src = "airplane.png";
+let dx = 0, dy = 0; 
 
+const airplaneImg = new Image();
+airplaneImg.src = "airplane.png"; 
 let shootInterval = null;
+const shootBtn = document.getElementById("shoot");
 
 // === حلقه بازی ===
 function gameLoop() {
   if (!gameRunning) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // حرکت نرم با جوی‌استیک
   airplane.x += dx * 8;
   airplane.y += dy * 8;
   airplane.x = Math.max(0, Math.min(canvas.width - airplane.w, airplane.x));
   airplane.y = Math.max(0, Math.min(canvas.height - airplane.h, airplane.y));
 
-  // هواپیما
   ctx.drawImage(airplaneImg, airplane.x, airplane.y, airplane.w, airplane.h);
 
-  // گلوله‌ها
-  bullets.forEach((b, i) => {
+  bullets.forEach((b,i)=>{
     b.y -= 10;
-    ctx.fillStyle = "yellow";
-    ctx.fillRect(b.x, b.y, 5, 10);
-    if (b.y < 0) bullets.splice(i, 1);
+    ctx.fillStyle="yellow";
+    ctx.fillRect(b.x,b.y,5,10);
+    if(b.y<0) bullets.splice(i,1);
   });
 
-  // دشمن‌ها
-  if (Math.random() < 0.03) {
-    enemies.push({ x: Math.random() * canvas.width, y: -20, r: 15 });
-  }
+  if(Math.random()<0.03) enemies.push({x:Math.random()*canvas.width,y:-20,r:15});
 
-  enemies.forEach((e, i) => {
-    e.y += 2;
+  enemies.forEach((e,i)=>{
+    e.y+=2;
     ctx.beginPath();
-    ctx.fillStyle = "red";
-    ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+    ctx.fillStyle="red";
+    ctx.arc(e.x,e.y,e.r,0,Math.PI*2);
     ctx.fill();
 
-    bullets.forEach((b, j) => {
-      if (b.x > e.x - e.r && b.x < e.x + e.r && b.y > e.y - e.r && b.y < e.y + e.r) {
-        enemies.splice(i, 1);
-        bullets.splice(j, 1);
-        score += 10;
+    bullets.forEach((b,j)=>{
+      if(b.x>e.x-e.r && b.x<e.x+e.r && b.y>e.y-e.r && b.y<e.y+e.r){
+        enemies.splice(i,1);
+        bullets.splice(j,1);
+        score+=10;
       }
     });
 
-    if (Math.abs(e.x - (airplane.x + airplane.w/2)) < e.r + airplane.w/2 &&
-        Math.abs(e.y - (airplane.y + airplane.h/2)) < e.r + airplane.h/2) {
-        explodeAirplane();
+    if(Math.abs(e.x-(airplane.x+airplane.w/2))<e.r+airplane.w/2 &&
+       Math.abs(e.y-(airplane.y+airplane.h/2))<e.r+airplane.h/2){
+        explodeAirplane(); 
         endGame();
     }
   });
 
-  ctx.fillStyle = "white";
-  ctx.font = "30px Calibri";
-  ctx.fillText("Score: " + score, canvas.width - 180, 50);
+  ctx.fillStyle="white";
+  ctx.font="30px Calibri";
+  ctx.fillText("Score: "+score, canvas.width-180,50);
 
   requestAnimationFrame(gameLoop);
 }
 
 // === کنترل‌ها ===
 function shoot() {
-  if (!gameRunning) return;
-  bullets.push({ x: airplane.x + airplane.w / 2, y: airplane.y });
+  if(!gameRunning) return;
+  bullets.push({x:airplane.x+airplane.w/2,y:airplane.y});
 }
 
 function startGame() {
-  score = 0;
-  airplane.x = canvas.width / 2 - 40;
-  airplane.y = canvas.height - 120;
-  enemies = [];
-  bullets = [];
-  gameRunning = true;
-  document.getElementById("startBtn").style.display = "none";
+  score=0;
+  airplane.x = canvas.width/2-40;
+  airplane.y = canvas.height-120;
+  enemies=[];
+  bullets=[];
+  gameRunning=true;
+  document.getElementById("startBtn").style.display="none";
   requestAnimationFrame(gameLoop);
 }
 
 function endGame() {
-  gameRunning = false;
-  ctx.fillStyle = "white";
-  ctx.font = "80px Times New Roman";
-  ctx.fillText("Game Over", canvas.width / 2 - 250, canvas.height / 2);
-  document.getElementById("startBtn").style.display = "block";
+  gameRunning=false;
+  ctx.fillStyle="white";
+  ctx.font="80px Times New Roman";
+  ctx.fillText("Game Over", canvas.width/2-250, canvas.height/2);
+  document.getElementById("startBtn").style.display="block";
 }
 
 function explodeAirplane() {
-  ctx.fillStyle = "orange";
+  ctx.fillStyle="orange";
   ctx.beginPath();
-  ctx.arc(airplane.x + airplane.w/2, airplane.y + airplane.h/2, 50, 0, Math.PI*2);
+  ctx.arc(airplane.x+airplane.w/2, airplane.y+airplane.h/2,50,0,Math.PI*2);
   ctx.fill();
-  ctx.fillStyle = "red";
+  ctx.fillStyle="red";
   ctx.beginPath();
-  ctx.arc(airplane.x + airplane.w/2, airplane.y + airplane.h/2, 30, 0, Math.PI*2);
+  ctx.arc(airplane.x+airplane.w/2, airplane.y+airplane.h/2,30,0,Math.PI*2);
   ctx.fill();
 }
 
@@ -212,68 +208,93 @@ const joystick = document.getElementById("joystick");
 const stick = document.getElementById("stick");
 let touchId = null;
 
-joystick.addEventListener("touchstart", e => {
-  if (touchId !== null) return;
-  const touch = [...e.touches].find(t => {
-    const rect = joystick.getBoundingClientRect();
-    return t.clientX >= rect.left && t.clientX <= rect.right &&
-           t.clientY >= rect.top && t.clientY <= rect.bottom;
+joystick.addEventListener("touchstart", e=>{
+  if(touchId!==null) return;
+  const touch=[...e.touches].find(t=>{
+    const rect=joystick.getBoundingClientRect();
+    return t.clientX>=rect.left && t.clientX<=rect.right &&
+           t.clientY>=rect.top && t.clientY<=rect.bottom;
   });
-  if (touch) touchId = touch.identifier;
+  if(touch) touchId=touch.identifier;
 });
 
-joystick.addEventListener("touchmove", e => {
-  if (touchId === null) return;
-  let touch = [...e.touches].find(t => t.identifier === touchId);
-  if (!touch) return;
-  const rect = joystick.getBoundingClientRect();
-  let tx = touch.clientX - (rect.left + rect.width/2);
-  let ty = touch.clientY - (rect.top + rect.height/2);
-  const maxDist = 40;
-  const distance = Math.sqrt(tx*tx + ty*ty);
-  if (distance > maxDist) {
-    tx = tx * maxDist / distance;
-    ty = ty * maxDist / distance;
+joystick.addEventListener("touchmove", e=>{
+  if(touchId===null) return;
+  let touch=[...e.touches].find(t=>t.identifier===touchId);
+  if(!touch) return;
+  let rect=joystick.getBoundingClientRect();
+  let centerX=rect.left+rect.width/2;
+  let centerY=rect.top+rect.height/2;
+  let tx=touch.clientX-centerX;
+  let ty=touch.clientY-centerY;
+  const maxDist=40;
+  const distance=Math.sqrt(tx*tx+ty*ty);
+  if(distance>maxDist){
+    tx=tx*maxDist/distance;
+    ty=ty*maxDist/distance;
   }
-  stick.style.transform = `translate(${tx}px, ${ty}px)`;
-  dx = tx / maxDist;
-  dy = ty / maxDist;
+  stick.style.transform=`translate(${tx}px,${ty}px)`;
+  dx=tx/maxDist;
+  dy=ty/maxDist;
 });
 
-joystick.addEventListener("touchend", e => {
-  if (![...e.touches].find(t => t.identifier === touchId)) {
-    stick.style.transform = "translate(0, 0)";
-    dx = 0;
-    dy = 0;
-    touchId = null;
+joystick.addEventListener("touchend", e=>{
+  const remaining=[...e.touches];
+  if(!remaining.find(t=>t.identifier===touchId)){
+    stick.style.transform="translate(0,0)";
+    dx=0; dy=0; touchId=null;
   }
 });
 
-// === شلیک پشت سر هم با نگه داشتن دکمه ===
-const shootBtn = document.getElementById("shoot");
-shootBtn.addEventListener("touchstart", e => {
-  e.preventDefault();
-  if (!gameRunning) return;
-  if (shootInterval) clearInterval(shootInterval);
-  shootInterval = setInterval(shoot, 200); // هر 200 میلی‌ثانیه تیر
+// === شلیک نگه داشتن ===
+shootBtn.addEventListener("touchstart", e=>{
+  if(!gameRunning) return;
+  shoot(); 
+  shootInterval=setInterval(shoot,200);
 });
-shootBtn.addEventListener("touchend", e => {
+shootBtn.addEventListener("touchend", e=>{
   clearInterval(shootInterval);
 });
 
-// === دکمه‌ها و resize ===
-function addTouchAndClick(id, handler) {
-  const el = document.getElementById(id);
-  el.addEventListener("click", handler);
-  el.addEventListener("touchstart", e => { e.preventDefault(); handler(); });
+// === متن دایره‌ای روی جوی‌استیک ===
+const jtCanvas=document.getElementById("joystickTextCanvas");
+const jtCtx=jtCanvas.getContext("2d");
+const radius = jtCanvas.width/2 - 5;
+const text = "Mehrad Game";
+const angleStep = (2*Math.PI)/(text.length*1.5);
+
+jtCtx.font="10px Arial";
+jtCtx.fillStyle="white";
+jtCtx.textAlign="center";
+jtCtx.textBaseline="middle";
+
+for(let i=0;i<text.length;i++){
+  const char=text[i];
+  const angle=-Math.PI/2 + i*angleStep;
+  const x=jtCanvas.width/2 + radius*Math.cos(angle);
+  const y=jtCanvas.height/2 + radius*Math.sin(angle);
+  jtCtx.save();
+  jtCtx.translate(x,y);
+  jtCtx.rotate(angle+Math.PI/2);
+  jtCtx.fillText(char,0,0);
+  jtCtx.restore();
 }
 
-addTouchAndClick("startBtn", startGame);
+// === دکمه‌ها ===
+function addTouchAndClick(id, handler){
+  const el=document.getElementById(id);
+  el.addEventListener("click",handler);
+  el.addEventListener("touchstart",e=>{e.preventDefault(); handler();});
+}
 
-window.addEventListener("resize", () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+addTouchAndClick("startBtn",startGame);
+addTouchAndClick("shoot",shoot);
+
+window.addEventListener("resize",()=>{
+  canvas.width=window.innerWidth;
+  canvas.height=window.innerHeight;
 });
 </script>
+
 </body>
 </html>
