@@ -175,6 +175,7 @@ function drawBackground() {
 // === حلقه بازی ===
 function gameLoop() {
   if (!gameRunning) return;
+  drawBackground();
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   airplane.x += dx * 8;
@@ -303,7 +304,7 @@ ctx.strokeRect(fuelX, fuelY, fuelBarWidth, fuelHeight);
 
 
 
-  drawBackground();
+  
 
   requestAnimationFrame(gameLoop);
 }
@@ -496,6 +497,7 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
 
 
 
