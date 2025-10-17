@@ -209,8 +209,8 @@ fuels.forEach((f, i) => {
   });
 
   ctx.fillStyle="white";
-  ctx.font="30px Calibri";
-  ctx.fillText("Score: "+score, canvas.width-120,40);
+  ctx.font="12px Calibri";
+  ctx.fillText("Score: "+score, canvas.width-150,40);
 
 
 fuel -= 0.15; // کاهش تدریجی سوخت
@@ -263,7 +263,7 @@ function shoot() {
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
   score = 0;
-let fuel = 100; // مقدار سوخت بین 0 تا 100
+ fuel = 100; 
   airplane.x = canvas.width / 2 - 40;
   airplane.y = canvas.height - 120;
   enemies = [];
@@ -442,3 +442,4 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
