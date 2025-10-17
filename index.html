@@ -190,7 +190,7 @@ fuels.forEach((f, i) => {
     airplane.y < f.y + f.h &&
     airplane.y + airplane.h > f.y
   ) {
-    fuel += 30; // افزایش سوخت
+    fuel += 70; // افزایش سوخت
     if (fuel > 100) fuel = 100;
     fuels.splice(i, 1);
   }
@@ -442,6 +442,7 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
 
 
 
