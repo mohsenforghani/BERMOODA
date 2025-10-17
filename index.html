@@ -179,8 +179,8 @@ if (Date.now() - lastFuelSpawn > 20000) {
 
 
 fuels.forEach((f, i) => {
-  f.y += 3; // حرکت پایین
-  ctx.fillStyle = "cyan";
+  f.y += 1; // حرکت پایین
+  ctx.fillStyle = "orange";
   ctx.fillRect(f.x, f.y, f.w, f.h);
 
   // برخورد با هواپیما
@@ -213,7 +213,7 @@ fuels.forEach((f, i) => {
   ctx.fillText("Score: "+score, canvas.width-60,20);
 
 
-fuel -= 0.08; // کاهش تدریجی سوخت
+fuel -= 0.05; // کاهش تدریجی سوخت
 if (fuel < 0) {
   fuel = 0;
   endGame();
@@ -442,6 +442,7 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
 
 
 
