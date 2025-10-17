@@ -111,6 +111,9 @@ let score = 0;
 let gameRunning = false;
 let dx = 0, dy = 0; 
 let explosionRunning = false;
+let fuel = 100; // مقدار سوخت بین 0 تا 100
+let lastFuelSpawn = Date.now();
+let fuels = [];
 const airplaneImg = new Image();
 airplaneImg.src = "airplane.png"; 
 let shootInterval = null;
@@ -135,14 +138,28 @@ function gameLoop() {
     if(b.y<0) bullets.splice(i,1);
   });
 
- if (Math.random() < 0.02) {
+ if (Math.random() < 0.025) {
   const padding = 20; // فاصله از لبه‌ها
   enemies.push({
     x: Math.random() * (canvas.width - 2 * padding) + padding, // بین 20 تا canvas.width-20
-    y: -20,
-    r: Math.random() * 25
+    y: Math.random() * -25,
+    r: Math.random() * 20
   });
 }
+
+
+// تولید سوخت هر 20 ثانیه
+if (Date.now() - lastFuelSpawn > 20000) {
+  fuels.push({
+    x: Math.random() * (canvas.width - 80) + 40,
+    y: -50,
+    w: 25,
+    h: 60
+  });
+  lastFuelSpawn = Date.now();
+}
+
+
 
   enemies.forEach((e,i)=>{
     e.y+=2;
@@ -159,6 +176,29 @@ function gameLoop() {
       }
     });
 
+
+
+fuels.forEach((f, i) => {
+  f.y += 3; // حرکت پایین
+  ctx.fillStyle = "cyan";
+  ctx.fillRect(f.x, f.y, f.w, f.h);
+
+  // برخورد با هواپیما
+  if (
+    airplane.x < f.x + f.w &&
+    airplane.x + airplane.w > f.x &&
+    airplane.y < f.y + f.h &&
+    airplane.y + airplane.h > f.y
+  ) {
+    fuel += 30; // افزایش سوخت
+    if (fuel > 100) fuel = 100;
+    fuels.splice(i, 1);
+  }
+
+  if (f.y > canvas.height) fuels.splice(i, 1);
+});
+
+
     if(Math.abs(e.x-(airplane.x+airplane.w/2))<e.r+airplane.w/2 &&
        Math.abs(e.y-(airplane.y+airplane.h/2))<e.r+airplane.h/2){
         explodeAirplane(); 
@@ -169,6 +209,45 @@ function gameLoop() {
   ctx.fillStyle="white";
   ctx.font="30px Calibri";
   ctx.fillText("Score: "+score, canvas.width-120,40);
+
+
+fuel -= 0.09; // کاهش تدریجی سوخت
+if (fuel < 0) {
+  fuel = 0;
+  endGame();
+}
+
+
+
+
+
+// نوار سوخت بالای صفحه
+let fuelBarWidth = canvas.width * 0.5; // نصف عرض صفحه
+let fuelX = (canvas.width - fuelBarWidth) / 2; // وسط صفحه
+let fuelY = 15; // فاصله از بالا
+let fuelHeight = 8;
+
+// تعیین رنگ بر اساس میزان سوخت
+let fuelColor = "lime";
+if (fuel < 60) fuelColor = "yellow";
+if (fuel < 30) fuelColor = "red";
+
+// زمینه‌ی نوار
+ctx.fillStyle = "rgba(255,255,255,0.2)";
+ctx.fillRect(fuelX, fuelY, fuelBarWidth, fuelHeight);
+
+// مقدار فعلی سوخت
+ctx.fillStyle = fuelColor;
+ctx.fillRect(fuelX, fuelY, (fuel / 100) * fuelBarWidth, fuelHeight);
+
+// قاب دور نوار
+ctx.strokeStyle = "white";
+ctx.lineWidth = 1;
+ctx.strokeRect(fuelX, fuelY, fuelBarWidth, fuelHeight);
+
+
+
+
 
   requestAnimationFrame(gameLoop);
 }
@@ -202,7 +281,7 @@ function endGame() {
 
   // تنظیم متن وسط صفحه
   ctx.fillStyle = "white";
-  ctx.font = "50px Times New Roman";
+  ctx.font = "40px Times New Roman";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2.6);
@@ -215,7 +294,7 @@ function endGame() {
   startBtn.style.display = "none";
   setTimeout(() => {
     startBtn.style.display = "block";
-  }, 2000);
+  }, 3000);
 }
 
 
@@ -278,6 +357,14 @@ function explodeAirplane() {
 
   animateExplosion();
 }
+
+
+
+
+
+
+
+
 
 // === جوی‌استیک لمسی ===
 const joystick = document.getElementById("joystick");
@@ -352,5 +439,3 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
-
-
