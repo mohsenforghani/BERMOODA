@@ -272,16 +272,22 @@ if (airplane.y + airplane.h > canvas.height)
 
 
 
- if (Math.random() < 0.015) {
+if (Math.random() < 0.015) {
   const padding = 30;
-  enemies.push({
+  const enemy = {
     x: Math.random() * (canvas.width - 2 * padding) + padding,
     y: -60,
     w: 70,
     h: 70,
-    img: enemyImages[Math.floor(Math.random() * enemyImages.length)]
-  });
+    img: enemyImages[Math.floor(Math.random() * enemyImages.length)],
+    canShoot: Math.random() < 0.3, // 30% احتمال شلیک
+    lastShotTime: 0,               // زمان آخرین تیر
+    shotCount: 0                   // تعداد تیرهای پشت سر هم
+  };
+  enemies.push(enemy);
 }
+
+
 
 
 // تولید سوخت هر 20 ثانیه
@@ -299,6 +305,40 @@ if (Date.now() - lastFuelSpawn > 20000) {
 enemies.forEach((e, i) => {
   ctx.drawImage(e.img, e.x - e.w / 2, e.y - e.h / 2, e.w, e.h);
   e.y += 2;
+
+// شلیک دشمن
+  if (e.canShoot) {
+    const now = Date.now();
+    if (now - e.lastShotTime > 1000 && e.shotCount < 3) { // هر 1 ثانیه یک تیر، حداکثر 3 تیر
+      enemyShoot(e);
+      e.lastShotTime = now;
+      e.shotCount++;
+    }
+    // بعد از اینکه 3 تیر زد، 3 ثانیه صبر کن و دوباره می‌تونه شلیک کنه
+    if (e.shotCount >= 3 && now - e.lastShotTime > 3000) {
+      e.shotCount = 0;
+    }
+  }
+enemyBullets.forEach((b, i) => {
+  b.y += b.vy;
+  ctx.fillStyle = "red";
+  ctx.fillRect(b.x - 2, b.y, 4, 10);
+
+  // برخورد با هواپیما
+  if (
+    airplane.x < b.x && airplane.x + airplane.w > b.x &&
+    airplane.y < b.y && airplane.y + airplane.h > b.y
+  ) {
+    explodeAirplane();
+    enemyBullets.splice(i, 1);
+  }
+
+  // حذف گلوله اگر از پایین صفحه خارج شد
+  if (b.y > canvas.height) enemyBullets.splice(i, 1);
+});
+
+
+
 
   // بررسی برخورد گلوله‌ها با دشمن
   bullets.forEach((b, j) => {
@@ -460,6 +500,16 @@ function shoot() {
   if(!gameRunning) return;
   bullets.push({x:airplane.x+airplane.w/2,y:airplane.y});
 }
+
+function enemyShoot(enemy) {
+  enemyBullets.push({
+    x: enemy.x,
+    y: enemy.y + enemy.h / 2,
+    vx: 0,
+    vy: 5
+  });
+}
+
 
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
@@ -666,6 +716,8 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
+
 
 
 
