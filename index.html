@@ -120,6 +120,10 @@ let explosions = []; // انفجارها
 // در ابتدای فایل
 let refueling = false; // آیا سوختگیری در حال انجام است؟
 let refuelRate = 0.2; // میزان سوخت در هر فریم هنگام سوختگیری
+const explosionImg = new Image();
+explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
+
+
 
 
 let keys = {
@@ -304,7 +308,7 @@ enemies.forEach((e, i) => {
       b.y > e.y - e.h/2 &&
       b.y < e.y + e.h/2
     ) {
-      createEnemyExplosion(e.x, e.y); // انفجار گرافیکی
+      createExplosion(e.x, e.y, e.w, e.h); // انفجار ترکیبی
       enemies.splice(i, 1);
       bullets.splice(j, 1);
       score += 10;
@@ -319,7 +323,7 @@ enemies.forEach((e, i) => {
     airplane.y + airplane.h > e.y - e.h / 2
   ) {
     explodeAirplane();
-    endGame();
+   // endGame();
   }
 });
 
@@ -417,29 +421,35 @@ if (keys.space) {
 }
   
 
-// رسم و بروزرسانی انفجارها
-for (let ei = explosions.length - 1; ei >= 0; ei--) {
-  const ex = explosions[ei];
+for (let i = explosions.length - 1; i >= 0; i--) {
+  const ex = explosions[i];
+
+  const scale = 1 + (1 - ex.alpha);
+  const w = ex.w * scale;
+  const h = ex.h * scale;
+  const x = ex.x - (w - ex.w)/2;
+  const y = ex.y - (h - ex.h)/2;
+
+  ctx.globalAlpha = ex.alpha;
+  ctx.drawImage(explosionImg, x, y, w, h);
+
   ex.particles.forEach(p => {
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, p.w, p.h);
     p.x += p.vx;
     p.y += p.vy;
-    p.vx *= 0.95;
-    p.vy *= 0.95;
-    p.life--;
-    p.alpha = Math.max(0, p.life / p.maxLife);
-    ctx.globalAlpha = p.alpha;
-    ctx.fillStyle = p.color;
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-    ctx.fill();
-    ctx.globalAlpha = 1;
+    p.vx *= 0.9;
+    p.vy *= 0.9;
   });
-  // حذف انفجار تمام‌شده
-  if (ex.particles.every(p => p.life <= 0)) explosions.splice(ei, 1);
+
+  ctx.globalAlpha = 1;
+
+  ex.alpha -= ex.fadeRate;
+  if (ex.alpha <= 0) {
+    explosions.splice(i, 1);
+    if (ex.callback) ex.callback(); // 🔹 اینجا بازی تمام می‌شه بعد از پایان انفجار
+  }
 }
-
-
-
 
 
   requestAnimationFrame(gameLoop);
@@ -459,6 +469,8 @@ function startGame() {
   airplane.y = canvas.height - 120;
   enemies = [];
   bullets = [];
+  fuels = []; // پاک کردن سوخت‌های باقی‌مانده
+  lastFuelSpawn = Date.now(); // ریست تایمر تولید سوخت
   gameRunning = true;
   document.getElementById("startBtn").style.display = "none";
   requestAnimationFrame(gameLoop);
@@ -482,7 +494,7 @@ function endGame() {
 
   // بازیابی تنظیمات قبلی (در صورت نیاز)
   ctx.restore();
-
+  explosionRunning = false; 
   // دکمه شروع بعد از 3 ثانیه فعال شود
   const startBtn = document.getElementById("startBtn");
   startBtn.style.display = "none";
@@ -492,27 +504,36 @@ function endGame() {
 }
 
 
-function createEnemyExplosion(x, y) {
+
+
+function createExplosion(x, y, w=70, h=70) {
   const particles = [];
-  const particleCount = 25 + Math.floor(Math.random() * 20);
-  for (let i = 0; i < particleCount; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const speed = 2 + Math.random() * 4;
+  const numParticles = 20; // تعداد ذرات
+  for (let i = 0; i < numParticles; i++) {
     particles.push({
       x: x,
       y: y,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      size: 2 + Math.random() * 6,
-      life: 30 + Math.random() * 20,
-      maxLife: 30 + Math.random() * 20,
-      color: ["orange","red","yellow"][Math.floor(Math.random()*3)],
-      alpha: 1
+      vx: (Math.random() - 0.5) * 8,
+      vy: (Math.random() - 0.5) * 8,
+      w: Math.random() * 6 + 2,
+      h: Math.random() * 6 + 2,
+      color: ["orange","red","yellow","gray"][Math.floor(Math.random()*4)]
     });
   }
-  explosions.push({ particles });
-  if (navigator.vibrate) navigator.vibrate(50);
+
+  explosions.push({
+    x: x - w/2,
+    y: y - h/2,
+    w: w,
+    h: h,
+    alpha: 1,
+    fadeRate: 0.03,
+    particles: particles
+  });
+
+  if (navigator.vibrate) navigator.vibrate(50); // ویبره کوتاه
 }
+
 
 
 
@@ -525,58 +546,45 @@ window.addEventListener("resize", resizeCanvas);
 resizeCanvas(); // اجرا در ابتدا
 
 
-
 function explodeAirplane() {
+  if (explosionRunning) return; // جلوگیری از انفجار دوباره
   explosionRunning = true;
   if (navigator.vibrate) navigator.vibrate(200);
 
-  const pieces = [];
-  const numPieces = 30;
+  const x = airplane.x + airplane.w/2;
+  const y = airplane.y + airplane.h/2;
+  const w = airplane.w;
+  const h = airplane.h;
 
-  for (let i = 0; i < numPieces; i++) {
-    pieces.push({
-      x: airplane.x + airplane.w/2,
-      y: airplane.y + airplane.h/2,
+  const particles = [];
+  const numParticles = 40;
+  for (let i = 0; i < numParticles; i++) {
+    particles.push({
+      x: x,
+      y: y,
       vx: (Math.random() - 0.5) * 12,
       vy: (Math.random() - 0.5) * 12,
       w: Math.random() * 8 + 2,
       h: Math.random() * 8 + 2,
-      angle: Math.random() * 2 * Math.PI,
       color: ["orange","red","yellow","gray"][Math.floor(Math.random()*4)]
     });
   }
 
-  let frames = 0;
-  function animateExplosion() {
-    if (frames > 25) {
-      explosionRunning = false;
-      return;
-    }
+  explosions.push({
+    x: x - w/2,
+    y: y - h/2,
+    w: w,
+    h: h,
+    alpha: 1,
+    fadeRate: 0.03,
+    particles: particles,
+    callback: endGame // 🔹 بعد از انفجار کامل بازی تمام شود
+  });
 
-    ctx.clearRect(airplane.x-50, airplane.y-50, airplane.w+100, airplane.h+100);
-
-    pieces.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      p.vx *= 0.92;
-      p.vy *= 0.92;
-      p.angle += 0.2;
-
-      ctx.save();
-      ctx.translate(p.x, p.y);
-      ctx.rotate(p.angle);
-      ctx.fillStyle = p.color;
-      ctx.fillRect(-p.w/2, -p.h/2, p.w, p.h);
-      ctx.restore();
-    });
-
-    frames++;
-    requestAnimationFrame(animateExplosion);
-  }
-
-  animateExplosion();
+  // پنهان کردن هواپیما هنگام انفجار
+  airplane.x = -1000;
+  airplane.y = -1000;
 }
-
 
 
 
