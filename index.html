@@ -207,6 +207,15 @@ function gameLoop() {
 
   ctx.drawImage(airplaneImg, airplane.x, airplane.y, airplane.w, airplane.h);
 
+
+// 🔫 رسم گلوله‌ها
+bullets.forEach((b, i) => {
+  b.y -= 10;
+  ctx.fillStyle = "yellow";
+  ctx.fillRect(b.x - 2, b.y, 4, 10);
+  if (b.y < 0) bullets.splice(i, 1);
+});
+
  
 
 
