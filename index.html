@@ -207,18 +207,7 @@ function gameLoop() {
 
   ctx.drawImage(airplaneImg, airplane.x, airplane.y, airplane.w, airplane.h);
 
-  bullets.forEach((b,j)=>{
-  if (
-    b.x > e.x - e.w/2 &&
-    b.x < e.x + e.w/2 &&
-    b.y > e.y - e.h/2 &&
-    b.y < e.y + e.h/2
-  ) {
-    enemies.splice(i,1);
-    bullets.splice(j,1);
-    score += 10;
-  }
-});
+ 
 
 
  if (Math.random() < 0.03) {
@@ -245,19 +234,36 @@ if (Date.now() - lastFuelSpawn > 20000) {
 }
 
 
+enemies.forEach((e, i) => {
+  ctx.drawImage(e.img, e.x - e.w / 2, e.y - e.h / 2, e.w, e.h);
+  e.y += 2;
 
-  enemies.forEach((e,i)=>{
+  // بررسی برخورد گلوله‌ها با دشمن
+  bullets.forEach((b, j) => {
+    if (
+      b.x > e.x - e.w/2 &&
+      b.x < e.x + e.w/2 &&
+      b.y > e.y - e.h/2 &&
+      b.y < e.y + e.h/2
+    ) {
+      enemies.splice(i, 1);
+      bullets.splice(j, 1);
+      score += 10;
+    }
+  });
 
-   ctx.drawImage(e.img, e.x - e.w / 2, e.y - e.h / 2, e.w, e.h);
-   e.y += 2; // سرعت پایین آمدن جت‌ها
+  // ✅ بررسی برخورد هواپیما با دشمن
+  if (
+    airplane.x < e.x + e.w / 2 &&
+    airplane.x + airplane.w > e.x - e.w / 2 &&
+    airplane.y < e.y + e.h / 2 &&
+    airplane.y + airplane.h > e.y - e.h / 2
+  ) {
+    explodeAirplane();
+    endGame();
+  }
+});
 
-    bullets.forEach((b,j)=>{
-      if(b.x>e.x-e.r && b.x<e.x+e.r && b.y>e.y-e.r && b.y<e.y+e.r){
-        enemies.splice(i,1);
-        bullets.splice(j,1);
-        score+=10;
-      }
-    });
 
 
 
@@ -283,13 +289,6 @@ fuels.forEach((f, i) => {
 
 
 
-
-    if(Math.abs(e.x-(airplane.x+airplane.w/2))<e.r+airplane.w/2 &&
-       Math.abs(e.y-(airplane.y+airplane.h/2))<e.r+airplane.h/2){
-        explodeAirplane(); 
-        endGame();
-    }
-  });
 
   ctx.fillStyle="white";
   ctx.font="12px Calibri";
