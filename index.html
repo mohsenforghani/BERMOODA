@@ -122,7 +122,7 @@ let refueling = false; // آیا سوختگیری در حال انجام است�
 let refuelRate = 0.2; // میزان سوخت در هر فریم هنگام سوختگیری
 const explosionImg = new Image();
 explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
-
+let enemyBullets = [];
 
 
 
@@ -375,7 +375,7 @@ fuels.forEach((f, i) => {
   ctx.fillText("Score: "+score, canvas.width-80,20);
 
 
-fuel -= 0.05; // کاهش تدریجی سوخت
+fuel -= 0.03; // کاهش تدریجی سوخت
 if (fuel < 0) {
   fuel = 0;
   endGame();
@@ -666,8 +666,6 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
-
-
 
 
 
