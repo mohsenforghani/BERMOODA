@@ -114,6 +114,22 @@ let explosionRunning = false;
 let fuel = 100; // مقدار سوخت بین 0 تا 100
 let lastFuelSpawn = Date.now();
 let fuels = [];
+let lastShotTime = 0;
+const shootDelay = 110; // هر 110میلی‌ثانیه یک گلوله
+// در ابتدای فایل
+let refueling = false; // آیا سوختگیری در حال انجام است؟
+let refuelRate = 0.2; // میزان سوخت در هر فریم هنگام سوختگیری
+
+
+let keys = {
+  left: false,
+  right: false,
+  up: false,
+  down: false,
+  space: false
+};
+
+
 const airplaneImg = new Image();
 airplaneImg.src = "airplane.png"; 
 // ✈️ تصاویر دشمن‌ها
@@ -185,6 +201,27 @@ function drawBackground() {
 }
 
 
+document.addEventListener("keydown", (e) => {
+  if (!gameRunning) return;
+  switch (e.code) {
+    case "ArrowLeft": keys.left = true; break;
+    case "ArrowRight": keys.right = true; break;
+    case "ArrowUp": keys.up = true; break;
+    case "ArrowDown": keys.down = true; break;
+    case "Space": keys.space = true; break;
+  }
+});
+
+document.addEventListener("keyup", (e) => {
+  switch (e.code) {
+    case "ArrowLeft": keys.left = false; break;
+    case "ArrowRight": keys.right = false; break;
+    case "ArrowUp": keys.up = false; break;
+    case "ArrowDown": keys.down = false; break;
+    case "Space": keys.space = false; break;
+  }
+});
+
 
 
 
@@ -212,7 +249,22 @@ bullets.forEach((b, i) => {
   if (b.y < 0) bullets.splice(i, 1);
 });
 
- 
+
+
+ if (keys.left) airplane.x -= 5;
+if (keys.right) airplane.x += 5;
+if (keys.up) airplane.y -= 5;
+if (keys.down) airplane.y += 5;
+
+// محدود کردن محدوده حرکت
+if (airplane.x < 0) airplane.x = 0;
+if (airplane.x + airplane.w > canvas.width)
+  airplane.x = canvas.width - airplane.w;
+if (airplane.y < 0) airplane.y = 0;
+if (airplane.y + airplane.h > canvas.height)
+  airplane.y = canvas.height - airplane.h;
+
+
 
 
  if (Math.random() < 0.015) {
@@ -271,24 +323,41 @@ enemies.forEach((e, i) => {
 
 
 
+const fuelImg = new Image();
+fuelImg.src = "fuel.png"; // مسیر تصویر پمپ بنزینت
 
 fuels.forEach((f, i) => {
-  f.y += 1; // حرکت پایین
-  ctx.fillStyle = "orange";
-  ctx.fillRect(f.x, f.y, f.w, f.h);
+  f.y += 2; // حرکت پایین پمپ
 
-  // برخورد با هواپیما
+  // رسم تصویر پمپ
+  ctx.drawImage(fuelImg, f.x, f.y, f.w, f.h);
+
+  // 🔹 بررسی برخورد هواپیما برای سوختگیری تدریجی
   if (
     airplane.x < f.x + f.w &&
     airplane.x + airplane.w > f.x &&
     airplane.y < f.y + f.h &&
     airplane.y + airplane.h > f.y
   ) {
-    fuel += 70; // افزایش سوخت
+    // هر فریم سوخت اضافه می‌شود
+    fuel += 0.2; // میزان سوختگیری در هر فریم، می‌توان تغییر داد
     if (fuel > 100) fuel = 100;
-    fuels.splice(i, 1);
   }
 
+  // 🔹 بررسی برخورد گلوله با پمپ
+  bullets.forEach((b, j) => {
+    if (
+      b.x > f.x &&
+      b.x < f.x + f.w &&
+      b.y > f.y &&
+      b.y < f.y + f.h
+    ) {
+      fuels.splice(i, 1); // حذف پمپ
+      bullets.splice(j, 1); // حذف گلوله
+    }
+  });
+
+  // حذف پمپ اگر از پایین خارج شد
   if (f.y > canvas.height) fuels.splice(i, 1);
 });
 
@@ -336,7 +405,14 @@ ctx.strokeRect(fuelX, fuelY, fuelBarWidth, fuelHeight);
 
 
 
-
+// 🔫 کنترل شلیک Space در حلقه بازی
+if (keys.space) {
+  const now = Date.now();
+  if (now - lastShotTime > shootDelay) {
+    shoot();
+    lastShotTime = now;
+  }
+}
   
 
   requestAnimationFrame(gameLoop);
@@ -530,7 +606,6 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
-
 
 
 
