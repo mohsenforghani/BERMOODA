@@ -277,8 +277,8 @@ if (Math.random() < 0.015) {
   const enemy = {
     x: Math.random() * (canvas.width - 2 * padding) + padding,
     y: -60,
-    w: 70,
-    h: 70,
+    w: 60,
+    h: 60,
     img: enemyImages[Math.floor(Math.random() * enemyImages.length)],
     canShoot: Math.random() < 0.3, // 30% احتمال شلیک
     lastShotTime: 0,               // زمان آخرین تیر
@@ -309,20 +309,20 @@ enemies.forEach((e, i) => {
 // شلیک دشمن
   if (e.canShoot) {
     const now = Date.now();
-    if (now - e.lastShotTime > 1000 && e.shotCount < 3) { // هر 1 ثانیه یک تیر، حداکثر 3 تیر
+    if (now - e.lastShotTime > 1000 && e.shotCount < 2) { // هر 1 ثانیه یک تیر، حداکثر 3 تیر
       enemyShoot(e);
       e.lastShotTime = now;
       e.shotCount++;
     }
     // بعد از اینکه 3 تیر زد، 3 ثانیه صبر کن و دوباره می‌تونه شلیک کنه
-    if (e.shotCount >= 3 && now - e.lastShotTime > 3000) {
+    if (e.shotCount >= 3 && now - e.lastShotTime > 5000) {
       e.shotCount = 0;
     }
   }
 enemyBullets.forEach((b, i) => {
   b.y += b.vy;
-  ctx.fillStyle = "red";
-  ctx.fillRect(b.x - 2, b.y, 4, 10);
+  ctx.fillStyle = "white";
+  ctx.fillRect(b.x - 2, b.y, 2, 7);
 
   // برخورد با هواپیما
   if (
@@ -363,7 +363,6 @@ enemyBullets.forEach((b, i) => {
     airplane.y + airplane.h > e.y - e.h / 2
   ) {
     explodeAirplane();
-   // endGame();
   }
 });
 
@@ -550,7 +549,7 @@ function endGame() {
   startBtn.style.display = "none";
   setTimeout(() => {
     startBtn.style.display = "block";
-  }, 1000);
+  }, 400);
 }
 
 
@@ -716,6 +715,7 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
 
 
 
