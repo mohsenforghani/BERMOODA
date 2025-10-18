@@ -233,8 +233,8 @@ function gameLoop() {
   
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
-  airplane.x += dx * 8;
-  airplane.y += dy * 8;
+  airplane.x += dx * 4;
+  airplane.y += dy * 4;
   airplane.x = Math.max(0, Math.min(canvas.width - airplane.w, airplane.x));
   airplane.y = Math.max(0, Math.min(canvas.height - airplane.h, airplane.y));
 
@@ -606,6 +606,7 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
 
 
 
