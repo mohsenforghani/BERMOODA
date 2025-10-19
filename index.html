@@ -126,6 +126,7 @@
 <canvas id="gameCanvas"></canvas>
 <button id="startBtn">شروع بازی</button>
 <div id="creatorName">Created by Mohsen Forghani</div>
+<button id="missileBtn" style="position:absolute; bottom:90px; left:20px; width:60px; height:40px; background:gray; color:white; border-radius:10px; font-weight:bold;" disabled>🚀</button>
 
 <!-- 🎮 کنترل‌ها -->
 <div id="joystick">
@@ -168,11 +169,19 @@ const explosionImg = new Image();
 explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
 let enemyBullets = [];
 let bulletSpeed = 10; // مقدار اولیه
+const missileImg = new Image();
+missileImg.src = "mooshak.png"; // مسیر تصویر موشک
+
+
+let missiles = 0; // تعداد موشک‌ها
+let activeMissiles = []; // لیست موشک‌های فعال در حال حرکت
+let missileBtn = document.getElementById("missileBtn");
 // ✅ لیست تمام تصاویر
 const imageSources = [
   "airplane.png",
   "explosion.png",
   "fuel.png",
+  "mooshak.png", 
   "plane1.png", "plane2.png", "plane3.png", "plane4.png",
   "plane6.png", "plane8.png", "plane10.png", "plane12.png",
   "cloud1.png", "cloud2.png", "cloud3.png"
@@ -378,6 +387,43 @@ b.y -= bulletSpeed;
 
 
 
+
+for (let i = activeMissiles.length - 1; i >= 0; i--) {
+  let m = activeMissiles[i];
+
+  // حرکت سینوسی
+  m.prevX = m.x;
+  m.prevY = m.y;
+
+  m.y -= m.speed;
+  m.angle += 0.05;
+  m.x = (canvas.width/2) + Math.sin(m.angle) * m.amplitude;
+
+  // محاسبه زاویه موشک نسبت به مسیر حرکت
+  let dx = m.x - m.prevX;
+  let dy = m.y - m.prevY;
+  let rotation = Math.atan2(dy, dx) - Math.PI/2;
+
+  // رسم موشک با چرخش موازی مسیر
+  ctx.save();
+  ctx.translate(m.x + m.w/2, m.y + m.h/2);
+  ctx.rotate(rotation);
+  ctx.drawImage(missileImg, -m.w/2, -m.h/2, m.w, m.h);
+  ctx.restore();
+
+  // اگر از بالای صفحه خارج شد، انفجار ایجاد شود
+  if (m.y + m.h < 0) {
+    createExplosion(m.x + m.w/2, m.y + m.h/2, 50, 50); // انفجار در محل موشک
+    activeMissiles.splice(i, 1);
+  }
+}
+
+
+
+
+
+
+
  if (keys.left) airplane.x -= 5;
 if (keys.right) airplane.x += 5;
 if (keys.up) airplane.y -= 5;
@@ -485,6 +531,18 @@ enemyBullets.forEach((b, i) => {
       enemies.splice(i, 1);
       bullets.splice(j, 1);
       score += 10;
+
+
+// هر 300 امتیاز یک موشک
+let newMissiles = Math.floor(score / 50);
+if(newMissiles > missiles) {
+  missiles = newMissiles;
+  updateMissileBtn(); // متن دکمه بروزرسانی شود
+}
+
+
+
+
     }
   });
 
@@ -639,9 +697,43 @@ function enemyShoot(enemy) {
     x: enemy.x,
     y: enemy.y + enemy.h / 2,
     vx: 0,
-    vy: 5
+    vy: 3
   });
 }
+
+function updateMissileBtn() {
+  missileBtn.innerText = `🚀 ${missiles}`;
+  missileBtn.disabled = missiles <= 0;
+}
+
+
+function launchMissile() {
+  if(missiles <= 0 || !gameRunning) return;
+  missiles--;
+ updateMissileBtn(); // متن دکمه بروزرسانی شود
+ 
+// پاک کردن همه تیرهای دشمن
+  enemyBullets = [];
+
+  // هنگام پرتاب موشک
+activeMissiles.push({
+  x: airplane.x + airplane.w/2 - 15/2,
+  y: airplane.y,
+  w: 20,
+  h: 70,
+  speed: 4,           // سرعت عمودی
+  angle: 0,           // برای محاسبه سینوس
+  amplitude: 70,      // دامنه حرکت چپ و راست
+  prevX: airplane.x + airplane.w/2 - 15/2,
+  prevY: airplane.y
+});
+
+
+}
+
+
+
+
 
 
 function startGame() {
@@ -654,7 +746,10 @@ function startGame() {
   enemies = [];
   bullets = [];
   fuels = []; // پاک کردن سوخت‌های باقی‌مانده
+  enemyBullets = []; // ✅ پاک کردن تمام تیرهای دشمن
   lastFuelSpawn = Date.now(); // ریست تایمر تولید سوخت
+  missiles = 0;              // ← تعداد موشک‌ها صفر
+  updateMissileBtn();        // ← بروزرسانی دکمه
   gameRunning = true;
   document.getElementById("startBtn").style.display = "none";
   requestAnimationFrame(gameLoop);
@@ -841,7 +936,7 @@ function addTouchAndClick(id, handler){
 
 addTouchAndClick("startBtn",startGame);
 addTouchAndClick("shoot",shoot);
-
+addTouchAndClick("missileBtn", launchMissile);
 window.addEventListener("resize",()=>{
   canvas.width=window.innerWidth;
   canvas.height=window.innerHeight;
@@ -850,8 +945,5 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
-
-
-
 
 
