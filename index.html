@@ -866,8 +866,11 @@ function endGame() {
   explosionRunning = false; 
   // دکمه شروع بعد از 3 ثانیه فعال شود
   const startBtn = document.getElementById("startBtn");
-  startBtn.style.display = "block";
-  
+  startBtn.style.display = "none";
+  setTimeout(() => {
+    startBtn.style.display = "block";
+  }, 200);
+}
 }
 
 
@@ -1014,7 +1017,6 @@ shootBtn.addEventListener("touchend", e=>{
 });
 
 
-
 // === دکمه‌ها ===
 function addTouchAndClick(id, handler){
   const el=document.getElementById(id);
@@ -1033,4 +1035,5 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
 
