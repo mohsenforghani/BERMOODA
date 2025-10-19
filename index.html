@@ -31,6 +31,7 @@
     align-items: center;
     font-family: sans-serif;
     z-index: 1000;
+    transform: translateY(-80px); /* بالا بردن کل محتوا 80px */
   }
 
   #loadingText {
@@ -56,10 +57,10 @@
   }
 
 #logoText {
-  font-size: 60px;
+  font-size: 50px;
   font-weight: bold;
   color: #00ffcc;
-  margin-bottom: 20px;
+  margin-bottom: 40px;
   font-family: 'Arial Black', sans-serif;
   text-shadow:
     0 0 5px #00ffcc,
@@ -67,6 +68,15 @@
     0 0 20px #00ffff,
     0 0 30px #00ffff;
   animation: glow 1.5s ease-in-out infinite alternate;
+}
+
+#subLogoText {
+  font-size: 15px;
+  color: #00ffcc;
+  font-family: 'Arial', sans-serif;
+  text-shadow: 0 0 3px #00ffcc, 0 0 5px #00ffff;
+  margin-bottom: 30px; /* فاصله از BERMOODA */
+ // animation: glow 1.5s ease-in-out infinite alternate;
 }
 
 @keyframes glow {
@@ -84,7 +94,7 @@
       0 0 20px #00ffcc,
       0 0 40px #00ffff,
       0 0 60px #00ffff;
-    transform: scale(1.05);
+    transform: scale(1.2);
   }
 }
 
@@ -173,6 +183,7 @@
 
  <div id="loadingScreen">
 <div id="logoText">BERMOODA</div>
+<div id="subLogoText">A GAME BY MOHSEN</div>
     <div id="loadingText">Loading...</div>
     <div id="progressBar">
       <div id="progressFill"></div>
