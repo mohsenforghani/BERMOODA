@@ -108,19 +108,22 @@ body {
 
 
 
-#startBtn {
-  position: fixed;          /* ثابت روی صفحه */
-  top: 50%;                 /* وسط عمودی صفحه */
-  left: 30%;                /* وسط افقی صفحه */
-  transform: translate(-50%, -50%); /* نصف عرض و ارتفاع خود دکمه را جبران می‌کنیم */
+##startBtn {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 90%;           /* تقریباً کل عرض صفحه */
+  max-width: 400px;     /* حداکثر اندازه روی دسکتاپ */
   font-size: 30px;
-  padding: 15px 50px;
+  padding: 20px 0;
   background: black;
   color: #00ffcc;
   border: 2px solid #00ffcc;
   border-radius: 15px;
   font-weight: bold;
   cursor: pointer;
+  text-align: center;
   text-shadow:
     0 0 5px #00ffcc,
     0 0 10px #00ffcc,
@@ -139,10 +142,11 @@ body {
 /* موبایل */
 @media (max-width: 480px) {
   #startBtn {
-    font-size: 20px;
-    padding: 12px 30px;
+    font-size: 22px;
+    padding: 15px 0;
   }
 }
+
 
 
 
@@ -1082,6 +1086,7 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
 
 
 
