@@ -391,30 +391,32 @@ b.y -= bulletSpeed;
 for (let i = activeMissiles.length - 1; i >= 0; i--) {
   let m = activeMissiles[i];
 
-  // حرکت سینوسی
+  // ذخیره موقعیت قبلی برای محاسبه زاویه
   m.prevX = m.x;
   m.prevY = m.y;
 
-  m.y -= m.speed;
-  m.angle += 0.05;
-  m.x = (canvas.width/2) + Math.sin(m.angle) * m.amplitude;
+  // حرکت عمودی و سینوسی
+ m.y -= m.speed;
+m.angle += 0.05;
+m.x = m.baseX + Math.sin(m.angle) * m.amplitude; 
 
-  // محاسبه زاویه موشک نسبت به مسیر حرکت
+
+  // زاویه موشک نسبت به مسیر حرکت
   let dx = m.x - m.prevX;
   let dy = m.y - m.prevY;
   let rotation = Math.atan2(dy, dx) - Math.PI/2;
 
-  // رسم موشک با چرخش موازی مسیر
+  // رسم موشک با چرخش
   ctx.save();
   ctx.translate(m.x + m.w/2, m.y + m.h/2);
   ctx.rotate(rotation);
   ctx.drawImage(missileImg, -m.w/2, -m.h/2, m.w, m.h);
   ctx.restore();
 
-  // اگر از بالای صفحه خارج شد، انفجار ایجاد شود
-  if (m.y + m.h < 0) {
-    createExplosion(m.x + m.w/2, m.y + m.h/2, 50, 50); // انفجار در محل موشک
-    activeMissiles.splice(i, 1);
+  // اگر موشک نزدیک بالای صفحه شد (100 پیکسل قبل از خروج)
+  if (m.y + m.h < 140) {
+    createExplosion(m.x + m.w/2, m.y + m.h/2, 200, 200); // انفجار
+    activeMissiles.splice(i, 1); // حذف موشک
   }
 }
 
@@ -706,28 +708,28 @@ function updateMissileBtn() {
   missileBtn.disabled = missiles <= 0;
 }
 
-
 function launchMissile() {
   if(missiles <= 0 || !gameRunning) return;
   missiles--;
- updateMissileBtn(); // متن دکمه بروزرسانی شود
- 
-// پاک کردن همه تیرهای دشمن
+  updateMissileBtn(); // بروزرسانی دکمه
+
+  // پاک کردن همه تیرهای دشمن
   enemyBullets = [];
 
-  // هنگام پرتاب موشک
-activeMissiles.push({
-  x: airplane.x + airplane.w/2 - 15/2,
-  y: airplane.y,
+
+  // هنگام پرتاب موشک، موقعیت دقیق از وسط هواپیما
+ activeMissiles.push({
+  x: airplane.x + airplane.w/2 - 10,
+  y: airplane.y - 10,
   w: 20,
   h: 70,
-  speed: 4,           // سرعت عمودی
-  angle: 0,           // برای محاسبه سینوس
-  amplitude: 70,      // دامنه حرکت چپ و راست
-  prevX: airplane.x + airplane.w/2 - 15/2,
-  prevY: airplane.y
+  speed: 4,
+  angle: 0,
+  amplitude: 70,
+  prevX: airplane.x + airplane.w/2 - 10,
+  prevY: airplane.y - 10,
+  baseX: airplane.x + airplane.w/2 - 10 // ← اضافه کردن پایه
 });
-
 
 }
 
@@ -945,5 +947,9 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
+
+
+
 
 
