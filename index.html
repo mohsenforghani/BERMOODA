@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bermooda - Mohsen Forghani</title>
 <style>
-  html, body {
+  html {
     margin: 0;
     padding: 0;
     overflow: hidden;
@@ -13,7 +13,15 @@
     height: 100%;
     touch-action: none;
   }
-
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center; /* وسط افقی */
+  align-items: center;     /* وسط عمودی */
+  background: black;
+  overflow: hidden;
+}
   canvas {
     display: block;
     background: black;
@@ -99,13 +107,13 @@
 }
 
 
- /* تنظیمات پیش‌فرض دکمه */
+
 #startBtn {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 40px;
+  position: fixed;          /* ثابت روی صفحه */
+  top: 50%;                 /* وسط عمودی صفحه */
+  left: 30%;                /* وسط افقی صفحه */
+  transform: translate(-50%, -50%); /* نصف عرض و ارتفاع خود دکمه را جبران می‌کنیم */
+  font-size: 30px;
   padding: 15px 50px;
   background: black;
   color: #00ffcc;
@@ -113,7 +121,6 @@
   border-radius: 15px;
   font-weight: bold;
   cursor: pointer;
-  z-index: 10;
   text-shadow:
     0 0 5px #00ffcc,
     0 0 10px #00ffcc,
@@ -121,6 +128,7 @@
     0 0 30px #00ffff;
   animation: glow 1.5s ease-in-out infinite alternate;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 10;
 }
 
 #startBtn:hover {
@@ -128,7 +136,7 @@
   box-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffff;
 }
 
-/* تنظیمات برای صفحه‌های کوچک موبایل */
+/* موبایل */
 @media (max-width: 480px) {
   #startBtn {
     font-size: 20px;
@@ -908,7 +916,7 @@ function endGame() {
   startBtn.style.display = "none";
   setTimeout(() => {
     startBtn.style.display = "block";
-  }, 1000);
+  }, 300);
 }
 
 
@@ -1074,6 +1082,9 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
+
+
 
 
 
