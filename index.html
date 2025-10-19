@@ -51,6 +51,7 @@
     width: 0%;
     height: 100%;
     background: linear-gradient(90deg, #00ff88, #00ffff);
+    border-radius: 8px;
     transition: width 0.2s ease;
   }
 
@@ -169,6 +170,7 @@ const explosionImg = new Image();
 explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
 let enemyBullets = [];
 let bulletSpeed = 10; // مقدار اولیه
+const noFlyZoneHeight = 100; // ارتفاع ناحیه غیرقابل استفاده پایین صفحه
 const missileImages = [
   "mooshak.png",
   "mooshak2.png",
@@ -272,7 +274,7 @@ function preloadImages(callback) {
       loadedImages[src] = img;
       loadedCount++;
       const percent = Math.floor((loadedCount / totalImages) * 100);
-      progressFill.style.width = percent + " %";
+      progressFill.style.width = percent + "%";
       loadingText.innerText = `Loading  ${percent} %`;
       if (loadedCount === totalImages) {
         setTimeout(() => {
@@ -374,8 +376,8 @@ const now = performance.now();
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
-  airplane.x += dx * 8;
-  airplane.y += dy * 8;
+  airplane.x += dx * 4;
+  airplane.y += dy * 4;
   airplane.x = Math.max(0, Math.min(canvas.width - airplane.w, airplane.x));
   airplane.y = Math.max(0, Math.min(canvas.height - airplane.h, airplane.y));
 
@@ -445,8 +447,8 @@ if (airplane.x < 0) airplane.x = 0;
 if (airplane.x + airplane.w > canvas.width)
   airplane.x = canvas.width - airplane.w;
 if (airplane.y < 0) airplane.y = 0;
-if (airplane.y + airplane.h > canvas.height)
-  airplane.y = canvas.height - airplane.h;
+if (airplane.y + airplane.h > canvas.height-noFlyZoneHeight)
+  airplane.y = canvas.height - airplane.h-noFlyZoneHeight;
 
 
 
@@ -495,6 +497,10 @@ enemies.forEach((e, i) => {
 } else {
   e.y += e.speed;
 }
+// 🔹 حذف دشمن وقتی 100 پیکسل تا پایین فاصله دارد
+  if (e.y > canvas.height - noFlyZoneHeight) {
+    enemies.splice(i, 1);
+  }
 
 // شلیک دشمن
   if (e.canShoot) {
@@ -524,7 +530,7 @@ enemyBullets.forEach((b, i) => {
   }
 
   // حذف گلوله اگر از پایین صفحه خارج شد
-  if (b.y > canvas.height) enemyBullets.splice(i, 1);
+  if (b.y > canvas.height-noFlyZoneHeight) enemyBullets.splice(i, 1);
 });
 
 
