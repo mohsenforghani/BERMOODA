@@ -5,14 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bermooda - Mohsen Forghani</title>
 <style>
-
-html, body {
+  html, body {
     margin: 0;
     padding: 0;
     overflow: hidden;
     background: black;
     height: 100%;
     touch-action: none;
+  }
+
+  canvas {
+    display: block;
+    background: black;
   }
 
   /* صفحه لودینگ */
@@ -27,7 +31,6 @@ html, body {
     align-items: center;
     font-family: sans-serif;
     z-index: 1000;
-    transform: translateY(-80px); /* بالا بردن کل محتوا 80px */
   }
 
   #loadingText {
@@ -52,50 +55,6 @@ html, body {
     transition: width 0.2s ease;
   }
 
-#logoText {
-  font-size: 50px;
-  font-weight: bold;
-  color: #00ffcc;
-  margin-bottom: 40px;
-  font-family: 'Arial Black', sans-serif;
-  text-shadow:
-    0 0 5px #00ffcc,
-    0 0 10px #00ffcc,
-    0 0 20px #00ffff,
-    0 0 30px #00ffff;
-  animation: glow 1.5s ease-in-out infinite alternate;
-}
-
-#subLogoText {
-  font-size: 15px;
-  color: #00ffcc;
-  font-family: 'Arial', sans-serif;
-  text-shadow: 0 0 3px #00ffcc, 0 0 5px #00ffff;
-  margin-bottom: 30px; /* فاصله از BERMOODA */
- // animation: glow 1.5s ease-in-out infinite alternate;
-}
-
-@keyframes glow {
-  0% {
-    text-shadow:
-      0 0 5px #00ffcc,
-      0 0 10px #00ffcc,
-      0 0 20px #00ffff,
-      0 0 30px #00ffff;
-    transform: scale(1);
-  }
-  100% {
-    text-shadow:
-      0 0 10px #00ffcc,
-      0 0 20px #00ffcc,
-      0 0 40px #00ffff,
-      0 0 60px #00ffff;
-    transform: scale(1.2);
-  }
-}
-
-
-
   #startBtn {
     position: fixed;
     top: 50%;
@@ -110,7 +69,7 @@ html, body {
     font-weight: normal;
     z-index: 10;
   }
-    
+
   #creatorName {
     position: absolute;
     bottom: 10px;
@@ -170,7 +129,6 @@ html, body {
 <div id="creatorName">Created by Mohsen Forghani</div>
 <button id="missileBtn" style="position:absolute; bottom:90px; left:20px; width:60px; height:40px; background:gray; color:white; border-radius:10px; font-weight:bold;" disabled>🚀</button>
 
-
 <!-- 🎮 کنترل‌ها -->
 <div id="joystick">
   <div id="stick"></div>
@@ -178,8 +136,6 @@ html, body {
 <div id="shoot">🔥</div>
 
  <div id="loadingScreen">
-<div id="logoText">BERMOODA</div>
-<div id="subLogoText">A GAME BY MOHSEN.F</div>
     <div id="loadingText">Loading...</div>
     <div id="progressBar">
       <div id="progressFill"></div>
@@ -204,7 +160,7 @@ let fuel = 100; // مقدار سوخت بین 0 تا 100
 let lastFuelSpawn = Date.now();
 let fuels = [];
 let lastShotTime = 0;
-const shootDelay = 100; // هر 110میلی‌ثانیه یک گلوله
+const shootDelay = 110; // هر 110میلی‌ثانیه یک گلوله
 let explosions = []; // انفجارها
 let lastTime = performance.now();
 // در ابتدای فایل
@@ -213,7 +169,7 @@ let refuelRate = 0.2; // میزان سوخت در هر فریم هنگام سو�
 const explosionImg = new Image();
 explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
 let enemyBullets = [];
-let bulletSpeed = 5; // مقدار اولیه
+let bulletSpeed = 10; // مقدار اولیه
 const noFlyZoneHeight = 100; // ارتفاع ناحیه غیرقابل استفاده پایین صفحه
 const missileImages = [
   "mooshak.png",
@@ -236,7 +192,7 @@ const imageSources = [
   "explosion.png",
   "fuel.png",
   "mooshak.png", 
-  "mooshak2.png", 
+"mooshak2.png", 
   "plane1.png", "plane2.png", "plane3.png", "plane4.png",
   "plane6.png", "plane8.png", "plane10.png", "plane12.png",
   "cloud1.png", "cloud2.png", "cloud3.png"
@@ -310,6 +266,7 @@ for (let i = 0; i < 6; i++) {
 
 
 
+// 🎯 تابع لود تمام تصاویر
 function preloadImages(callback) {
   imageSources.forEach(src => {
     const img = new Image();
@@ -322,7 +279,7 @@ function preloadImages(callback) {
       if (loadedCount === totalImages) {
         setTimeout(() => {
           callback();
-        }, 100); // کمی تاخیر برای دیدن پر شدن نوار
+        }, 400); // کمی تاخیر برای دیدن پر شدن نوار
       }
     };
     img.onerror = () => {
@@ -412,7 +369,7 @@ function gameLoop() {
   if (!gameRunning) return;
   
 
-  const now = performance.now();
+const now = performance.now();
   const delta = (now - lastTime) / 16.67; // نسبت به 60fps استاندارد
   lastTime = now;
 
@@ -429,16 +386,15 @@ function gameLoop() {
 
 // 🔫 رسم گلوله‌ها
 bullets.forEach((b, i) => {
-if (score > 200) bulletSpeed = 9;
-if (score > 400) bulletSpeed = 10;
-if (score > 800) bulletSpeed = 11;
+  if (score > 200) bulletSpeed = 12;
+if (score > 400) bulletSpeed = 15;
+if (score > 800) bulletSpeed = 18;
 
 b.y -= bulletSpeed;
   ctx.fillStyle = "yellow";
   ctx.fillRect(b.x - 2, b.y, 3, 7);
   if (b.y < 0) bullets.splice(i, 1);
 });
-
 
 
 
@@ -451,9 +407,10 @@ for (let i = activeMissiles.length - 1; i >= 0; i--) {
   m.prevY = m.y;
 
   // حرکت عمودی و سینوسی
-  m.y -= m.speed;
-  m.angle += 0.04;
-  m.x = m.baseX + Math.sin(m.angle) * m.amplitude; 
+ m.y -= m.speed;
+m.angle += 0.05;
+m.x = m.baseX + Math.sin(m.angle) * m.amplitude; 
+
 
   // زاویه موشک نسبت به مسیر حرکت
   let dx = m.x - m.prevX;
@@ -464,51 +421,20 @@ for (let i = activeMissiles.length - 1; i >= 0; i--) {
   ctx.save();
   ctx.translate(m.x + m.w/2, m.y + m.h/2);
   ctx.rotate(rotation);
-  ctx.drawImage(m.img, -m.w/2, -m.h/2, m.w, m.h);
+ctx.drawImage(m.img, -m.w/2, -m.h/2, m.w, m.h);
   ctx.restore();
-
-  // بررسی برخورد موشک با تمام دشمنان
-  for (let j = enemies.length - 1; j >= 0; j--) {
-    let e = enemies[j];
-    if (
-      m.x + m.w/2 > e.x - e.w/2 &&
-      m.x - m.w/2 < e.x + e.w/2 &&
-      m.y + m.h/2 > e.y - e.h/2 &&
-      m.y - m.h/2 < e.y + e.h/2
-    ) {
-      // انفجار موشک
-      createExplosion(m.x + m.w/2, m.y + m.h/2, m.w, m.h);
-
-      // انفجار دشمن
-      createExplosion(e.x, e.y, e.w, e.h);
-
-      // حذف دشمن و موشک
-      enemies.splice(j, 1);
-      activeMissiles.splice(i, 1);
-
-      // حذف تمام تیرهای دشمن
-      enemyBullets = [];
-
-      break; // خروج از حلقه دشمنان
-    }
-  }
 
   // اگر موشک نزدیک بالای صفحه شد (100 پیکسل قبل از خروج)
   if (m.y + m.h < 140) {
-    // انفجار موشک
-    createExplosion(m.x + m.w/2, m.y + m.h/2, 200, 200);
-
-    // انفجار همه دشمنان
-    enemies.forEach(e => createExplosion(e.x, e.y, e.w, e.h));
-
-    // حذف تمام دشمنان و تیرهایشان
-    enemies = [];
-    enemyBullets = [];
-
-    // حذف موشک
-    activeMissiles.splice(i, 1);
+    createExplosion(m.x + m.w/2, m.y + m.h/2, 200, 200); // انفجار
+    activeMissiles.splice(i, 1); // حذف موشک
   }
 }
+
+
+
+
+
 
 
  if (keys.left) airplane.x -= 5;
@@ -527,7 +453,7 @@ if (airplane.y + airplane.h > canvas.height-noFlyZoneHeight)
 
 
 
-if (Math.random() < 0.011) {
+if (Math.random() < 0.015) {
   const padding = 30;
   const enemy = {
     x: Math.random() * (canvas.width - 2 * padding) + padding,
@@ -535,13 +461,13 @@ if (Math.random() < 0.011) {
     w: 60,
     h: 60,
     img: enemyImages[Math.floor(Math.random() * enemyImages.length)],
-    canShoot: Math.random() < 0.2,
+    canShoot: Math.random() < 0.3,
     lastShotTime: 0,
     shotCount: 0,
-    spiral: Math.random() < 0.005,   // 🎯 30% احتمال مارپیچی بودن
+    spiral: Math.random() < 0.3,   // 🎯 30% احتمال مارپیچی بودن
     angle: 0,                      // زاویه برای حرکت سینوسی
-    amplitude: 30,                 // دامنه انحراف چپ و راست
-    speed: 1                       // سرعت حرکت عمودی
+    amplitude: 60,                 // دامنه انحراف چپ و راست
+    speed: 2                       // سرعت حرکت عمودی
   };
   enemies.push(enemy);
 }
@@ -555,8 +481,8 @@ if (Date.now() - lastFuelSpawn > 20000) {
   fuels.push({
     x: Math.random() * (canvas.width - 80) + 40,
     y: -50,
-    w: 20,
-    h: 48
+    w: 25,
+    h: 60
   });
   lastFuelSpawn = Date.now();
 }
@@ -566,7 +492,7 @@ enemies.forEach((e, i) => {
    ctx.drawImage(e.img, e.x - e.w / 2, e.y - e.h / 2, e.w, e.h);
    if (e.spiral) {
   e.y += e.speed * delta;
-  e.angle += 0.04 * delta; // سرعت چرخش موج
+  e.angle += 0.05 * delta; // سرعت چرخش موج
   e.x += Math.sin(e.angle) * 3 * delta; // حرکت سینوسی به چپ و راست
 } else {
   e.y += e.speed;
@@ -585,7 +511,7 @@ enemies.forEach((e, i) => {
       e.shotCount++;
     }
     // بعد از اینکه 3 تیر زد، 3 ثانیه صبر کن و دوباره می‌تونه شلیک کنه
-    if (e.shotCount >= 3 && now - e.lastShotTime > 9000) {
+    if (e.shotCount >= 3 && now - e.lastShotTime > 3000) {
       e.shotCount = 0;
     }
   }
@@ -625,7 +551,7 @@ enemyBullets.forEach((b, i) => {
 
 
 // هر 300 امتیاز یک موشک
-let newMissiles = Math.floor(score / 100);
+let newMissiles = Math.floor(score / 50);
 if(newMissiles > missiles) {
   missiles = newMissiles;
   updateMissileBtn(); // متن دکمه بروزرسانی شود
@@ -644,10 +570,7 @@ if(newMissiles > missiles) {
     airplane.y < e.y + e.h / 2 &&
     airplane.y + airplane.h > e.y - e.h / 2
   ) {
- // انفجار هواپیمای دشمن
-  createExplosion(e.x, e.y, e.w, e.h);
     explodeAirplane();
-    enemies.splice(i, 1);
    // endGame();
   }
 });
@@ -696,7 +619,7 @@ fuels.forEach((f, i) => {
 
 
   ctx.fillStyle="white";
-  ctx.font="13px Calibri";
+  ctx.font="12px Calibri";
   ctx.fillText("Score: "+score, canvas.width-80,20);
 
 
@@ -763,8 +686,8 @@ for (let i = explosions.length - 1; i >= 0; i--) {
     ctx.fillRect(p.x, p.y, p.w, p.h);
     p.x += p.vx;
     p.y += p.vy;
-    p.vx *= 0.93;
-    p.vy *= 0.93;
+    p.vx *= 0.9;
+    p.vy *= 0.9;
   });
 
   ctx.globalAlpha = 1;
@@ -789,9 +712,9 @@ function shoot() {
 function enemyShoot(enemy) {
   enemyBullets.push({
     x: enemy.x,
-    y: enemy.y + enemy.h /2 ,
+    y: enemy.y + enemy.h / 2,
     vx: 0,
-    vy: 1.2
+    vy: 3
   });
 }
 
@@ -813,11 +736,11 @@ const missileImage = missileImages[Math.floor(Math.random() * missileImages.leng
   activeMissiles.push({
     x: airplane.x + airplane.w / 2 - 10,
     y: airplane.y - 10,
-    w: 14,
-    h: 49,
-    speed: 5,
+    w: 20,
+    h: 70,
+    speed: 4,
     angle: 0,
-    amplitude: 35,
+    amplitude: 70,
     prevX: airplane.x + airplane.w / 2 - 10,
     prevY: airplane.y - 10,
     baseX: airplane.x + airplane.w / 2 - 10,
@@ -826,11 +749,17 @@ const missileImage = missileImages[Math.floor(Math.random() * missileImages.leng
 }
 
 
+
+
+
+
+
+
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
   score = 0;
   fuel = 100;
-  bulletSpeed = 7;
+  bulletSpeed = 10;
   airplane.x = canvas.width / 2 - 40;
   airplane.y = canvas.height - 120;
   enemies = [];
@@ -869,8 +798,7 @@ function endGame() {
   startBtn.style.display = "none";
   setTimeout(() => {
     startBtn.style.display = "block";
-  }, 200);
-}
+  }, 1000);
 }
 
 
@@ -901,7 +829,7 @@ function createExplosion(x, y, w=70, h=70) {
     particles: particles
   });
 
-  if (navigator.vibrate) navigator.vibrate(90); // ویبره کوتاه
+  if (navigator.vibrate) navigator.vibrate(50); // ویبره کوتاه
 }
 
 
@@ -919,7 +847,7 @@ resizeCanvas(); // اجرا در ابتدا
 function explodeAirplane() {
   if (explosionRunning) return; // جلوگیری از انفجار دوباره
   explosionRunning = true;
-  if (navigator.vibrate) navigator.vibrate(90);
+  if (navigator.vibrate) navigator.vibrate(200);
 
   const x = airplane.x + airplane.w/2;
   const y = airplane.y + airplane.h/2;
@@ -927,7 +855,7 @@ function explodeAirplane() {
   const h = airplane.h;
 
   const particles = [];
-  const numParticles = 60;
+  const numParticles = 40;
   for (let i = 0; i < numParticles; i++) {
     particles.push({
       x: x,
@@ -1017,6 +945,7 @@ shootBtn.addEventListener("touchend", e=>{
 });
 
 
+
 // === دکمه‌ها ===
 function addTouchAndClick(id, handler){
   const el=document.getElementById(id);
@@ -1035,6 +964,4 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
-
-
 
