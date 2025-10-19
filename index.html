@@ -109,12 +109,11 @@ body {
 
 
 ##startBtn {
-  position: fixed;
+  position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 90%;           /* تقریباً کل عرض صفحه */
-  max-width: 400px;     /* حداکثر اندازه روی دسکتاپ */
+  width: 100%;           /* تقریباً کل عرض صفحه */
   font-size: 30px;
   padding: 20px 0;
   background: black;
@@ -138,18 +137,6 @@ body {
   transform: translate(-50%, -50%) scale(1.05);
   box-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffff;
 }
-
-/* موبایل */
-@media (max-width: 480px) {
-  #startBtn {
-    font-size: 22px;
-    padding: 15px 0;
-  }
-}
-
-
-
-
 
   #creatorName {
     position: absolute;
@@ -1086,6 +1073,7 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
 
 
 
