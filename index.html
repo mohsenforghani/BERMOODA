@@ -99,20 +99,44 @@
 }
 
 
+ /* تنظیمات پیش‌فرض دکمه */
+#startBtn {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 40px;
+  padding: 15px 50px;
+  background: black;
+  color: #00ffcc;
+  border: 2px solid #00ffcc;
+  border-radius: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 10;
+  text-shadow:
+    0 0 5px #00ffcc,
+    0 0 10px #00ffcc,
+    0 0 20px #00ffff,
+    0 0 30px #00ffff;
+  animation: glow 1.5s ease-in-out infinite alternate;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+#startBtn:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+  box-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffff;
+}
+
+/* تنظیمات برای صفحه‌های کوچک موبایل */
+@media (max-width: 480px) {
   #startBtn {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
     font-size: 20px;
-    padding: 20px 60px;
-    background: yellow;
-    color: black;
-    border: none;
-    border-radius: 20px;
-    font-weight: normal;
-    z-index: 10;
+    padding: 12px 30px;
   }
+}
+
+
 
 
   #creatorName {
@@ -1050,9 +1074,6 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
-
-
-
 
 
 
