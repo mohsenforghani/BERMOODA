@@ -19,6 +19,41 @@
     background: black;
   }
 
+  /* صفحه لودینگ */
+  #loadingScreen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(180deg, #000, #111);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: sans-serif;
+    z-index: 1000;
+  }
+
+  #loadingText {
+    font-size: 22px;
+    margin-bottom: 15px;
+  }
+
+  #progressBar {
+    width: 60%;
+    height: 12px;
+    border: 1px solid #444;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #222;
+  }
+
+  #progressFill {
+    width: 0%;
+    height: 100%;
+    background: linear-gradient(90deg, #00ff88, #00ffff);
+    transition: width 0.2s ease;
+  }
+
   #startBtn {
     position: fixed;
     top: 50%;
@@ -98,6 +133,14 @@
 </div>
 <div id="shoot">🔥</div>
 
+ <div id="loadingScreen">
+    <div id="loadingText">در حال بارگذاری...</div>
+    <div id="progressBar">
+      <div id="progressFill"></div>
+    </div>
+  </div>
+
+
 <script>
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -117,12 +160,29 @@ let fuels = [];
 let lastShotTime = 0;
 const shootDelay = 110; // هر 110میلی‌ثانیه یک گلوله
 let explosions = []; // انفجارها
+let lastTime = performance.now();
 // در ابتدای فایل
 let refueling = false; // آیا سوختگیری در حال انجام است؟
 let refuelRate = 0.2; // میزان سوخت در هر فریم هنگام سوختگیری
 const explosionImg = new Image();
 explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
 let enemyBullets = [];
+// ✅ لیست تمام تصاویر
+const imageSources = [
+  "airplane.png",
+  "explosion.png",
+  "fuel.png",
+  "plane1.png", "plane2.png", "plane3.png", "plane4.png",
+  "plane6.png", "plane8.png", "plane10.png", "plane12.png",
+  "cloud1.png", "cloud2.png", "cloud3.png"
+];
+
+let loadedImages = {};
+let loadedCount = 0;
+const totalImages = imageSources.length;
+const loadingText = document.getElementById("loadingText");
+const progressFill = document.getElementById("progressFill");
+const loadingScreen = document.getElementById("loadingScreen");
 
 
 
@@ -183,6 +243,57 @@ for (let i = 0; i < 6; i++) {
   });
 }
 
+
+
+// 🎯 تابع لود تمام تصاویر
+function preloadImages(callback) {
+  imageSources.forEach(src => {
+    const img = new Image();
+    img.onload = () => {
+      loadedImages[src] = img;
+      loadedCount++;
+      const percent = Math.floor((loadedCount / totalImages) * 100);
+      progressFill.style.width = percent + "%";
+      loadingText.innerText = `در حال بارگذاری... ${percent}%`;
+      if (loadedCount === totalImages) {
+        setTimeout(() => {
+          callback();
+        }, 400); // کمی تاخیر برای دیدن پر شدن نوار
+      }
+    };
+    img.onerror = () => {
+      console.warn("خطا در لود تصویر:", src);
+      loadedCount++;
+      if (loadedCount === totalImages) callback();
+    };
+    img.src = src;
+  });
+}
+
+// ✅ وقتی همه تصاویر لود شدن:
+preloadImages(() => {
+  //loadingText.innerText = "ماموریت ...نابودی ناوگان هوایی اسرائیل!";
+  progressFill.style.width = "100%";
+
+  setTimeout(() => {
+    loadingScreen.style.opacity = 0;
+    loadingScreen.style.transition = "opacity 0.8s ease";
+    setTimeout(() => {
+      loadingScreen.remove();
+      startBtn.style.display = "block";
+    }, 800);
+  }, 700);
+});
+
+startBtn.onclick = () => {
+  startBtn.style.display = "none";
+  startGame();
+};
+
+
+
+
+
 // این بخش رو در ابتدای تابع gameLoop قرار بده:
 function drawBackground() {
   // آسمان گرادیانی
@@ -236,6 +347,12 @@ document.addEventListener("keyup", (e) => {
 function gameLoop() {
   if (!gameRunning) return;
   
+
+const now = performance.now();
+  const delta = (now - lastTime) / 16.67; // نسبت به 60fps استاندارد
+  lastTime = now;
+
+
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
   airplane.x += dx * 8;
@@ -280,12 +397,17 @@ if (Math.random() < 0.015) {
     w: 60,
     h: 60,
     img: enemyImages[Math.floor(Math.random() * enemyImages.length)],
-    canShoot: Math.random() < 0.3, // 30% احتمال شلیک
-    lastShotTime: 0,               // زمان آخرین تیر
-    shotCount: 0                   // تعداد تیرهای پشت سر هم
+    canShoot: Math.random() < 0.3,
+    lastShotTime: 0,
+    shotCount: 0,
+    spiral: Math.random() < 0.3,   // 🎯 30% احتمال مارپیچی بودن
+    angle: 0,                      // زاویه برای حرکت سینوسی
+    amplitude: 60,                 // دامنه انحراف چپ و راست
+    speed: 2                       // سرعت حرکت عمودی
   };
   enemies.push(enemy);
 }
+
 
 
 
@@ -303,26 +425,32 @@ if (Date.now() - lastFuelSpawn > 20000) {
 
 
 enemies.forEach((e, i) => {
-  ctx.drawImage(e.img, e.x - e.w / 2, e.y - e.h / 2, e.w, e.h);
-  e.y += 2;
+   ctx.drawImage(e.img, e.x - e.w / 2, e.y - e.h / 2, e.w, e.h);
+   if (e.spiral) {
+  e.y += e.speed * delta;
+  e.angle += 0.05 * delta; // سرعت چرخش موج
+  e.x += Math.sin(e.angle) * 3 * delta; // حرکت سینوسی به چپ و راست
+} else {
+  e.y += e.speed;
+}
 
 // شلیک دشمن
   if (e.canShoot) {
     const now = Date.now();
-    if (now - e.lastShotTime > 1000 && e.shotCount < 2) { // هر 1 ثانیه یک تیر، حداکثر 3 تیر
+    if (now - e.lastShotTime > 1000 && e.shotCount < 3) { // هر 1 ثانیه یک تیر، حداکثر 3 تیر
       enemyShoot(e);
       e.lastShotTime = now;
       e.shotCount++;
     }
     // بعد از اینکه 3 تیر زد، 3 ثانیه صبر کن و دوباره می‌تونه شلیک کنه
-    if (e.shotCount >= 3 && now - e.lastShotTime > 5000) {
+    if (e.shotCount >= 3 && now - e.lastShotTime > 3000) {
       e.shotCount = 0;
     }
   }
 enemyBullets.forEach((b, i) => {
-  b.y += b.vy;
+ b.y += b.vy * delta;
   ctx.fillStyle = "white";
-  ctx.fillRect(b.x - 2, b.y, 2, 7);
+  ctx.fillRect(b.x - 2, b.y, 3, 7);
 
   // برخورد با هواپیما
   if (
@@ -363,6 +491,7 @@ enemyBullets.forEach((b, i) => {
     airplane.y + airplane.h > e.y - e.h / 2
   ) {
     explodeAirplane();
+   // endGame();
   }
 });
 
@@ -549,7 +678,7 @@ function endGame() {
   startBtn.style.display = "none";
   setTimeout(() => {
     startBtn.style.display = "block";
-  }, 400);
+  }, 1000);
 }
 
 
@@ -715,9 +844,5 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
-
-
-
-
 
 
