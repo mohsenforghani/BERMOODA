@@ -169,11 +169,16 @@ const explosionImg = new Image();
 explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
 let enemyBullets = [];
 let bulletSpeed = 10; // مقدار اولیه
-const missileImg1 = new Image();
-missileImg1.src = "mooshak.png";
-
-const missileImg2 = new Image();
-missileImg2.src = "mooshak2.png";
+const missileImages = [
+  "mooshak.png",
+  "mooshak2.png",
+  //"mooshak3.png",
+  //"mooshak4.png"
+].map(src => {
+  const img = new Image();
+  img.src = src;
+  return img;
+});
 
 
 let missiles = 0; // تعداد موشک‌ها
@@ -718,8 +723,9 @@ function launchMissile() {
   updateMissileBtn();
   enemyBullets = [];
 
-  // 🎯 انتخاب تصادفی بین دو مدل موشک
-  const missileImage = Math.random() < 0.5 ? missileImg1 : missileImg2;
+// 🎯 انتخاب تصادفی بین مدل‌های مختلف موشک
+const missileImage = missileImages[Math.floor(Math.random() * missileImages.length)];
+
 
   activeMissiles.push({
     x: airplane.x + airplane.w / 2 - 10,
