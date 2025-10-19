@@ -5,27 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bermooda - Mohsen Forghani</title>
 <style>
-  html {
+  html,body {
     margin: 0;
+    display: flex;
     padding: 0;
     overflow: hidden;
     background: black;
     height: 100%;
     touch-action: none;
+    justify-content: center; /* وسط افقی */
+    align-items: center;     /* وسط عمودی */
   }
-body {
-  margin: 0;
-  height: 100vh;
-  display: flex;
-  justify-content: center; /* وسط افقی */
-  align-items: center;     /* وسط عمودی */
-  background: black;
-  overflow: hidden;
-}
-  canvas {
-    display: block;
-    background: black;
-  }
+
 
   /* صفحه لودینگ */
   #loadingScreen {
@@ -1073,6 +1064,7 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
 
 
 
