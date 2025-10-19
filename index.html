@@ -169,8 +169,11 @@ const explosionImg = new Image();
 explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
 let enemyBullets = [];
 let bulletSpeed = 10; // مقدار اولیه
-const missileImg = new Image();
-missileImg.src = "mooshak.png"; // مسیر تصویر موشک
+const missileImg1 = new Image();
+missileImg1.src = "mooshak.png";
+
+const missileImg2 = new Image();
+missileImg2.src = "mooshak2.png";
 
 
 let missiles = 0; // تعداد موشک‌ها
@@ -182,6 +185,7 @@ const imageSources = [
   "explosion.png",
   "fuel.png",
   "mooshak.png", 
+"mooshak2.png", 
   "plane1.png", "plane2.png", "plane3.png", "plane4.png",
   "plane6.png", "plane8.png", "plane10.png", "plane12.png",
   "cloud1.png", "cloud2.png", "cloud3.png"
@@ -410,7 +414,7 @@ m.x = m.baseX + Math.sin(m.angle) * m.amplitude;
   ctx.save();
   ctx.translate(m.x + m.w/2, m.y + m.h/2);
   ctx.rotate(rotation);
-  ctx.drawImage(missileImg, -m.w/2, -m.h/2, m.w, m.h);
+ctx.drawImage(m.img, -m.w/2, -m.h/2, m.w, m.h);
   ctx.restore();
 
   // اگر موشک نزدیک بالای صفحه شد (100 پیکسل قبل از خروج)
@@ -709,29 +713,30 @@ function updateMissileBtn() {
 }
 
 function launchMissile() {
-  if(missiles <= 0 || !gameRunning) return;
+  if (missiles <= 0 || !gameRunning) return;
   missiles--;
-  updateMissileBtn(); // بروزرسانی دکمه
-
-  // پاک کردن همه تیرهای دشمن
+  updateMissileBtn();
   enemyBullets = [];
 
+  // 🎯 انتخاب تصادفی بین دو مدل موشک
+  const missileImage = Math.random() < 0.5 ? missileImg1 : missileImg2;
 
-  // هنگام پرتاب موشک، موقعیت دقیق از وسط هواپیما
- activeMissiles.push({
-  x: airplane.x + airplane.w/2 - 10,
-  y: airplane.y - 10,
-  w: 20,
-  h: 70,
-  speed: 4,
-  angle: 0,
-  amplitude: 70,
-  prevX: airplane.x + airplane.w/2 - 10,
-  prevY: airplane.y - 10,
-  baseX: airplane.x + airplane.w/2 - 10 // ← اضافه کردن پایه
-});
-
+  activeMissiles.push({
+    x: airplane.x + airplane.w / 2 - 10,
+    y: airplane.y - 10,
+    w: 20,
+    h: 70,
+    speed: 4,
+    angle: 0,
+    amplitude: 70,
+    prevX: airplane.x + airplane.w / 2 - 10,
+    prevY: airplane.y - 10,
+    baseX: airplane.x + airplane.w / 2 - 10,
+    img: missileImage // ✅ ذخیره تصویر تصادفی
+  });
 }
+
+
 
 
 
@@ -947,7 +952,6 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
-
 
 
 
