@@ -134,7 +134,7 @@
 <div id="shoot">🔥</div>
 
  <div id="loadingScreen">
-    <div id="loadingText">در حال بارگذاری...</div>
+    <div id="loadingText">Loading...</div>
     <div id="progressBar">
       <div id="progressFill"></div>
     </div>
@@ -167,6 +167,7 @@ let refuelRate = 0.2; // میزان سوخت در هر فریم هنگام سو�
 const explosionImg = new Image();
 explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
 let enemyBullets = [];
+let bulletSpeed = 10; // مقدار اولیه
 // ✅ لیست تمام تصاویر
 const imageSources = [
   "airplane.png",
@@ -253,8 +254,8 @@ function preloadImages(callback) {
       loadedImages[src] = img;
       loadedCount++;
       const percent = Math.floor((loadedCount / totalImages) * 100);
-      progressFill.style.width = percent + "%";
-      loadingText.innerText = `در حال بارگذاری... ${percent}%`;
+      progressFill.style.width = percent + " %";
+      loadingText.innerText = `Loading  ${percent} %`;
       if (loadedCount === totalImages) {
         setTimeout(() => {
           callback();
@@ -365,9 +366,13 @@ const now = performance.now();
 
 // 🔫 رسم گلوله‌ها
 bullets.forEach((b, i) => {
-  b.y -= 10;
+  if (score > 200) bulletSpeed = 12;
+if (score > 400) bulletSpeed = 15;
+if (score > 800) bulletSpeed = 18;
+
+b.y -= bulletSpeed;
   ctx.fillStyle = "yellow";
-  ctx.fillRect(b.x - 2, b.y, 4, 10);
+  ctx.fillRect(b.x - 2, b.y, 3, 7);
   if (b.y < 0) bullets.splice(i, 1);
 });
 
@@ -642,7 +647,8 @@ function enemyShoot(enemy) {
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
   score = 0;
- fuel = 100; 
+  fuel = 100;
+  bulletSpeed = 10;
   airplane.x = canvas.width / 2 - 40;
   airplane.y = canvas.height - 120;
   enemies = [];
@@ -844,5 +850,8 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
+
+
 
 
