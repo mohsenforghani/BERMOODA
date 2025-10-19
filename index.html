@@ -96,36 +96,21 @@ html, body {
 
 
 
-#startBtn {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;           /* تقریباً کل عرض صفحه */
-  font-size: 30px;
-  padding: 20px 0;
-  background: black;
-  color: #00ffcc;
-  border: 2px solid #00ffcc;
-  border-radius: 15px;
-  font-weight: bold;
-  cursor: pointer;
-  text-align: center;
-  text-shadow:
-    0 0 5px #00ffcc,
-    0 0 10px #00ffcc,
-    0 0 20px #00ffff,
-    0 0 30px #00ffff;
-  animation: glow 1.5s ease-in-out infinite alternate;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  z-index: 10;
-}
-
-#startBtn:hover {
-  transform: translate(-50%, -50%) scale(1.05);
-  box-shadow: 0 0 20px #00ffcc, 0 0 40px #00ffff;
-}
-
+  #startBtn {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    padding: 20px 60px;
+    background: yellow;
+    color: black;
+    border: none;
+    border-radius: 20px;
+    font-weight: normal;
+    z-index: 10;
+  }
+    
   #creatorName {
     position: absolute;
     bottom: 10px;
@@ -194,7 +179,7 @@ html, body {
 
  <div id="loadingScreen">
 <div id="logoText">BERMOODA</div>
-<div id="subLogoText">A GAME BY MOHSEN</div>
+<div id="subLogoText">A GAME BY MOHSEN.F</div>
     <div id="loadingText">Loading...</div>
     <div id="progressBar">
       <div id="progressFill"></div>
@@ -219,7 +204,7 @@ let fuel = 100; // مقدار سوخت بین 0 تا 100
 let lastFuelSpawn = Date.now();
 let fuels = [];
 let lastShotTime = 0;
-const shootDelay = 110; // هر 110میلی‌ثانیه یک گلوله
+const shootDelay = 100; // هر 110میلی‌ثانیه یک گلوله
 let explosions = []; // انفجارها
 let lastTime = performance.now();
 // در ابتدای فایل
@@ -228,7 +213,7 @@ let refuelRate = 0.2; // میزان سوخت در هر فریم هنگام سو�
 const explosionImg = new Image();
 explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
 let enemyBullets = [];
-let bulletSpeed = 10; // مقدار اولیه
+let bulletSpeed = 5; // مقدار اولیه
 const noFlyZoneHeight = 100; // ارتفاع ناحیه غیرقابل استفاده پایین صفحه
 const missileImages = [
   "mooshak.png",
@@ -251,7 +236,7 @@ const imageSources = [
   "explosion.png",
   "fuel.png",
   "mooshak.png", 
-"mooshak2.png", 
+  "mooshak2.png", 
   "plane1.png", "plane2.png", "plane3.png", "plane4.png",
   "plane6.png", "plane8.png", "plane10.png", "plane12.png",
   "cloud1.png", "cloud2.png", "cloud3.png"
@@ -337,7 +322,7 @@ function preloadImages(callback) {
       if (loadedCount === totalImages) {
         setTimeout(() => {
           callback();
-        }, 400); // کمی تاخیر برای دیدن پر شدن نوار
+        }, 100); // کمی تاخیر برای دیدن پر شدن نوار
       }
     };
     img.onerror = () => {
@@ -427,7 +412,7 @@ function gameLoop() {
   if (!gameRunning) return;
   
 
-const now = performance.now();
+  const now = performance.now();
   const delta = (now - lastTime) / 16.67; // نسبت به 60fps استاندارد
   lastTime = now;
 
@@ -444,9 +429,9 @@ const now = performance.now();
 
 // 🔫 رسم گلوله‌ها
 bullets.forEach((b, i) => {
-  if (score > 200) bulletSpeed = 12;
-if (score > 400) bulletSpeed = 15;
-if (score > 800) bulletSpeed = 18;
+if (score > 200) bulletSpeed = 9;
+if (score > 400) bulletSpeed = 10;
+if (score > 800) bulletSpeed = 11;
 
 b.y -= bulletSpeed;
   ctx.fillStyle = "yellow";
@@ -467,7 +452,7 @@ for (let i = activeMissiles.length - 1; i >= 0; i--) {
 
   // حرکت عمودی و سینوسی
   m.y -= m.speed;
-  m.angle += 0.05;
+  m.angle += 0.04;
   m.x = m.baseX + Math.sin(m.angle) * m.amplitude; 
 
   // زاویه موشک نسبت به مسیر حرکت
@@ -526,11 +511,6 @@ for (let i = activeMissiles.length - 1; i >= 0; i--) {
 }
 
 
-
-
-
-
-
  if (keys.left) airplane.x -= 5;
 if (keys.right) airplane.x += 5;
 if (keys.up) airplane.y -= 5;
@@ -547,7 +527,7 @@ if (airplane.y + airplane.h > canvas.height-noFlyZoneHeight)
 
 
 
-if (Math.random() < 0.015) {
+if (Math.random() < 0.011) {
   const padding = 30;
   const enemy = {
     x: Math.random() * (canvas.width - 2 * padding) + padding,
@@ -555,12 +535,12 @@ if (Math.random() < 0.015) {
     w: 60,
     h: 60,
     img: enemyImages[Math.floor(Math.random() * enemyImages.length)],
-    canShoot: Math.random() < 0.3,
+    canShoot: Math.random() < 0.2,
     lastShotTime: 0,
     shotCount: 0,
-    spiral: Math.random() < 0.3,   // 🎯 30% احتمال مارپیچی بودن
+    spiral: Math.random() < 0.005,   // 🎯 30% احتمال مارپیچی بودن
     angle: 0,                      // زاویه برای حرکت سینوسی
-    amplitude: 60,                 // دامنه انحراف چپ و راست
+    amplitude: 30,                 // دامنه انحراف چپ و راست
     speed: 1                       // سرعت حرکت عمودی
   };
   enemies.push(enemy);
@@ -575,8 +555,8 @@ if (Date.now() - lastFuelSpawn > 20000) {
   fuels.push({
     x: Math.random() * (canvas.width - 80) + 40,
     y: -50,
-    w: 25,
-    h: 60
+    w: 20,
+    h: 48
   });
   lastFuelSpawn = Date.now();
 }
@@ -586,7 +566,7 @@ enemies.forEach((e, i) => {
    ctx.drawImage(e.img, e.x - e.w / 2, e.y - e.h / 2, e.w, e.h);
    if (e.spiral) {
   e.y += e.speed * delta;
-  e.angle += 0.05 * delta; // سرعت چرخش موج
+  e.angle += 0.04 * delta; // سرعت چرخش موج
   e.x += Math.sin(e.angle) * 3 * delta; // حرکت سینوسی به چپ و راست
 } else {
   e.y += e.speed;
@@ -605,7 +585,7 @@ enemies.forEach((e, i) => {
       e.shotCount++;
     }
     // بعد از اینکه 3 تیر زد، 3 ثانیه صبر کن و دوباره می‌تونه شلیک کنه
-    if (e.shotCount >= 3 && now - e.lastShotTime > 3000) {
+    if (e.shotCount >= 3 && now - e.lastShotTime > 9000) {
       e.shotCount = 0;
     }
   }
@@ -645,7 +625,7 @@ enemyBullets.forEach((b, i) => {
 
 
 // هر 300 امتیاز یک موشک
-let newMissiles = Math.floor(score / 50);
+let newMissiles = Math.floor(score / 100);
 if(newMissiles > missiles) {
   missiles = newMissiles;
   updateMissileBtn(); // متن دکمه بروزرسانی شود
@@ -716,7 +696,7 @@ fuels.forEach((f, i) => {
 
 
   ctx.fillStyle="white";
-  ctx.font="12px Calibri";
+  ctx.font="13px Calibri";
   ctx.fillText("Score: "+score, canvas.width-80,20);
 
 
@@ -783,8 +763,8 @@ for (let i = explosions.length - 1; i >= 0; i--) {
     ctx.fillRect(p.x, p.y, p.w, p.h);
     p.x += p.vx;
     p.y += p.vy;
-    p.vx *= 0.9;
-    p.vy *= 0.9;
+    p.vx *= 0.93;
+    p.vy *= 0.93;
   });
 
   ctx.globalAlpha = 1;
@@ -809,9 +789,9 @@ function shoot() {
 function enemyShoot(enemy) {
   enemyBullets.push({
     x: enemy.x,
-    y: enemy.y + enemy.h / 2,
+    y: enemy.y + enemy.h / ,
     vx: 0,
-    vy: 2
+    vy: 1.2
   });
 }
 
@@ -833,11 +813,11 @@ const missileImage = missileImages[Math.floor(Math.random() * missileImages.leng
   activeMissiles.push({
     x: airplane.x + airplane.w / 2 - 10,
     y: airplane.y - 10,
-    w: 20,
-    h: 70,
-    speed: 4,
+    w: 14,
+    h: 49,
+    speed: 5,
     angle: 0,
-    amplitude: 50,
+    amplitude: 35,
     prevX: airplane.x + airplane.w / 2 - 10,
     prevY: airplane.y - 10,
     baseX: airplane.x + airplane.w / 2 - 10,
@@ -846,17 +826,11 @@ const missileImage = missileImages[Math.floor(Math.random() * missileImages.leng
 }
 
 
-
-
-
-
-
-
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
   score = 0;
   fuel = 100;
-  bulletSpeed = 10;
+  bulletSpeed = 7;
   airplane.x = canvas.width / 2 - 40;
   airplane.y = canvas.height - 120;
   enemies = [];
@@ -892,10 +866,8 @@ function endGame() {
   explosionRunning = false; 
   // دکمه شروع بعد از 3 ثانیه فعال شود
   const startBtn = document.getElementById("startBtn");
-  startBtn.style.display = "none";
-  setTimeout(() => {
-    startBtn.style.display = "block";
-  }, 300);
+  startBtn.style.display = "block";
+  
 }
 
 
@@ -926,7 +898,7 @@ function createExplosion(x, y, w=70, h=70) {
     particles: particles
   });
 
-  if (navigator.vibrate) navigator.vibrate(50); // ویبره کوتاه
+  if (navigator.vibrate) navigator.vibrate(90); // ویبره کوتاه
 }
 
 
@@ -944,7 +916,7 @@ resizeCanvas(); // اجرا در ابتدا
 function explodeAirplane() {
   if (explosionRunning) return; // جلوگیری از انفجار دوباره
   explosionRunning = true;
-  if (navigator.vibrate) navigator.vibrate(200);
+  if (navigator.vibrate) navigator.vibrate(90);
 
   const x = airplane.x + airplane.w/2;
   const y = airplane.y + airplane.h/2;
@@ -1061,15 +1033,4 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
 
