@@ -296,6 +296,46 @@
 }
 
 
+#playerName {
+  position: absolute;
+  top: 10px;        
+  left: 10px;
+  color: #00ffcc;
+  font-family: sans-serif;
+  font-size: 12px;
+  text-align: right;
+  user-select: none;    /* غیر قابل انتخاب */
+}
+
+
+
+
+#scoreContainer {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  color: #00ffcc;
+  font-family: 'Arial Black', sans-serif;
+  text-shadow: 0 0 6px #00ffff, 0 0 10px #00ffff;
+  font-size: 18px;
+  text-align: right;
+  user-select: none; /* تا قابل انتخاب نباشد */
+}
+
+#scoreLabel {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+#scoreValue {
+  font-size: 22px;
+  font-weight: bold;
+}
+
+
+
+
+
 </style>
 </head>
 <body>
@@ -303,6 +343,7 @@
 <canvas id="gameCanvas"></canvas>
 <button id="startBtn">شروع بازی</button>
 <button id="scoreBtn">نمایش امتیازات</button>
+<div id="playerName"></div>
 <div id="creatorName">Created by Mohsen Forghani</div>
 <button id="missileBtn" style="position:absolute; bottom:90px; left:20px; width:60px; height:40px; background:gray; color:white; border-radius:10px; font-weight:bold;" disabled>🚀</button>
 <div id="gameTitle">BERMOODA</div>
@@ -321,6 +362,14 @@
       <div id="progressFill"></div>
     </div>
   </div>
+
+
+
+<div id="scoreContainer">
+  <div id="scoreLabel">Score :</div>
+  <div id="scoreValue">0</div>
+</div>
+
 
 
 
@@ -478,6 +527,7 @@ for (let i = 0; i < 6; i++) {
 
 
 function preloadImages(callback) {
+ document.getElementById("scoreContainer").style.display = "none";
   imageSources.forEach(src => {
     const img = new Image();
     img.onload = () => {
@@ -517,10 +567,9 @@ document.getElementById("playerNameSubmit").addEventListener("click", () => {
   if(input !== "") {
     playerName = input;
     document.getElementById("playerNameBox").style.display = "none"; // مخفی کردن باکس
-    // اینجا میتونی کد شروع بازی رو بذاری
-    console.log("Player Name :", playerName);
   } else {
-    alert("لطفاً نام خود را وارد کنید!");
+  playerName = "نا شناس";
+
   }
 });
 
@@ -846,7 +895,7 @@ enemyBullets.forEach((b, i) => {
       enemies.splice(i, 1);
       bullets.splice(j, 1);
       score += 10;
-
+      document.getElementById("scoreValue").textContent = score;
 
 // هر 300 امتیاز یک موشک
 let newMissiles = Math.floor(score / 50);
@@ -916,12 +965,6 @@ fuels.forEach((f, i) => {
   if (f.y > canvas.height) fuels.splice(i, 1);
 });
 
-
-
-
-  ctx.fillStyle="white";
-  ctx.font="12px Calibri";
-  ctx.fillText("Score: "+score, canvas.width-80,20);
 
 
 fuel -= 0.03; // کاهش تدریجی سوخت
@@ -1055,6 +1098,9 @@ const missileImage = missileImages[Math.floor(Math.random() * missileImages.leng
 
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
+document.getElementById("playerName").innerText = "Player Name : " + playerName;
+document.getElementById("playerName").style.display = "block";
+document.getElementById("scoreContainer").style.display = "block";
   gameOverBackground = false;
   score = 0;
   fuel = 100;
@@ -1084,12 +1130,8 @@ function endGame() {
   gameOverBackground = true;
   // پاک کردن صفحه قبل از نمایش متن
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  // پس‌زمینه تاریک محو
-  //ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
-  //ctx.fillRect(0, 0, canvas.width, canvas.height);
-
- 
+document.getElementById("playerName").style.display = "none";
+ document.getElementById("scoreContainer").style.display = "none";
 
   // 🌟 متن Game Over قرمز درخشان
   const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
@@ -1291,3 +1333,4 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
