@@ -9,7 +9,7 @@
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background: black;
+   // background: black;
     height: 100%;
     touch-action: none;
   }
@@ -100,19 +100,34 @@
 
 
   #startBtn {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 20px;
-    padding: 20px 60px;
-    background: yellow;
-    color: black;
-    border: none;
-    border-radius: 20px;
-    font-weight: normal;
-    z-index: 10;
-  }
+  position: absolute;
+  bottom: 60px; /* پایین‌تر از قبل */
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #00c3ff, #0072ff);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  padding: 14px 40px;
+  font-size: 20px;
+  font-family: 'Calibri', sans-serif;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
+  transition: all 0.3s ease;
+  display: none; /* اول بازی مخفی باشد */
+  z-index: 999;
+}
+
+#startBtn:hover {
+  background: linear-gradient(135deg, #33ccff, #0066ff);
+  transform: translateX(-50%) scale(1.08);
+  box-shadow: 0 0 25px rgba(0, 114, 255, 0.9);
+}
+
+#startBtn:active {
+  transform: translateX(-50%) scale(0.95);
+}
 
 
   #creatorName {
@@ -202,6 +217,7 @@ let bullets = [];
 let enemies = [];
 let score = 0;
 let gameRunning = false;
+let gameOverBackground = false;
 let dx = 0, dy = 0; 
 let explosionRunning = false;
 let fuel = 100; // مقدار سوخت بین 0 تا 100
@@ -219,6 +235,24 @@ explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
 let enemyBullets = [];
 let bulletSpeed = 10; // مقدار اولیه
 const noFlyZoneHeight = 100; // ارتفاع ناحیه غیرقابل استفاده پایین صفحه
+// تعریف آرایه ستاره‌ها در بیرون از تابع (فقط یک بار ساخته شوند)
+let stars = [];
+
+function createStars() {
+  stars = [];
+  for (let i = 0; i < 80; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height * 0.8,
+      r: Math.random() * 1.5,
+      alpha: Math.random(),
+      speed: 0.02 + Math.random() * 0.03 // سرعت سوسوزدن
+    });
+  }
+}
+
+
+
 const missileImages = [
   "mooshak.png",
   "mooshak2.png",
@@ -362,27 +396,50 @@ startBtn.onclick = () => {
 
 
 
-// این بخش رو در ابتدای تابع gameLoop قرار بده:
+// 🌌 تابع رسم پس‌زمینه
 function drawBackground() {
-  // آسمان گرادیانی
-  const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-  grad.addColorStop(0, "#4da6ff"); // آبی روشن بالا
-  grad.addColorStop(1, "#003366"); // آبی تیره پایین
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  if (gameOverBackground) {
+    // 🌃 آسمان شب
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, "#0a0a2a");
+    grad.addColorStop(1, "#000000");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // حرکت و رسم ابرها
-  clouds.forEach(c => {
-    c.y += c.speed;
-    if (c.y > canvas.height + 100) {
-      c.y = -100;
-      c.x = Math.random() * canvas.width;
+    // ✨ رسم ستاره‌های سوسوزن
+    for (let s of stars) {
+      s.alpha += s.speed;
+      if (s.alpha >= 1 || s.alpha <= 0) {
+        s.speed *= -1; // تغییر جهت سوسوزدن
+      }
+
+      ctx.fillStyle = `rgba(255, 255, ${200 + Math.random() * 55}, ${s.alpha})`;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
     }
-    ctx.globalAlpha = 0.5; // شفافیت ابر
-    ctx.drawImage(c.img, c.x, c.y, c.size, c.size * 0.6);
-    ctx.globalAlpha = 1;
-  });
+  } else {
+    // 🌤️ حالت روز
+    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    grad.addColorStop(0, "#4da6ff");
+    grad.addColorStop(1, "#003366");
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // ☁️ ابرها
+    clouds.forEach(c => {
+      c.y += c.speed;
+      if (c.y > canvas.height + 100) {
+        c.y = -100;
+        c.x = Math.random() * canvas.width;
+      }
+      ctx.globalAlpha = 0.5;
+      ctx.drawImage(c.img, c.x, c.y, c.size, c.size * 0.6);
+      ctx.globalAlpha = 1;
+    });
+  }
 }
+
 
 
 document.addEventListener("keydown", (e) => {
@@ -843,6 +900,7 @@ const missileImage = missileImages[Math.floor(Math.random() * missileImages.leng
 
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
+  gameOverBackground = false;
   score = 0;
   fuel = 100;
   bulletSpeed = 10;
@@ -860,32 +918,52 @@ function startGame() {
   requestAnimationFrame(gameLoop);
 }
 
+
 function endGame() {
   gameRunning = false;
-
+  gameOverBackground = true;
   // پاک کردن صفحه قبل از نمایش متن
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // ذخیره وضعیت قبلی
-  ctx.save();
+  // پس‌زمینه تاریک محو
+  //ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+  //ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // تنظیم متن وسط صفحه
-  ctx.fillStyle = "white";
-  ctx.font = "40px Times New Roman";
+  // 🌟 متن Game Over قرمز درخشان
+  const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+  gradient.addColorStop(0, "#ff0000");
+  gradient.addColorStop(0.5, "#ff4d4d");
+  gradient.addColorStop(1, "#ff0000");
+createStars(); // ساخت ستاره‌ها
+drawBackground();
+  ctx.save();
+  ctx.fillStyle = gradient;
+  ctx.shadowColor = "red";
+  ctx.shadowBlur = 30;
+  ctx.font = "bold 64px Arial Black";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText("Game Over", canvas.width / 2, canvas.height / 2.6);
+  ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2.5);
 
-  // بازیابی تنظیمات قبلی (در صورت نیاز)
+  // 🌟 امتیاز نهایی بازیکن
+  ctx.shadowColor = "white";
+  ctx.shadowBlur = 10;
+  ctx.fillStyle = "white";
+  ctx.font = "bold 32px Arial";
+  ctx.fillText("Final Score: " + score, canvas.width / 2, canvas.height / 2 + 40);
+
   ctx.restore();
-  explosionRunning = false; 
-  // دکمه شروع بعد از 3 ثانیه فعال شود
+
+  explosionRunning = false;
+
+  // دکمه شروع بعد از 1 ثانیه ظاهر شود
   const startBtn = document.getElementById("startBtn");
   startBtn.style.display = "none";
   setTimeout(() => {
     startBtn.style.display = "block";
   }, 1000);
 }
+
 
 
 
@@ -1050,8 +1128,5 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
-
-
-
 
 
