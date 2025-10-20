@@ -266,7 +266,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let airplane = { x: canvas.width / 2, y: canvas.height - 120, w: 80, h: 80 };
+let airplane = { x: canvas.width / 2, y: canvas.height - 120, w: 50, h: 50 };
 let bullets = [];
 let enemies = [];
 let score = 0;
@@ -666,8 +666,8 @@ if (Math.random() < 0.015) {
   const enemy = {
     x: Math.random() * (canvas.width - 2 * padding) + padding,
     y: -60,
-    w: 60,
-    h: 60,
+    w: 42,
+    h: 42,
     img: enemyImages[Math.floor(Math.random() * enemyImages.length)],
     canShoot: Math.random() < 0.3,
     lastShotTime: 0,
@@ -948,8 +948,8 @@ const missileImage = missileImages[Math.floor(Math.random() * missileImages.leng
   activeMissiles.push({
     x: airplane.x + airplane.w / 2 - 10,
     y: airplane.y - 10,
-    w: 20,
-    h: 70,
+    w: 10,
+    h: 35,
     speed: 4,
     angle: 0,
     amplitude: 50,
@@ -1201,4 +1201,9 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
+
+
+
+
 
