@@ -419,6 +419,7 @@ let fuels = [];
 let lastShotTime = 0;
 const shootDelay = 110; // هر 110میلی‌ثانیه یک گلوله
 let explosions = []; // انفجارها
+let smokes = [];
 let lastTime = performance.now();
 // در ابتدای فایل
 let refueling = false; // آیا سوختگیری در حال انجام است؟
@@ -780,6 +781,15 @@ for (let i = activeMissiles.length - 1; i >= 0; i--) {
   m.angle += 0.05;
   m.x = m.baseX + Math.sin(m.angle) * m.amplitude; 
 
+  // ایجاد ذرات دود در پشت موشک
+  smokes.push({
+    x: b.x + b.w / 2 - 2,  // وسط موشک
+    y: b.y + b.h,          // پایین موشک
+    alpha: 1.0,            // شفافیت اولیه
+    radius: Math.random() * 4 + 2 // اندازه تصادفی دود
+  });
+
+  
   // زاویه موشک نسبت به مسیر حرکت
   let dx = m.x - m.prevX;
   let dy = m.y - m.prevY;
@@ -961,6 +971,19 @@ if(newMissiles > missiles) {
     }
   });
 
+  
+smokes.forEach((s, i) => {
+  ctx.beginPath();
+  ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+  ctx.fillStyle = `rgba(200, 200, 200, ${s.alpha})`;
+  ctx.fill();
+  s.y += 0.5;       // دود کمی بالا بره
+  s.alpha -= 0.02;  // کم‌کم محو بشه
+  s.radius += 0.1;  // پخش‌تر بشه
+  if (s.alpha <= 0) smokes.splice(i, 1);
+});
+
+    
   // ✅ بررسی برخورد هواپیما با دشمن
   if (
     airplane.x < e.x + e.w / 2 &&
@@ -1362,3 +1385,4 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
