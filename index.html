@@ -413,6 +413,7 @@ const explosionImg = new Image();
 explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
 let enemyBullets = [];
 let bulletSpeed = 5; // مقدار اولیه
+let displayedFuel = 100; // مقدار بنزینی که فعلاً روی گیج نمایش داده می‌شود
 const noFlyZoneHeight = 100; // ارتفاع ناحیه غیرقابل استفاده پایین صفحه
 // تعریف آرایه ستاره‌ها در بیرون از تابع (فقط یک بار ساخته شوند)
 const stars = [];
@@ -568,8 +569,8 @@ document.getElementById("playerNameSubmit").addEventListener("click", () => {
     playerName = input;
     document.getElementById("playerNameBox").style.display = "none"; // مخفی کردن باکس
   } else {
-  playerName = "نا شناس";
-
+  playerName = "unknown";
+  document.getElementById("playerNameBox").style.display = "none"; // مخفی کردن باکس
   }
 });
 
@@ -586,7 +587,7 @@ document.getElementById("playerNameSubmit").addEventListener("click", () => {
   }, 700);
 });
 
-startBtn.onclick = () => {
+  startBtn.onclick = () => {
   startBtn.style.display = "none";
   startGame();
 };
@@ -672,16 +673,60 @@ document.addEventListener("keyup", (e) => {
 
 
 
+function drawFuelGaugeAnimated() {
+    const centerX = canvas.width/2;
+    const centerY = canvas.height-20;
+    const radius = 60;
+
+    // 🌟 نیم‌دایره سوخت
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, Math.PI, 2 * Math.PI);
+    ctx.lineWidth = 20;
+    ctx.strokeStyle = "#333";
+    ctx.stroke();
+
+    // 🌟 متن E و F
+    ctx.font = "18px Arial Black";
+    ctx.fillStyle = "#00ffff";
+    ctx.textAlign = "center";
+    ctx.fillText("E", centerX - radius, centerY + 10);
+    ctx.fillText("F", centerX + radius, centerY + 10);
+
+    // 🌟 درصد سوخت
+    ctx.font = "13px Arial";
+    ctx.fillStyle = "#00ffff";
+    ctx.fillText(Math.round(fuel) + "%", centerX, centerY - 10);
+
+    // 🌟 Smooth animation برای عقربه
+    const speed = 0.05; // سرعت حرکت عقربه (0.01 خیلی آهسته، 0.1 سریع)
+    displayedFuel += (fuel - displayedFuel) * speed;
+
+    const needleAngle = Math.PI + (displayedFuel / 100) * Math.PI;
+    const needleLength = radius - 10;
+    const needleX = centerX + needleLength * Math.cos(needleAngle);
+    const needleY = centerY + needleLength * Math.sin(needleAngle);
+
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(needleX, needleY);
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = "#ff0000";
+    ctx.stroke();
+
+    // 🌟 دایره مرکز عقربه
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, 6, 0, 2 * Math.PI);
+    ctx.fillStyle = "#ff0000";
+    ctx.fill();
+}
 
 
   
 // === حلقه بازی ===
 function gameLoop() {
   if (!gameRunning) return;
-  
-
-const now = performance.now();
-  const delta = (now - lastTime) / 16.67; // نسبت به 60fps استاندارد
+  const now = performance.now();
+  const delta = (now - lastTime) / 16.67; 
   lastTime = now;
 
 
@@ -691,7 +736,6 @@ const now = performance.now();
   airplane.y += dy * 4;
   airplane.x = Math.max(0, Math.min(canvas.width - airplane.w, airplane.x));
   airplane.y = Math.max(0, Math.min(canvas.height - airplane.h, airplane.y));
-
   ctx.drawImage(airplaneImg, airplane.x, airplane.y, airplane.w, airplane.h);
 
 
@@ -706,8 +750,6 @@ b.y -= bulletSpeed;
   ctx.fillRect(b.x - 2, b.y, 1.8, 4.2);
   if (b.y < 0) bullets.splice(i, 1);
 });
-
-
 
 
 
@@ -777,10 +819,6 @@ for (let i = activeMissiles.length - 1; i >= 0; i--) {
     activeMissiles.splice(i, 1);
   }
 }
-
-
-
-
 
 
 
@@ -905,8 +943,6 @@ if(newMissiles > missiles) {
 }
 
 
-
-
     }
   });
 
@@ -976,33 +1012,6 @@ if (fuel < 0) {
 
 
 
-
-// نوار سوخت بالای صفحه
-let fuelBarWidth = canvas.width * 0.5; // نصف عرض صفحه
-let fuelX = (canvas.width - fuelBarWidth) / 2; // وسط صفحه
-let fuelY = 15; // فاصله از بالا
-let fuelHeight = 8;
-
-// تعیین رنگ بر اساس میزان سوخت
-let fuelColor = "lime";
-if (fuel < 60) fuelColor = "yellow";
-if (fuel < 30) fuelColor = "red";
-
-// زمینه‌ی نوار
-ctx.fillStyle = "rgba(255,255,255,0.2)";
-ctx.fillRect(fuelX, fuelY, fuelBarWidth, fuelHeight);
-
-// مقدار فعلی سوخت
-ctx.fillStyle = fuelColor;
-ctx.fillRect(fuelX, fuelY, (fuel / 100) * fuelBarWidth, fuelHeight);
-
-// قاب دور نوار
-ctx.strokeStyle = "white";
-ctx.lineWidth = 1;
-ctx.strokeRect(fuelX, fuelY, fuelBarWidth, fuelHeight);
-
-
-
 // 🔫 کنترل شلیک Space در حلقه بازی
 if (keys.space) {
   const now = Date.now();
@@ -1043,7 +1052,7 @@ for (let i = explosions.length - 1; i >= 0; i--) {
   }
 }
 
-
+  drawFuelGaugeAnimated();
   requestAnimationFrame(gameLoop);
 } 
 
@@ -1098,9 +1107,9 @@ const missileImage = missileImages[Math.floor(Math.random() * missileImages.leng
 
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
-document.getElementById("playerName").innerText = "Player Name : " + playerName;
-document.getElementById("playerName").style.display = "block";
-document.getElementById("scoreContainer").style.display = "block";
+  document.getElementById("playerName").innerText = "Player Name : " + playerName;
+  document.getElementById("playerName").style.display = "block";
+  document.getElementById("scoreContainer").style.display = "block";
   gameOverBackground = false;
   score = 0;
   fuel = 100;
@@ -1119,8 +1128,8 @@ document.getElementById("scoreContainer").style.display = "block";
   document.getElementById("scoreBtn").style.display = "none";
   document.getElementById("joystick").style.display = "block";
   document.getElementById("shoot").style.display = "block";
-document.getElementById("gameTitle").style.display = "none";
-document.getElementById("missileBtn").style.display = "block";
+  document.getElementById("gameTitle").style.display = "none";
+  document.getElementById("missileBtn").style.display = "block";
   requestAnimationFrame(gameLoop);
 }
 
@@ -1329,8 +1338,8 @@ window.addEventListener("resize",()=>{
   canvas.width=window.innerWidth;
   canvas.height=window.innerHeight;
 });
-</script>
 
+</script>
 </body>
 </html>
 
