@@ -558,13 +558,13 @@ const now = performance.now();
 
 // 🔫 رسم گلوله‌ها
 bullets.forEach((b, i) => {
-  if (score > 200) bulletSpeed = 12;
-if (score > 400) bulletSpeed = 15;
-if (score > 800) bulletSpeed = 18;
+  if (score > 200) bulletSpeed = 10;
+if (score > 400) bulletSpeed = 12;
+if (score > 800) bulletSpeed = 14;
 
 b.y -= bulletSpeed;
   ctx.fillStyle = "yellow";
-  ctx.fillRect(b.x - 2, b.y, 3, 7);
+  ctx.fillRect(b.x - 2, b.y, 1.8, 4.2);
   if (b.y < 0) bullets.splice(i, 1);
 });
 
@@ -724,9 +724,9 @@ enemies.forEach((e, i) => {
     }
   }
 enemyBullets.forEach((b, i) => {
- b.y += b.vy * delta;
+  b.y += b.vy * delta;
   ctx.fillStyle = "white";
-  ctx.fillRect(b.x - 2, b.y, 3, 7);
+  ctx.fillRect(b.x - 2, b.y, 1.8, 4.2);
 
   // برخورد با هواپیما
   if (
@@ -1201,6 +1201,7 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
 
 
 
