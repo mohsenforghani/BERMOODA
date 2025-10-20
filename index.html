@@ -435,6 +435,10 @@ preloadImages(() => {
     startBtn.style.display = "block";
     scoreBtn.style.display = "block";
     document.getElementById("gameTitle").style.display = "block";
+    document.getElementById("joystick").style.display = "none";
+    document.getElementById("shoot").style.display = "none";
+    document.getElementById("missileBtn").style.display = "none";
+
 
   }, 700);
 });
@@ -470,6 +474,21 @@ function drawBackground() {
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.fill();
     }
+ 
+
+ clouds.forEach(c => {
+      c.y += c.speed;
+      if (c.y > canvas.height + 100) {
+        c.y = -100;
+        c.x = Math.random() * canvas.width;
+      }
+      ctx.globalAlpha = 0.5;
+      ctx.drawImage(c.img, c.x, c.y, c.size, c.size * 0.6);
+      ctx.globalAlpha = 1;
+    });
+
+
+
   } else {
     // 🌤️ حالت روز
     const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -971,6 +990,7 @@ function startGame() {
   document.getElementById("joystick").style.display = "block";
   document.getElementById("shoot").style.display = "block";
 document.getElementById("gameTitle").style.display = "none";
+document.getElementById("missileBtn").style.display = "block";
   requestAnimationFrame(gameLoop);
 }
 
@@ -1019,6 +1039,7 @@ function endGame() {
     scoreBtn.style.display = "block";
   document.getElementById("joystick").style.display = "none";
   document.getElementById("shoot").style.display = "none";
+  document.getElementById("missileBtn").style.display = "none";
 }
 
 
@@ -1185,3 +1206,4 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
