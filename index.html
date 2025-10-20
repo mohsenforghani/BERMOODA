@@ -510,6 +510,22 @@ preloadImages(() => {
     loadingScreen.style.opacity = 0;
     loadingScreen.style.transition = "opacity 0.8s ease";
     loadingScreen.remove();
+
+
+document.getElementById("playerNameSubmit").addEventListener("click", () => {
+  const input = document.getElementById("playerNameInput").value.trim();
+  if(input !== "") {
+    playerName = input;
+    document.getElementById("playerNameBox").style.display = "none"; // مخفی کردن باکس
+    // اینجا میتونی کد شروع بازی رو بذاری
+    console.log("Player Name :", playerName);
+  } else {
+    alert("لطفاً نام خود را وارد کنید!");
+  }
+});
+
+
+
     startBtn.style.display = "block";
     scoreBtn.style.display = "block";
     document.getElementById("gameTitle").style.display = "block";
@@ -525,21 +541,6 @@ startBtn.onclick = () => {
   startBtn.style.display = "none";
   startGame();
 };
-
-
-
-document.getElementById("playerNameSubmit").addEventListener("click", () => {
-  const input = document.getElementById("playerNameInput").value.trim();
-  if(input !== "") {
-    playerName = input;
-    document.getElementById("playerNameBox").style.display = "none"; // مخفی کردن باکس
-    // اینجا میتونی کد شروع بازی رو بذاری
-    console.log("Player Name :", playerName);
-  } else {
-    alert("لطفاً نام خود را وارد کنید!");
-  }
-});
-
 
 
 
@@ -1290,4 +1291,3 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
-
