@@ -747,8 +747,8 @@ function gameLoop() {
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBackground();
-  airplane.x += dx * 6;
-  airplane.y += dy * 6;
+  airplane.x += dx * 5;
+  airplane.y += dy * 5;
   airplane.x = Math.max(0, Math.min(canvas.width - airplane.w, airplane.x));
   airplane.y = Math.max(0, Math.min(canvas.height - airplane.h, airplane.y));
   ctx.drawImage(airplaneImg, airplane.x, airplane.y, airplane.w, airplane.h);
