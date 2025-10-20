@@ -9,7 +9,7 @@
     margin: 0;
     padding: 0;
     overflow: hidden;
-   // background: black;
+    background: black;
     height: 100%;
     touch-action: none;
   }
@@ -18,6 +18,24 @@
     display: block;
     background: black;
   }
+
+#gameTitle {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 40px;
+  font-weight: bold;
+  color: #00ffcc;
+  font-family: 'Arial Black', sans-serif;
+  text-shadow:
+    0 0 5px #00ffcc,
+    0 0 10px #00ffcc,
+    0 0 20px #00ffff,
+    0 0 30px #00ffff;
+  z-index: 1000;
+  text-align: center;
+}
 
   /* صفحه لودینگ */
   #loadingScreen {
@@ -99,16 +117,39 @@
 }
 
 
-  #startBtn {
+  #scoreBtn {
   position: absolute;
-  bottom: 60px; /* پایین‌تر از قبل */
+  width: 300px;     /* عرض یکسان */
+  padding: 12px 0;  /* فقط ارتفاع دکمه */
+  bottom: 27%; 
   left: 50%;
   transform: translateX(-50%);
   background: linear-gradient(135deg, #00c3ff, #0072ff);
   color: white;
+  white-space: nowrap;
   border: none;
   border-radius: 25px;
-  padding: 14px 40px;
+  font-size: 20px;
+  font-family: 'Calibri', sans-serif;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
+  transition: all 0.3s ease;
+  display: none; /* اول بازی مخفی باشد */
+  z-index: 999;
+}
+#startBtn {
+  position: absolute;
+  width: 300px;     /* عرض یکسان */
+  padding: 12px 0;  /* فقط ارتفاع دکمه */
+  bottom: 36%; 
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #00c3ff, #0072ff);
+  color: white;
+  white-space: nowrap;
+  border: none;
+  border-radius: 25px;
   font-size: 20px;
   font-family: 'Calibri', sans-serif;
   font-weight: bold;
@@ -129,6 +170,15 @@
   transform: translateX(-50%) scale(0.95);
 }
 
+#scoreBtn:hover {
+  background: linear-gradient(135deg, #33ccff, #0066ff);
+  transform: translateX(-50%) scale(1.08);
+  box-shadow: 0 0 25px rgba(0, 114, 255, 0.9);
+}
+
+#scoreBtn:active {
+  transform: translateX(-50%) scale(0.95);
+}
 
   #creatorName {
     position: absolute;
@@ -186,9 +236,10 @@
 
 <canvas id="gameCanvas"></canvas>
 <button id="startBtn">شروع بازی</button>
+<button id="scoreBtn">نمایش امتیازات</button>
 <div id="creatorName">Created by Mohsen Forghani</div>
 <button id="missileBtn" style="position:absolute; bottom:90px; left:20px; width:60px; height:40px; background:gray; color:white; border-radius:10px; font-weight:bold;" disabled>🚀</button>
-
+<div id="gameTitle">BERMOODA</div>
 
 <!-- 🎮 کنترل‌ها -->
 <div id="joystick">
@@ -380,10 +431,11 @@ preloadImages(() => {
   setTimeout(() => {
     loadingScreen.style.opacity = 0;
     loadingScreen.style.transition = "opacity 0.8s ease";
-    setTimeout(() => {
-      loadingScreen.remove();
-      startBtn.style.display = "block";
-    }, 800);
+    loadingScreen.remove();
+    startBtn.style.display = "block";
+    scoreBtn.style.display = "block";
+    document.getElementById("gameTitle").style.display = "block";
+
   }, 700);
 });
 
@@ -915,6 +967,10 @@ function startGame() {
   updateMissileBtn();        // ← بروزرسانی دکمه
   gameRunning = true;
   document.getElementById("startBtn").style.display = "none";
+  document.getElementById("scoreBtn").style.display = "none";
+  document.getElementById("joystick").style.display = "block";
+  document.getElementById("shoot").style.display = "block";
+document.getElementById("gameTitle").style.display = "none";
   requestAnimationFrame(gameLoop);
 }
 
@@ -934,34 +990,35 @@ function endGame() {
   gradient.addColorStop(0, "#ff0000");
   gradient.addColorStop(0.5, "#ff4d4d");
   gradient.addColorStop(1, "#ff0000");
-createStars(); // ساخت ستاره‌ها
-drawBackground();
+  createStars(); // ساخت ستاره‌ها
+  drawBackground();
   ctx.save();
   ctx.fillStyle = gradient;
   ctx.shadowColor = "red";
   ctx.shadowBlur = 30;
-  ctx.font = "bold 64px Arial Black";
+  ctx.font = "bold 50px Arial Black";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
-  ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2.5);
+  ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2.6);
+
 
   // 🌟 امتیاز نهایی بازیکن
   ctx.shadowColor = "white";
   ctx.shadowBlur = 10;
   ctx.fillStyle = "white";
   ctx.font = "bold 32px Arial";
-  ctx.fillText("Final Score: " + score, canvas.width / 2, canvas.height / 2 + 40);
+  ctx.fillText("Final Score: " + score, canvas.width*0.5, canvas.height*0.47 );
 
   ctx.restore();
 
   explosionRunning = false;
 
-  // دکمه شروع بعد از 1 ثانیه ظاهر شود
   const startBtn = document.getElementById("startBtn");
-  startBtn.style.display = "none";
-  setTimeout(() => {
+ const scoreBtn = document.getElementById("scoreBtn");
     startBtn.style.display = "block";
-  }, 1000);
+    scoreBtn.style.display = "block";
+  document.getElementById("joystick").style.display = "none";
+  document.getElementById("shoot").style.display = "none";
 }
 
 
@@ -1128,5 +1185,3 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
-
-
