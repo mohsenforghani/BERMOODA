@@ -21,20 +21,20 @@
 
 #gameTitle {
   position: absolute;
-  top: 20%;
+  top: 30%;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 40px;
+  font-size: 50px;
   font-weight: bold;
   color: #00ffcc;
   font-family: 'Arial Black', sans-serif;
   text-shadow:
-    0 0 5px #00ffcc,
-    0 0 10px #00ffcc,
-    0 0 20px #00ffff,
-    0 0 30px #00ffff;
-  z-index: 1000;
-  text-align: center;
+    0 0 1px #00ffcc,
+    0 0 2px #00ffcc,
+    0 0 10px #00ffff,
+    0 0 80px #00ffff;
+    z-index: 1000;
+    text-align: center;
 }
 
   /* صفحه لودینگ */
@@ -49,12 +49,12 @@
     align-items: center;
     font-family: sans-serif;
     z-index: 1000;
-    transform: translateY(-80px); /* بالا بردن کل محتوا 80px */
   }
 
   #loadingText {
-    font-size: 22px;
-    margin-bottom: 15px;
+    font-size: 11px;
+    margin-top: 18px;
+    text-align: center; /* وسط‌چین */
   }
 
   #progressBar {
@@ -203,6 +203,7 @@
     background: rgba(255,255,255,0.1);
     border: 3px solid rgba(255,255,255,0.4);
     border-radius: 50%;
+   display = "none"
   }
 
   #stick {
@@ -214,6 +215,7 @@
     top: 25px;
     left: 25px;
     transition: 0.05s;
+    display = "none"
   }
 
   #shoot {
@@ -229,6 +231,7 @@
     text-align: center;
     line-height: 50px;
     user-select: none;
+    display = "none"
   }
 </style>
 </head>
@@ -287,17 +290,16 @@ let enemyBullets = [];
 let bulletSpeed = 10; // مقدار اولیه
 const noFlyZoneHeight = 100; // ارتفاع ناحیه غیرقابل استفاده پایین صفحه
 // تعریف آرایه ستاره‌ها در بیرون از تابع (فقط یک بار ساخته شوند)
-let stars = [];
-
-function createStars() {
-  stars = [];
-  for (let i = 0; i < 80; i++) {
+const stars = [];
+function createStars(num = 50) {
+  stars.length = 0;
+  for (let i = 0; i < num; i++) {
     stars.push({
       x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height * 0.8,
-      r: Math.random() * 1.5,
+      y: Math.random() * canvas.height,
+      r: Math.random() * 1.7 ,
       alpha: Math.random(),
-      speed: 0.02 + Math.random() * 0.03 // سرعت سوسوزدن
+      speed: Math.random() * 0.02 + 0.01
     });
   }
 }
@@ -455,29 +457,27 @@ startBtn.onclick = () => {
 // 🌌 تابع رسم پس‌زمینه
 function drawBackground() {
   if (gameOverBackground) {
-    // 🌃 آسمان شب
+    // 🌌 حالت شب
     const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grad.addColorStop(0, "#0a0a2a");
+    grad.addColorStop(0, "#000040"); // آسمان تیره
     grad.addColorStop(1, "#000000");
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    createStars(80);
+    // ✨ ستاره‌های سوسو زن
+    stars.forEach(s => {
+      s.alpha += s.speed;          // تغییر روشنایی
+      if (s.alpha >= 1 || s.alpha <= 0) s.speed *= -1; // معکوس کردن جهت سوسو
 
-    // ✨ رسم ستاره‌های سوسوزن
-    for (let s of stars) {
-      s.alpha += s.speed;
-      if (s.alpha >= 1 || s.alpha <= 0) {
-        s.speed *= -1; // تغییر جهت سوسوزدن
-      }
-
-      ctx.fillStyle = `rgba(255, 255, ${200 + Math.random() * 55}, ${s.alpha})`;
+      ctx.fillStyle = `rgba(255, 255, ${200 + Math.random()*55}, ${s.alpha})`;
       ctx.beginPath();
       ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
       ctx.fill();
-    }
- 
+    });
 
- clouds.forEach(c => {
-      c.y += c.speed;
+    // ☁️ ابرها
+    clouds.forEach(c => {
+      c.y += c.speed; // حرکت ابر
       if (c.y > canvas.height + 100) {
         c.y = -100;
         c.x = Math.random() * canvas.width;
@@ -486,8 +486,6 @@ function drawBackground() {
       ctx.drawImage(c.img, c.x, c.y, c.size, c.size * 0.6);
       ctx.globalAlpha = 1;
     });
-
-
 
   } else {
     // 🌤️ حالت روز
@@ -510,7 +508,6 @@ function drawBackground() {
     });
   }
 }
-
 
 
 document.addEventListener("keydown", (e) => {
@@ -915,7 +912,8 @@ for (let i = explosions.length - 1; i >= 0; i--) {
 
 
   requestAnimationFrame(gameLoop);
-}
+} 
+
 
 // === کنترل‌ها ===
 function shoot() {
@@ -965,10 +963,6 @@ const missileImage = missileImages[Math.floor(Math.random() * missileImages.leng
 
 
 
-
-
-
-
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
   gameOverBackground = false;
@@ -1005,12 +999,13 @@ function endGame() {
   //ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
   //ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+ 
+
   // 🌟 متن Game Over قرمز درخشان
   const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
   gradient.addColorStop(0, "#ff0000");
   gradient.addColorStop(0.5, "#ff4d4d");
   gradient.addColorStop(1, "#ff0000");
-  createStars(); // ساخت ستاره‌ها
   drawBackground();
   ctx.save();
   ctx.fillStyle = gradient;
@@ -1027,16 +1022,16 @@ function endGame() {
   ctx.shadowBlur = 10;
   ctx.fillStyle = "white";
   ctx.font = "bold 32px Arial";
-  ctx.fillText("Final Score: " + score, canvas.width*0.5, canvas.height*0.47 );
+  ctx.fillText("Your Score : " + score, canvas.width*0.5, canvas.height*0.47 );
 
   ctx.restore();
 
   explosionRunning = false;
 
   const startBtn = document.getElementById("startBtn");
- const scoreBtn = document.getElementById("scoreBtn");
-    startBtn.style.display = "block";
-    scoreBtn.style.display = "block";
+  const scoreBtn = document.getElementById("scoreBtn");
+  startBtn.style.display = "block";
+  scoreBtn.style.display = "block";
   document.getElementById("joystick").style.display = "none";
   document.getElementById("shoot").style.display = "none";
   document.getElementById("missileBtn").style.display = "none";
@@ -1206,4 +1201,9 @@ window.addEventListener("resize",()=>{
 
 </body>
 </html>
+
+
+
+
+
 
