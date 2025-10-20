@@ -311,9 +311,10 @@
   position: absolute;
   bottom: 0;
   left: 0;
-  width: 100%;
-  height: 150px; /* ارتفاع محدوده کنترل */
-  background-color: rgba(128,128,128,0.2); /* طوسی نرم با opacity 20% */
+  width: 101%;
+  height: 17.5%;
+border-radius:20px;
+  background-color: rgba(128,128,128,0.3); /* طوسی نرم با opacity 20% */
   z-index: 1; /* پشت دکمه‌ها و جوی‌استیک */
   pointer-events: none; /* اجازه کلیک روی دکمه‌ها داده شود */
   display: none; /* اول بازی مخفی */
@@ -357,7 +358,7 @@
 <button id="scoreBtn">نمایش امتیازات</button>
 <div id="playerName"></div>
 <div id="creatorName">Created by Mohsen Forghani</div>
-<button id="missileBtn" style="position:absolute; bottom:90px; left:20px; width:60px; height:40px; background:gray; color:white; border-radius:10px; font-weight:bold;" disabled>🚀</button>
+<button id="missileBtn" style="position:absolute; bottom:11%; left:2.5%; width:60px; height:40px; background:gray; color:white; border-radius:20px; font-weight:bold;" disabled>🚀</button>
 <div id="gameTitle">BERMOODA</div>
 <div id="controlPanel"></div>
 
@@ -403,7 +404,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let airplane = { x: canvas.width / 2, y: canvas.height - 120, w: 50, h: 50 };
+let airplane = { x: canvas.width / 2, y: canvas.height - 200, w: 50, h: 50 };
 let bullets = [];
 let enemies = [];
 let score = 0;
@@ -1124,12 +1125,13 @@ function startGame() {
   document.getElementById("playerName").innerText = "Player Name : " + playerName;
   document.getElementById("playerName").style.display = "block";
   document.getElementById("scoreContainer").style.display = "block";
+  const controlPanel = document.getElementById('controlPanel');
   gameOverBackground = false;
   score = 0;
   fuel = 100;
   bulletSpeed = 5;
   airplane.x = canvas.width / 2 - 40;
-  airplane.y = canvas.height - 120;
+  airplane.y = canvas.height - 200;
   enemies = [];
   bullets = [];
   fuels = []; // پاک کردن سوخت‌های باقی‌مانده
@@ -1155,7 +1157,7 @@ function endGame() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 document.getElementById("playerName").style.display = "none";
  document.getElementById("scoreContainer").style.display = "none";
-
+controlPanel.style.display = 'none'; 
   // 🌟 متن Game Over قرمز درخشان
   const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
   gradient.addColorStop(0, "#ff0000");
@@ -1345,7 +1347,11 @@ function addTouchAndClick(id, handler){
   el.addEventListener("touchstart",e=>{e.preventDefault(); handler();});
 }
 
-addTouchAndClick("startBtn",startGame);
+startBtn.addEventListener('click', () => {
+  controlPanel.style.display = 'block'; 
+  startGame();
+});
+
 addTouchAndClick("shoot",shoot);
 addTouchAndClick("missileBtn", launchMissile);
 window.addEventListener("resize",()=>{
