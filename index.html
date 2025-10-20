@@ -674,7 +674,8 @@ document.addEventListener("keyup", (e) => {
 
 
 function drawFuelGaugeAnimated() {
-    const centerX = canvas.width/2;
+  if (!gameRunning) return;  
+const centerX = canvas.width/2;
     const centerY = canvas.height-20;
     const radius = 60;
 
