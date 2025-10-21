@@ -793,15 +793,25 @@ function gameLoop() {
   airplane.y = Math.max(0, Math.min(canvas.height - airplane.h, airplane.y));
 
 // 🌟 حالت متمایل شدن: -1: چپ، 0: صاف، 1: راست
-if (!airplane.direction) airplane.direction = 0;
-if (!airplane.tiltProgress) airplane.tiltProgress = 0;
+if (airplane.direction === undefined) airplane.direction = 0;
+if (airplane.tiltProgress === undefined) airplane.tiltProgress = 0;
+
+// مدها (به جای کیبورد)
+if (airplane.directionMode === "right") {
+  airplane.direction = 1;   // راست
+} else if (airplane.directionMode === "left") {
+  airplane.direction = -1;  // چپ
+} else {
+  airplane.direction = 0;   // صاف
+}
 
 // بروزرسانی tiltProgress برای حرکت نرم
-airplane.tiltProgress += (airplane.direction - airplane.tiltProgress) * 0.3; // 0.3 سرعت متمایل شدن
+airplane.tiltProgress += (airplane.direction - airplane.tiltProgress) * 0.3; // سرعت متمایل شدن
 
+// رسم هواپیما با حالت متمایل
 if (!airplane.hidden) {
   ctx.save();
-  const tiltFactor = 1 + 0.3 * airplane.tiltProgress; // 0.3 مقدار کشش افقی
+  const tiltFactor = 1 + 0.3 * airplane.tiltProgress; // مقدار کشش افقی
   const w = airplane.w * tiltFactor;
   const h = airplane.h;
   const x = airplane.x - (w - airplane.w)/2; // مرکز کردن تصویر
