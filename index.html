@@ -791,8 +791,22 @@ function gameLoop() {
   airplane.y += dy * 4;
   airplane.x = Math.max(0, Math.min(canvas.width - airplane.w, airplane.x));
   airplane.y = Math.max(0, Math.min(canvas.height - airplane.h, airplane.y));
- if (!airplane.hidden) {
- ctx.drawImage(airplaneImg, airplane.x, airplane.y, airplane.w, airplane.h);
+
+// 🌟 حالت متمایل شدن: -1: چپ، 0: صاف، 1: راست
+if (!airplane.direction) airplane.direction = 0;
+if (!airplane.tiltProgress) airplane.tiltProgress = 0;
+
+// بروزرسانی tiltProgress برای حرکت نرم
+airplane.tiltProgress += (airplane.direction - airplane.tiltProgress) * 0.3; // 0.3 سرعت متمایل شدن
+
+if (!airplane.hidden) {
+  ctx.save();
+  const tiltFactor = 1 + 0.3 * airplane.tiltProgress; // 0.3 مقدار کشش افقی
+  const w = airplane.w * tiltFactor;
+  const h = airplane.h;
+  const x = airplane.x - (w - airplane.w)/2; // مرکز کردن تصویر
+  ctx.drawImage(airplaneImg, x, airplane.y, w, h);
+  ctx.restore();
 }
 
 // 🔫 رسم گلوله‌ها
@@ -877,8 +891,15 @@ for (let i = activeMissiles.length - 1; i >= 0; i--) {
 
 
 
- if (keys.left) airplane.x -= 5;
-if (keys.right) airplane.x += 5;
+if (keys.left) {
+  airplane.x -= 5;
+  airplane.direction = -1; // متمایل به چپ
+} else if (keys.right) {
+  airplane.x += 5;
+  airplane.direction = -1; // متمایل به راست
+} else {
+  airplane.direction = 0; // صاف
+}
 if (keys.up) airplane.y -= 5;
 if (keys.down) airplane.y += 5;
 
