@@ -561,12 +561,19 @@ preloadImages(() => {
 
 
 function drawLives() {
-  const padding = 10; // فاصله بین هواپیماها
-  const size = 40;    // اندازه هر هواپیما کوچک برای جان‌ها
+  const size = 22; // 🔹 کوچکتر از قبل (35 → 22)
+  const padding = 8; // فاصله کمی کمتر برای تناسب بهتر
+
+  // محاسبه موقعیت شروع برای قرار گرفتن در وسط صفحه
+  const totalWidth = lives * size + (lives - 1) * padding;
+  const startX = (canvas.width - totalWidth) / 2;
+  const y = canvas.height - size - (canvas.height*0.13); // پایین صفحه با کمی فاصله از لبه
+
   for (let i = 0; i < lives; i++) {
-    ctx.drawImage(airplaneImg, 10 + i * (size + padding), 10, size, size);
+    ctx.drawImage(airplaneImg, startX + i * (size + padding), y, size, size);
   }
 }
+
 
 
 
@@ -1094,7 +1101,7 @@ function startGame() {
   fuel = 100;
   paused = false;
   bulletSpeed = 5;
-  airplane.x = canvas.width / 2 - 40;
+  airplane.x = canvas.width / 2 - (airplane.w)/2;
   airplane.y = canvas.height - 200;
   enemies = [];
   bullets = [];
@@ -1110,7 +1117,7 @@ function startGame() {
   document.getElementById("shoot").style.display = "block";
   document.getElementById("gameTitle").style.display = "none";
   document.getElementById("missileBtn").style.display = "block";
- pauseBtn.style.display = "block";
+  pauseBtn.style.display = "block";
   requestAnimationFrame(gameLoop);
 }
 
