@@ -236,76 +236,7 @@
     display = "none"
   }
 
-#playerNameBox {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
 
-#playerNameContent {
-  background: linear-gradient(135deg, #00c3ff, #0072ff);
-  padding: 30px 50px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 0 30px rgba(0, 195, 255, 0.7);
-  animation: pop 0.5s ease-out;
-}
-
-#playerNameContent h2 {
-  color: white;
-  margin-bottom: 20px;
-  font-family: 'Arial Black', sans-serif;
-  text-shadow: 0 0 5px #00ffff;
-}
-
-#playerNameInput {
-  padding: 10px 15px;
-  font-size: 16px;
-  border-radius: 10px;
-  border: none;
-  outline: none;
-  margin-bottom: 15px;
-  width: 200px;
-  text-align: center;
-}
-
-#playerNameSubmit {
-  padding: 10px 20px;
-  font-size: 16px;
-  background: linear-gradient(135deg, #00ff88, #00ffff);
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: normal;
-  box-shadow: 0 0 15px rgba(0,255,255,0.6);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-#playerNameSubmit:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 25px rgba(0,255,255,0.9);
-}
-
-@keyframes pop {
-  0% { transform: scale(0.5); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-
-#playerName {
-  position: absolute;
-  top: 10px;        
-  left: 10px;
-  color: #00ffcc;
-  font-family: sans-serif;
-  font-size: 12px;
-  text-align: right;
-  user-select: none;    /* غیر قابل انتخاب */
-}
 
 #controlPanel {
   position: absolute;
@@ -319,7 +250,6 @@ border-radius:20px;
   pointer-events: none; /* اجازه کلیک روی دکمه‌ها داده شود */
   display: none; /* اول بازی مخفی */
 }
-
 
 
 
@@ -376,7 +306,6 @@ border-radius:20px;
 <canvas id="gameCanvas"></canvas>
 <button id="startBtn">شروع بازی</button>
 <button id="scoreBtn">نمایش امتیازات</button>
-<div id="playerName"></div>
 <div id="creatorName">Created by Mohsen Forghani</div>
 <button id="missileBtn" style="position:absolute; bottom:11%; left:2.5%; width:60px; height:40px; background:gray; color:white; border-radius:20px; font-weight:bold;" disabled>🚀</button>
 <div id="gameTitle">BERMOODA</div>
@@ -406,15 +335,6 @@ border-radius:20px;
 
 
 
-
-<div id="playerNameBox">
-  <div id="playerNameContent">
-    <h2> اسمت چیه؟</h2>
-    <input type="text" id="playerNameInput" placeholder="Your Name...">
-    <button id="playerNameSubmit">ثبت</button>
-  </div>
-</div>
-
 <button id="pauseBtn" style="display:none;">Pause</button>
 
 
@@ -428,7 +348,6 @@ let airplane = { x: canvas.width / 2, y: canvas.height - 200, w: 50, h: 50 };
 let bullets = [];
 let enemies = [];
 let score = 0;
-let playerName = ""; // متغیری که نام بازیکن در آن ذخیره می شود
 let gameRunning = false;
 const pauseBtn = document.getElementById("pauseBtn");
 let paused = false;
@@ -614,17 +533,6 @@ preloadImages(() => {
     loadingScreen.style.transition = "opacity 0.8s ease";
     loadingScreen.remove();
 
-
-document.getElementById("playerNameSubmit").addEventListener("click", () => {
-  const input = document.getElementById("playerNameInput").value.trim();
-  if(input !== "") {
-    playerName = input;
-    document.getElementById("playerNameBox").style.display = "none"; // مخفی کردن باکس
-  } else {
-  playerName = "unknown";
-  document.getElementById("playerNameBox").style.display = "none"; // مخفی کردن باکس
-  }
-});
 
 
 
@@ -1159,8 +1067,6 @@ const missileImage = missileImages[Math.floor(Math.random() * missileImages.leng
 
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
-  document.getElementById("playerName").innerText = "Player Name : " + playerName;
-  document.getElementById("playerName").style.display = "block";
   document.getElementById("scoreContainer").style.display = "block";
   const controlPanel = document.getElementById('controlPanel');
   gameOverBackground = false;
@@ -1194,7 +1100,6 @@ function startGame() {
   gameOverBackground = true;
   // پاک کردن صفحه قبل از نمایش متن
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  document.getElementById("playerName").style.display = "none";
   document.getElementById("scoreContainer").style.display = "none";
   controlPanel.style.display = 'none'; 
   pauseBtn.style.display = "none";
