@@ -764,7 +764,7 @@ for (let i = activeMissiles.length - 1; i >= 0; i--) {
   }
 
   // اگر موشک نزدیک بالای صفحه شد (100 پیکسل قبل از خروج)
-  if (m.y + m.h < 140) {
+  if (m.y + m.h < 200) {
     // انفجار موشک
     createExplosion(m.x + m.w/2, m.y + m.h/2, 200, 200);
 
@@ -806,7 +806,7 @@ if (Math.random() < 0.015) {
     w: 42,
     h: 42,
     img: enemyImages[Math.floor(Math.random() * enemyImages.length)],
-    canShoot: Math.random() < 0.3,
+    canShoot: Math.random() < 0.18,
     lastShotTime: 0,
     shotCount: 0,
     spiral: Math.random() < 0.3,   // 🎯 30% احتمال مارپیچی بودن
@@ -850,13 +850,13 @@ enemies.forEach((e, i) => {
 // شلیک دشمن
   if (e.canShoot) {
     const now = Date.now();
-    if (now - e.lastShotTime > 1000 && e.shotCount < 3) { // هر 1 ثانیه یک تیر، حداکثر 3 تیر
+    if (now - e.lastShotTime > 1500 && e.shotCount < 2) { // هر 1 ثانیه یک تیر، حداکثر 3 تیر
       enemyShoot(e);
       e.lastShotTime = now;
       e.shotCount++;
     }
     // بعد از اینکه 3 تیر زد، 3 ثانیه صبر کن و دوباره می‌تونه شلیک کنه
-    if (e.shotCount >= 3 && now - e.lastShotTime > 3000) {
+    if (e.shotCount >= 2 && now - e.lastShotTime > 4000) {
       e.shotCount = 0;
     }
   }
@@ -895,7 +895,7 @@ enemyBullets.forEach((b, i) => {
       score += 10;
       document.getElementById("scoreValue").textContent = score;
 
-// هر 300 امتیاز یک موشک
+// هر 50 امتیاز یک موشک
 let newMissiles = Math.floor(score / 50);
 if(newMissiles > missiles) {
   missiles = newMissiles;
@@ -1052,7 +1052,7 @@ const missileImage = missileImages[Math.floor(Math.random() * missileImages.leng
     y: airplane.y - 10,
     w: 10,
     h: 35,
-    speed: 4,
+    speed: 3,
     angle: 0,
     amplitude: 50,
     prevX: airplane.x + airplane.w / 2 - 10,
