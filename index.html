@@ -1070,6 +1070,8 @@ fuels.forEach((f, i) => {
     ) {
       fuels.splice(i, 1); // حذف پمپ
       bullets.splice(j, 1); // حذف گلوله
+     score+=10
+     document.getElementById("scoreValue").textContent = score;
     }
   });
 
