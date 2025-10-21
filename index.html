@@ -206,6 +206,8 @@
     border: 3px solid rgba(255,255,255,0.4);
     border-radius: 50%;
    display = "none"
+   z-index: 1000;
+
   }
 
   #stick {
@@ -218,6 +220,7 @@
     left: 25px;
     transition: 0.05s;
     display = "none"
+    z-index: 1000;
   }
 
   #shoot {
@@ -234,6 +237,7 @@
     line-height: 50px;
     user-select: none;
     display = "none"
+    z-index: 1000;
   }
 
 
@@ -245,10 +249,10 @@
   width: 101%;
   height: 18.5%;
   border-radius:20px;
-  background-color: rgba(128,128,128,0.5); /* طوسی نرم با opacity 20% */
-  z-index: 1; /* پشت دکمه‌ها و جوی‌استیک */
-  pointer-events: none; /* اجازه کلیک روی دکمه‌ها داده شود */
-  display: none; /* اول بازی مخفی */
+  background-color: rgba(128,128,128,0.5);
+  z-index: 1;
+  pointer-events: none; 
+  display: none;
 }
 
 
@@ -656,53 +660,120 @@ document.addEventListener("keyup", (e) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
 function drawFuelGaugeAnimated() {
   if (!gameRunning) return;  
-const centerX = canvas.width/2;
-    const centerY = canvas.height-20;
-    const radius = 60;
 
-    // 🌟 نیم‌دایره سوخت
+  const centerX = canvas.width / 2;
+  const centerY = canvas.height - 20;
+  const radius = 60;
+
+  // 🔹 رسم نیم‌دایره پایه
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius, Math.PI, 2 * Math.PI);
+  ctx.lineWidth = 20;
+  ctx.strokeStyle = "#333";
+  ctx.stroke();
+
+  // 🔹 افکت چشمک زن قرمز وقتی سوخت ≤ 10٪
+  if (fuel <= 20) {
+    const fade = 0.3 + 0.7 * Math.abs(Math.sin(Date.now() / 300)); // 0.3 تا 1
     ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, Math.PI, 2 * Math.PI);
-    ctx.lineWidth = 20;
-    ctx.strokeStyle = "#333";
+    ctx.arc(centerX, centerY, radius - 10, Math.PI, 2 * Math.PI);
+    ctx.lineWidth = 16;
+    ctx.strokeStyle = `rgba(255,0,0,${fade})`;
     ctx.stroke();
+  }
 
-    // 🌟 متن E و F
-    ctx.font = "18px Arial Black";
-    ctx.fillStyle = "#00ffff";
-    ctx.textAlign = "center";
-    ctx.fillText("E", centerX - radius, centerY + 10);
-    ctx.fillText("F", centerX + radius, centerY + 10);
+  // 🔹 خطوط درجه‌بندی در ضلع بالایی داخلی نیم‌دایره
+  const totalTicks = 100;
+  for (let i = 0; i <= totalTicks; i++) {
+    const angle = Math.PI + (i / totalTicks) * Math.PI;
+    const outerRadius = radius - 2; // ضلع بالایی داخلی
+    const innerRadius = (i % 10 === 0) ? outerRadius - 10 : outerRadius - 5; // اصلی و فرعی
+    const x1 = centerX + innerRadius * Math.cos(angle);
+    const y1 = centerY + innerRadius * Math.sin(angle);
+    const x2 = centerX + outerRadius * Math.cos(angle);
+    const y2 = centerY + outerRadius * Math.sin(angle);
 
-    // 🌟 درصد سوخت
-    ctx.font = "12px Arial";
-    ctx.fillStyle = "#00ffff";
-    ctx.fillText(Math.round(fuel) + "%", centerX, centerY - 10);
-
-    // 🌟 Smooth animation برای عقربه
-    const speed = 0.025; // سرعت حرکت عقربه (0.01 خیلی آهسته، 0.1 سریع)
-    displayedFuel += (fuel - displayedFuel) * speed;
-
-    const needleAngle = Math.PI + (displayedFuel / 100) * Math.PI;
-    const needleLength = radius - 10;
-    const needleX = centerX + needleLength * Math.cos(needleAngle);
-    const needleY = centerY + needleLength * Math.sin(needleAngle);
-
+    ctx.strokeStyle = (i % 10 === 0) ? "#00ffff" : "rgba(0,255,255,0.3)"; // خطوط فرعی شفاف
+    ctx.lineWidth = (i % 10 === 0) ? 2 : 1; 
     ctx.beginPath();
-    ctx.moveTo(centerX, centerY);
-    ctx.lineTo(needleX, needleY);
-    ctx.lineWidth = 4;
-    ctx.strokeStyle = "#ff0000";
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
     ctx.stroke();
+  }
 
-    // 🌟 دایره مرکز عقربه
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, 6, 0, 2 * Math.PI);
-    ctx.fillStyle = "#ff0000";
-    ctx.fill();
+  // 🔹 متن E و F
+  ctx.font = "18px Arial Black";
+  ctx.fillStyle = "#00ffff";
+  ctx.textAlign = "center";
+  ctx.fillText("E", centerX - radius-7, centerY + 10);
+  ctx.fillText("F", centerX + radius+7, centerY + 10);
+
+  // 🔹 درصد سوخت
+  ctx.font = "12px Arial";
+  ctx.fillStyle = (fuel <= 10) ? "red" : "#00ffff";
+  ctx.fillText(Math.round(fuel) + "%", centerX, centerY - 10);
+
+  // 🔹 Smooth animation عقربه
+  const speed = 0.025;
+  displayedFuel += (fuel - displayedFuel) * speed;
+  const needleAngle = Math.PI + (displayedFuel / 100) * Math.PI;
+  const needleLength = radius - 10;
+  const needleX = centerX + needleLength * Math.cos(needleAngle);
+  const needleY = centerY + needleLength * Math.sin(needleAngle);
+
+  // 🔹 عقربه ثابت
+  ctx.beginPath();
+  ctx.moveTo(centerX, centerY);
+  ctx.lineTo(needleX, needleY);
+  ctx.lineWidth = 4;
+  ctx.strokeStyle = "#ff0000";
+  ctx.stroke();
+
+  // 🔹 دایره مرکز عقربه
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, 6, 0, 2 * Math.PI);
+  ctx.fillStyle = "#ff0000";
+  ctx.fill();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   
