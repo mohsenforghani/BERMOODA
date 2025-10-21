@@ -842,40 +842,38 @@ for (let i = activeMissiles.length - 1; i >= 0; i--) {
       m.y + m.h/2 > e.y - e.h/2 &&
       m.y - m.h/2 < e.y + e.h/2
     ) {
-      // انفجار موشک
       createExplosion(m.x + m.w/2, m.y + m.h/2, m.w, m.h);
-
-      // انفجار دشمن
       createExplosion(e.x, e.y, e.w, e.h);
+
+      // اضافه کردن امتیاز برای هر دشمن
+      score += 10;
+      document.getElementById("scoreValue").textContent = score;
 
       // حذف دشمن و موشک
       enemies.splice(j, 1);
       activeMissiles.splice(i, 1);
-       score += 10;
 
-      // حذف تمام تیرهای دشمن
       enemyBullets = [];
-      
       break; // خروج از حلقه دشمنان
     }
   }
 
-  // اگر موشک نزدیک بالای صفحه شد (100 پیکسل قبل از خروج)
+  // اگر موشک نزدیک بالای صفحه شد
   if (m.y + m.h < 200) {
-    // انفجار موشک
     createExplosion(m.x + m.w/2, m.y + m.h/2, 200, 200);
 
-    // انفجار همه دشمنان
     enemies.forEach(e => createExplosion(e.x, e.y, e.w, e.h));
 
-    // حذف تمام دشمنان و تیرهایشان
+    // اضافه کردن امتیاز برای همه دشمنان باقی مانده
+    score += enemies.length * 10;
+    document.getElementById("scoreValue").textContent = score;
+
     enemies = [];
     enemyBullets = [];
-
-    // حذف موشک
     activeMissiles.splice(i, 1);
   }
 }
+
 
 
 
