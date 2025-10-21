@@ -357,6 +357,7 @@ border-radius:20px;
   color: white;
   font-weight: bold;
   font-size: 14px;
+  opacity: 0.7;
   cursor: pointer;
   box-shadow: 0 0 15px #0ff, 0 0 30px #0ff inset;
   transition: all 0.2s ease;
@@ -436,7 +437,7 @@ pauseBtn.addEventListener("click", () => {
     if (!paused) {
         paused = true;
         pauseTime = performance.now(); // ذخیره زمان Pause
-        pauseBtn.innerText = "Resume";
+        pauseBtn.innerText = "Play";
     } else {
         paused = false;
         const now = performance.now();
