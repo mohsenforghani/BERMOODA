@@ -74,6 +74,7 @@
     background: linear-gradient(90deg, #00ff88, #00ffff);
     border-radius: 8px;
     transition: width 0.2s ease;
+
   }
 
 #logoText {
@@ -471,22 +472,22 @@ function spawnMeteor() {
   lastMeteorSpawn = Date.now();
 
   const img = meteorImages[Math.floor(Math.random() * meteorImages.length)];
-  const size = Math.random() * 40 + 80; // سایز بین 80 تا 120
+  const size = Math.random() * 60 + 60; // سایز بین 70 تا 120
   const direction = Math.random() < 0.5 ? "right" : "left";
-  const rotationSpeed = (Math.random() * 5 + 1) * (Math.random() < 0.5 ? -1 : 1); // سرعت چرخش تصادفی
+  const rotationSpeed = (Math.random() * 7 + 1) * (Math.random() < 0.5 ? -1 : 1); // سرعت چرخش تصادفی
 
   let startX, startY, vx, vy;
   startY = -size; // شروع از بالای صفحه
 
   if (direction === "right") {
     startX = -size;
-    vx = Math.random() * 1.5 + 1; // از چپ به راست
+    vx = Math.random() * 1.2 + 1; // از چپ به راست
   } else {
     startX = canvas.width + size;
-    vx = -(Math.random() * 1.5 + 1); // از راست به چپ
+    vx = -(Math.random() * 1.2 + 1); // از راست به چپ
   }
 
-  vy = Math.random() * 2 + 1.5; // حرکت رو به پایین
+  vy = Math.random() * 1.2 + 1.2; // حرکت رو به پایین
 
   meteors.push({
     x: startX,
@@ -962,32 +963,6 @@ function drawFuelGaugeAnimated() {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   
 // === حلقه بازی ===
 function gameLoop() {
@@ -997,7 +972,56 @@ function gameLoop() {
   const delta = (now - lastTime) / 16.67; 
   lastTime = now;
   //ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
+  const fuelImg = new Image();
+fuelImg.src = "fuel.png"; // مسیر تصویر پمپ بنزینت
+
+fuels.forEach((f, i) => {
+  f.y += 0.4; // حرکت پایین پمپ
+
+  // رسم تصویر پمپ
+  ctx.drawImage(fuelImg, f.x, f.y, f.w, f.h);
+
+  // 🔹 بررسی برخورد هواپیما برای سوختگیری تدریجی
+  if (
+    airplane.x < f.x + f.w &&
+    airplane.x + airplane.w > f.x &&
+    airplane.y < f.y + f.h &&
+    airplane.y + airplane.h > f.y
+  ) {
+    // هر فریم سوخت اضافه می‌شود
+    fuel += 0.4; // میزان سوختگیری در هر فریم، می‌توان تغییر داد
+    if (fuel > 100) fuel = 100;
+  }
+
+  // 🔹 بررسی برخورد گلوله با پمپ
+  bullets.forEach((b, j) => {
+    if (
+      b.x > f.x &&
+      b.x < f.x + f.w &&
+      b.y > f.y &&
+      b.y < f.y + f.h
+    ) {
+      fuels.splice(i, 1); // حذف پمپ
+      bullets.splice(j, 1); // حذف گلوله
+     score+=10
+     document.getElementById("scoreValue").textContent = score;
+    }
+  });
+
+  // حذف پمپ اگر از پایین خارج شد
+  if (f.y > canvas.height) fuels.splice(i, 1);
+});
+
+
+
+fuel -= 0.02; // کاهش تدریجی سوخت
+if (fuel < 0) {
+  fuel = 0;
+  endGame();
+}
+
+
+
   airplane.x += dx * 4;
   airplane.y += dy * 4;
   airplane.x = Math.max(0, Math.min(canvas.width - airplane.w, airplane.x));
@@ -1250,53 +1274,6 @@ if(newMissiles > missiles) {
 
 
 
-const fuelImg = new Image();
-fuelImg.src = "fuel.png"; // مسیر تصویر پمپ بنزینت
-
-fuels.forEach((f, i) => {
-  f.y += 0.4; // حرکت پایین پمپ
-
-  // رسم تصویر پمپ
-  ctx.drawImage(fuelImg, f.x, f.y, f.w, f.h);
-
-  // 🔹 بررسی برخورد هواپیما برای سوختگیری تدریجی
-  if (
-    airplane.x < f.x + f.w &&
-    airplane.x + airplane.w > f.x &&
-    airplane.y < f.y + f.h &&
-    airplane.y + airplane.h > f.y
-  ) {
-    // هر فریم سوخت اضافه می‌شود
-    fuel += 0.4; // میزان سوختگیری در هر فریم، می‌توان تغییر داد
-    if (fuel > 100) fuel = 100;
-  }
-
-  // 🔹 بررسی برخورد گلوله با پمپ
-  bullets.forEach((b, j) => {
-    if (
-      b.x > f.x &&
-      b.x < f.x + f.w &&
-      b.y > f.y &&
-      b.y < f.y + f.h
-    ) {
-      fuels.splice(i, 1); // حذف پمپ
-      bullets.splice(j, 1); // حذف گلوله
-     score+=10
-     document.getElementById("scoreValue").textContent = score;
-    }
-  });
-
-  // حذف پمپ اگر از پایین خارج شد
-  if (f.y > canvas.height) fuels.splice(i, 1);
-});
-
-
-
-fuel -= 0.02; // کاهش تدریجی سوخت
-if (fuel < 0) {
-  fuel = 0;
-  endGame();
-}
 
 
 
