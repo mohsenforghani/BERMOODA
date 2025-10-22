@@ -1381,6 +1381,9 @@ for (let i = meteors.length - 1; i >= 0; i--) {
 if (m.hp <= 0) {
   createMeteorExplosion(m.x + m.w/2, m.y + m.h/2); 
   meteors.splice(i, 1);
+  // اضافه کردن امتیاز برای ترکاندن شهاب سنگ
+      score += 100;
+      document.getElementById("scoreValue").textContent = score;
   break;
 }
 
@@ -1784,7 +1787,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
 
 
 
