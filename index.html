@@ -568,7 +568,7 @@ pauseBtn.addEventListener("click", () => {
     }
 });
 
-
+let fuelLabels = []; // آرایه نگهداری لیبل‌ها
 let gameOverBackground = false;
 let lives = 3;
 let dx = 0, dy = 0; 
@@ -976,39 +976,92 @@ function gameLoop() {
 fuelImg.src = "fuel.png"; // مسیر تصویر پمپ بنزینت
 
 fuels.forEach((f, i) => {
-  f.y += 0.4; // حرکت پایین پمپ
+  // حرکت پمپ به پایین
+  f.y += 0.4;
 
-  // رسم تصویر پمپ
+  // رسم پمپ
   ctx.drawImage(fuelImg, f.x, f.y, f.w, f.h);
 
-  // 🔹 بررسی برخورد هواپیما برای سوختگیری تدریجی
-  if (
+  // بررسی برخورد هواپیما با پمپ (x و y)
+  const inContact =
     airplane.x < f.x + f.w &&
     airplane.x + airplane.w > f.x &&
     airplane.y < f.y + f.h &&
-    airplane.y + airplane.h > f.y
-  ) {
-    // هر فریم سوخت اضافه می‌شود
-    fuel += 0.4; // میزان سوختگیری در هر فریم، می‌توان تغییر داد
-    if (fuel > 100) fuel = 100;
+    airplane.y + airplane.h > f.y;
+
+  // پیدا کردن یا ساخت لیبل مربوط به این پمپ
+  let lbl = fuelLabels.find(l => l.pump === f);
+if (inContact) {
+  if (!lbl) {
+    lbl = {
+      pump: f,
+      value: 0,
+      text: "+0%",
+      alpha: 1,
+      lastUpdate: Date.now(),
+      lastContact: Date.now()
+    };
+    fuelLabels.push(lbl);
+  } else {
+    lbl.lastContact = Date.now();
   }
 
-  // 🔹 بررسی برخورد گلوله با پمپ
+  const now = Date.now();
+  if (now - lbl.lastUpdate >= 20) {
+    // فقط اگر fuel کمتر از 100 است افزایش انجام شود
+    if (fuel < 100) {
+      const increment = 0.4;
+      fuel += increment;
+      if (fuel > 100) fuel = 100;
+      lbl.value += increment;
+      if (lbl.value > 100) lbl.value = 100;
+      lbl.text = `+${Math.floor(lbl.value)}%`;
+    }
+    lbl.lastUpdate = now;
+  }
+
+  // همیشه لیبل همگام با لبه بالایی پمپ
+  lbl.y = f.y - 10;
+}
+
+  // رسم و fade out لیبل
+  if (lbl) {
+    ctx.globalAlpha = lbl.alpha;
+    ctx.fillStyle = "lime";
+    ctx.font = "14px Arial";
+    ctx.textAlign = "center";
+    
+    // موقعیت y لیبل دقیقاً بالای پمپ
+    const labelY = f.y - 5; // 5 پیکسل بالاتر از بالای پمپ
+    ctx.fillText(lbl.text, f.x + f.w/2, labelY);
+
+    // حرکت لیبل به آرامی به بالا برای افکت
+    lbl.alpha -= (Date.now() - lbl.lastContact > 2000) ? 0.02 : 0;
+    
+    if (lbl.alpha <= 0) {
+      fuelLabels = fuelLabels.filter(l => l !== lbl);
+    }
+  }
+});
+
+ctx.globalAlpha = 1; // ریست alpha
+
+
+// 3️⃣ برخورد گلوله‌ها با پمپ‌ها
+fuels.forEach((f, i) => {
   bullets.forEach((b, j) => {
-    if (
-      b.x > f.x &&
-      b.x < f.x + f.w &&
-      b.y > f.y &&
-      b.y < f.y + f.h
-    ) {
-      fuels.splice(i, 1); // حذف پمپ
-      bullets.splice(j, 1); // حذف گلوله
-     score+=10
-     document.getElementById("scoreValue").textContent = score;
+    if (b.x > f.x && b.x < f.x + f.w &&
+        b.y > f.y && b.y < f.y + f.h) {
+      fuels.splice(i, 1);
+      bullets.splice(j, 1);
+      score += 10;
+      document.getElementById("scoreValue").textContent = score;
     }
   });
+});
 
-  // حذف پمپ اگر از پایین خارج شد
+// 4️⃣ حذف پمپ‌ها از پایین صفحه
+fuels.forEach((f, i) => {
   if (f.y > canvas.height) fuels.splice(i, 1);
 });
 
