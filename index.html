@@ -465,14 +465,14 @@ for (let i = 1; i <= meteorCount; i++) {
 
 
 function spawnMeteor() {
-  // هر 20 ثانیه یک شهاب سنگ
+  // هر 15 ثانیه یک شهاب سنگ
   if (Date.now() - lastMeteorSpawn < 15000) return;
   lastMeteorSpawn = Date.now();
 
   const img = meteorImages[Math.floor(Math.random() * meteorImages.length)];
-  const size = Math.random() * 50 + 90; // سایز بین 90 تا 140
+  const size = Math.random() * 40 + 80; // سایز بین 80 تا 120
   const direction = Math.random() < 0.5 ? "right" : "left";
-  const rotationSpeed = (Math.random() * 4 + 1) * (Math.random() < 0.5 ? -1 : 1); // سرعت چرخش تصادفی
+  const rotationSpeed = (Math.random() * 5 + 1) * (Math.random() < 0.5 ? -1 : 1); // سرعت چرخش تصادفی
 
   let startX, startY, vx, vy;
   startY = -size; // شروع از بالای صفحه
@@ -503,15 +503,15 @@ function spawnMeteor() {
 function createMeteorExplosion(x, y) {
   const particles = [];
   const colors = ["#FF4500","#FFA500","#FFD700","#FF6347","#FF8C00"];
-  for (let i = 0; i < 10; i++) {  // ذرات کمتر برای سبکی
+  for (let i = 0; i < 15; i++) {  // ذرات کمتر برای سبکی
     particles.push({
       x, y,
-      size: 2 + Math.random() * 10,
-      vx: (Math.random() - 0.5) * 6,
-      vy: (Math.random() - 0.5) * 6,
+      size: 2 + Math.random() * 5,
+      vx: (Math.random() - 0.5) * 5,
+      vy: (Math.random() - 0.5) * 5,
       color: colors[Math.floor(Math.random() * colors.length)],
       alpha: 1,
-      fade: 0.01 + Math.random() * 0.01
+      fade: 0.01 + Math.random() * 0.02
     });
   }
   meteorExplosions.push(particles);
@@ -1357,7 +1357,7 @@ for (let i = meteors.length - 1; i >= 0; i--) {
   m.rotation += m.rotationSpeed;
 
   // اگر مقدار hp تعریف نشده، مقدار اولیه بده
-  if (m.hp === undefined) m.hp = 5;
+  if (m.hp === undefined) m.hp = 10;
 
   // رسم شهاب سنگ با چرخش
   ctx.save();
@@ -1379,7 +1379,7 @@ for (let i = meteors.length - 1; i >= 0; i--) {
       m.hp--;
 
 if (m.hp <= 0) {
-  createMeteorExplosion(m.x + m.w/2, m.y + m.h/2); // ایجاد انفجار با ذرات
+  createMeteorExplosion(m.x + m.w/2, m.y + m.h/2); 
   meteors.splice(i, 1);
   break;
 }
@@ -1784,6 +1784,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
 
