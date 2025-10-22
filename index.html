@@ -452,7 +452,7 @@ document.querySelectorAll('.plane').forEach(plane => {
   });
 });
 
-
+let meteorExplosions = []; // ذرات فعال انفجار شهاب‌سنگ
 let meteors = [];
 let lastMeteorSpawn = Date.now();
 const meteorImages = [];
@@ -500,18 +500,50 @@ function spawnMeteor() {
   });
 }
 
+function createMeteorExplosion(x, y) {
+  const particles = [];
+  const colors = ["#FF4500","#FFA500","#FFD700","#FF6347","#FF8C00"];
+  for (let i = 0; i < 15; i++) {  // ذرات کمتر برای سبکی
+    particles.push({
+      x, y,
+      size: 10 + Math.random() * 10,
+      vx: (Math.random() - 0.5) * 6,
+      vy: (Math.random() - 0.5) * 6,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      alpha: 1,
+      fade: 0.01 + Math.random() * 0.01
+    });
+  }
+  meteorExplosions.push(particles);
+}
 
 
+function updateMeteorExplosions() {
+  for (let i = meteorExplosions.length - 1; i >= 0; i--) {
+    const particles = meteorExplosions[i];
+    let alive = false;
+    particles.forEach(p => {
+      if (p.alpha > 0) alive = true;
+      ctx.globalAlpha = p.alpha;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+      p.x += p.vx;
+      p.y += p.vy;
+      p.alpha -= p.fade;
+    });
+    // رسم انفجار png در مرکز (یکبار)
+   // if (particles[0]) ctx.drawImage(explosionImg, particles[0].x - 40, particles[0].y - 40, 80, 80);
 
-
-
+    ctx.globalAlpha = 1;
+    if (!alive) meteorExplosions.splice(i, 1);
+  }
+}
 
 
 
 let bullets = [];
-
-
-
 
 
 let enemies = [];
@@ -1346,46 +1378,8 @@ for (let i = meteors.length - 1; i >= 0; i--) {
       bullets.splice(j, 1);
       m.hp--;
 
-  if (m.hp <= 0) {
-  // 🔹 انفجار شهاب‌سنگ با ذرات
-  explodeMeteor(m.x, m.y, m.w, m.h);
-
-  // همچنین می‌تونی ۵ انفجار کوچک‌تر اطرافش هم مثل قبل اجرا کنی
-  const numExplosions = 5;
-  const delay = 400;
-  const radius = 40;
-
-  for (let k = 0; k < numExplosions; k++) {
-    setTimeout(() => {
-      const offsetX = (Math.random() - 0.5) * 2 * radius;
-      const offsetY = (Math.random() - 0.5) * 2 * radius;
-      const explosionX = m.x + offsetX;
-      const explosionY = m.y + offsetY;
-
-      let frame = 0;
-      const totalFrames = 25;
-      const size = 150;
-
-      const drawExplosion = () => {
-        if (frame < totalFrames) {
-          ctx.save();
-          ctx.globalAlpha = 1 - frame / totalFrames;
-          ctx.drawImage(
-            explosionImg,
-            explosionX - size / 2,
-            explosionY - size / 2,
-            size,
-            size
-          );
-          ctx.restore();
-          frame++;
-          requestAnimationFrame(drawExplosion);
-        }
-      };
-      drawExplosion();
-    }, k * delay);
-  }
-
+if (m.hp <= 0) {
+  createMeteorExplosion(m.x + m.w/2, m.y + m.h/2); // ایجاد انفجار با ذرات
   meteors.splice(i, 1);
   break;
 }
@@ -1412,7 +1406,7 @@ for (let i = meteors.length - 1; i >= 0; i--) {
   }
 }
 
-
+updateMeteorExplosions(); // رسم ذرات انفجار شهاب‌سنگ
 
   requestAnimationFrame(gameLoop);
 } 
@@ -1790,4 +1784,5 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
