@@ -347,7 +347,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-let airplane = { x: canvas.width / 2, y: canvas.height - 200, w: 50, h: 50 };
+let airplane = { x: canvas.width / 2, y: canvas.height - 200, w: 52, h: 52 };
 let bullets = [];
 let enemies = [];
 let score = 0;
@@ -919,15 +919,15 @@ if (Math.random() < 0.005) {
   const enemy = {
     x: Math.random() * (canvas.width - 2 * padding) + padding,
     y: -60,
-    w: 42,
-    h: 42,
+    w: 45,
+    h: 45,
     img: enemyImages[Math.floor(Math.random() * enemyImages.length)],
     canShoot: Math.random() < 0.18,
     lastShotTime: 0,
     shotCount: 0,
     spiral: Math.random() < 0.3,   // 🎯 30% احتمال مارپیچی بودن
     angle: 0,                      // زاویه برای حرکت سینوسی
-    amplitude: 60,                 // دامنه انحراف چپ و راست
+    amplitude: 65,                 // دامنه انحراف چپ و راست
     speed: 1                       // سرعت حرکت عمودی
   };
   enemies.push(enemy);
@@ -1460,5 +1460,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
