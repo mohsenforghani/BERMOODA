@@ -23,7 +23,7 @@
 
 #gameTitle {
   position: absolute;
-  top: 30%;
+  top: 80%;
   left: 50%;
   transform: translateX(-50%);
   font-size: 50px;
@@ -123,7 +123,7 @@
   position: absolute;
   width: 300px;     /* عرض یکسان */
   padding: 12px 0;  /* فقط ارتفاع دکمه */
-  bottom: 27%; 
+  bottom: 22%; 
   left: 50%;
   transform: translateX(-50%);
   background: linear-gradient(135deg, #00c3ff, #0072ff);
@@ -144,7 +144,7 @@
   position: absolute;
   width: 300px;     /* عرض یکسان */
   padding: 12px 0;  /* فقط ارتفاع دکمه */
-  bottom: 36%; 
+  bottom: 30%; 
   left: 50%;
   transform: translateX(-50%);
   background: linear-gradient(135deg, #00c3ff, #0072ff);
@@ -301,6 +301,66 @@
   box-shadow: 0 0 25px #0ff, 0 0 50px #0ff inset;
 }
 
+/* کانتینر انتخاب هواپیما ابتدا مخفی باشد */
+#airplaneSelectContainer {
+  display: none;       /* اول مخفی */
+  position: absolute;  /* یا relative اگر نیاز به جریان عادی صفحه دارید */
+  top: 30px;           /* فاصله از بالا */
+  left: 50%;
+  transform: translateX(-50%); /* وسط چین کردن افقی */
+  z-index: 9999;       /* بالاترین لایه */
+  min-height: 200px;
+  text-align: center;
+  color: white;
+  white-space: nowrap;
+}
+
+
+/* استایل داخلی برای هواپیماها */
+.airplane-select {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+  margin-top: 30px;
+}
+
+.plane {
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.plane img {
+  width: 100px;
+  height: auto;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.plane p {
+  color: white;
+  font-size: 14px;
+  margin-top: 8px;
+  font-family: sans-serif;
+  transition: all 0.3s ease; /* برای انیمیشن نرم */
+}
+
+.plane.selected p {
+  font-size: 18px; /* بزرگتر شدن متن هنگام انتخاب */
+  font-weight: bold; /* اختیاری: ضخیم‌تر شدن */
+  color: yellow;     /* اختیاری: تغییر رنگ */
+}
+
+
+
+.plane.selected img {
+  transform: scale(1.5);
+  box-shadow: 0 0 25px 8px yellow;
+  border-radius: 12px;
+}
+
+
 
 
 </style>
@@ -332,6 +392,31 @@
 
 
 
+<div id="airplaneSelectContainer" style="display:none;">
+  <h3 style="color:white; text-align:center;">✈️ Please Select Your Airplane</h3>
+  <div class="airplane-select">
+    <div class="plane" data-plane="30">
+      <img src="plane30.png" alt="Plane 1">
+      <p>Falcon</p>
+    </div>
+    <div class="plane" data-plane="31">
+      <img src="plane31.png" alt="Plane 2">
+      <p>Hawk</p>
+    </div>
+    <div class="plane" data-plane="32">
+      <img src="plane32.png" alt="Plane 3">
+      <p>Eagle</p>
+    </div>
+    <div class="plane" data-plane="33">
+      <img src="plane33.png" alt="Plane 4">
+      <p>Phantom</p>
+    </div>
+  </div>
+</div>
+
+
+
+
 <div id="scoreContainer">
   <div id="scoreLabel">Score :</div>
   <div id="scoreValue">0</div>
@@ -348,6 +433,30 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 let airplane = { x: canvas.width / 2, y: canvas.height - 200, w: 50, h: 50 };
+let selectedPlaneImg =""; // تصویر هواپیمای انتخابی
+let selectedPlane = null;
+
+document.querySelectorAll('.plane').forEach(plane => {
+  plane.addEventListener('click', () => {
+    // حذف انتخاب قبلی
+    document.querySelectorAll('.plane').forEach(p => p.classList.remove('selected'));
+    
+    // انتخاب جدید
+    plane.classList.add('selected');
+    selectedPlane = plane.dataset.plane;
+
+    console.log("هواپیمای انتخابی:", selectedPlane);
+
+    // بعد از انتخاب، دکمه شروع بازی را نمایش بده
+    startBtn.style.display = "block";
+  });
+});
+
+
+
+
+
+
 let bullets = [];
 let enemies = [];
 let score = 0;
@@ -391,6 +500,9 @@ let bulletSpeed = 5; // مقدار اولیه
 let displayedFuel = 100; // مقدار بنزینی که فعلاً روی گیج نمایش داده می‌شود
 const noFlyZoneHeight = 100; // ارتفاع ناحیه غیرقابل استفاده پایین صفحه
 // تعریف آرایه ستاره‌ها در بیرون از تابع (فقط یک بار ساخته شوند)
+
+
+
 const stars = [];
 function createStars(num = 50) {
   stars.length = 0;
@@ -453,7 +565,7 @@ let keys = {
 
 
 const airplaneImg = new Image();
-airplaneImg.src = "airplane.png"; 
+airplaneImg.src = "airplane.png";
 // ✈️ تصاویر دشمن‌ها
 const enemyImages = [
   "plane1.png",
@@ -543,16 +655,26 @@ preloadImages(() => {
     loadingScreen.style.transition = "opacity 0.8s ease";
     loadingScreen.remove();
 
-
-
-
-    startBtn.style.display = "block";
+   startBtn.style.display = "block";
     scoreBtn.style.display = "block";
     document.getElementById("gameTitle").style.display = "block";
+  // نمایش صفحه انتخاب هواپیما
+    const airplaneContainer = document.getElementById("airplaneSelectContainer");
+    airplaneContainer.style.display = "block";
     document.getElementById("joystick").style.display = "none";
     document.getElementById("shoot").style.display = "none";
     document.getElementById("missileBtn").style.display = "none";
 
+ 
+    const planes = document.querySelectorAll(".plane");
+    planes.forEach(p => {
+        p.addEventListener("click", () => {
+        planes.forEach(pl => pl.classList.remove("selected")); // حذف انتخاب قبلی
+        p.classList.add("selected"); // انتخاب فعلی
+        selectedPlaneImg = p.querySelector("img").src;
+        startBtn.style.display = "block";
+      });
+    });
 
   }, 700);
 });
@@ -1187,6 +1309,8 @@ const missileImage = missileImages[Math.floor(Math.random() * missileImages.leng
 
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
+ // مخفی کردن کل کانتینر انتخاب هواپیما
+    document.getElementById("airplaneSelectContainer").style.display = "none";
   document.getElementById("scoreContainer").style.display = "block";
   const controlPanel = document.getElementById('controlPanel');
   gameOverBackground = false;
@@ -1199,6 +1323,8 @@ function startGame() {
   bulletSpeed = 5;
   airplane.x = canvas.width / 2 - (airplane.w)/2;
   airplane.y = canvas.height - 200;
+ // ✅ اینجا تصویر هواپیمای بازیکن تعیین می‌شود
+  airplaneImg.src = selectedPlaneImg || "plane30.png";
   enemies = [];
   bullets = [];
   fuels = []; // پاک کردن سوخت‌های باقی‌مانده
