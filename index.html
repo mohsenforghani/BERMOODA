@@ -1139,6 +1139,7 @@ for (let i = explosions.length - 1; i >= 0; i--) {
 // === کنترل‌ها ===
 function shoot() {
   if(!gameRunning) return;
+  if (airplane.hidden) return;
   bullets.push({x:airplane.x+airplane.w/2,y:airplane.y});
 }
 
@@ -1459,4 +1460,5 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
