@@ -1008,21 +1008,20 @@ if (inContact) {
 
   const now = Date.now();
   if (now - lbl.lastUpdate >= 20) {
-    // فقط اگر fuel کمتر از 100 است افزایش انجام شود
     if (fuel < 100) {
-      const increment = 0.4;
+      // حداکثر افزایش واقعی که می‌توان اضافه کرد
+      const increment = Math.min(0.4, 100 - fuel);
       fuel += increment;
-      if (fuel > 100) fuel = 100;
       lbl.value += increment;
-      if (lbl.value > 100) lbl.value = 100;
       lbl.text = `+${Math.floor(lbl.value)}%`;
     }
     lbl.lastUpdate = now;
   }
 
-  // همیشه لیبل همگام با لبه بالایی پمپ
+  // لیبل همیشه روی لبه بالایی پمپ باشد
   lbl.y = f.y - 10;
 }
+
 
   // رسم و fade out لیبل
   if (lbl) {
