@@ -935,7 +935,7 @@ function drawFuelGaugeAnimated() {
 
   // 🔹 درصد سوخت
   ctx.font = "12px Arial";
-  ctx.fillStyle = (fuel <= 10) ? "red" : "#00ffff";
+  ctx.fillStyle = (fuel <= 20) ? "red" : "#00ffff";
   ctx.fillText(Math.round(fuel) + "%", centerX, centerY - 10);
 
   // 🔹 Smooth animation عقربه
@@ -1046,7 +1046,7 @@ if (inContact) {
 ctx.globalAlpha = 1; // ریست alpha
 
 
-// 3️⃣ برخورد گلوله‌ها با پمپ‌ها
+// برخورد گلوله‌ها با پمپ‌ها
 fuels.forEach((f, i) => {
   bullets.forEach((b, j) => {
     if (b.x > f.x && b.x < f.x + f.w &&
@@ -1069,7 +1069,7 @@ fuels.forEach((f, i) => {
 fuel -= 0.02; // کاهش تدریجی سوخت
 if (fuel < 0) {
   fuel = 0;
-  endGame();
+  lives--;
 }
 
 
