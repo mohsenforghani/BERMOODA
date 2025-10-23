@@ -547,6 +547,31 @@ function updateMeteorExplosions() {
 
 let bullets = [];
 
+let backgroundAnimation;
+function animateGameOverBackground() {
+  drawBackground(); // فقط آسمان شب و ستاره‌ها
+  backgroundAnimation = requestAnimationFrame(animateGameOverBackground);
+ctx.save();
+const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+gradient.addColorStop(0, "#ff0000");
+gradient.addColorStop(0.5, "#ff4d4d");
+gradient.addColorStop(1, "#ff0000");
+ctx.fillStyle = gradient;
+ctx.shadowColor = "red";
+ctx.shadowBlur = 30;
+ctx.font = "bold 50px Arial Black";
+ctx.textAlign = "center";
+ctx.textBaseline = "middle";
+ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2.6);
+ctx.shadowColor = "white";
+ctx.shadowBlur = 10;
+ctx.fillStyle = "white";
+ctx.font = "bold 32px Arial";
+ctx.fillText("Your Score : " + score, canvas.width * 0.5, canvas.height * 0.47);
+ctx.restore();
+
+}
+
 
 let enemies = [];
 let score = 0;
@@ -594,18 +619,20 @@ const noFlyZoneHeight = 100; // ارتفاع ناحیه غیرقابل استف�
 
 
 const stars = [];
-function createStars(num = 50) {
-  stars.length = 0;
-  for (let i = 0; i < num; i++) {
-    stars.push({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      r: Math.random() * 1.7 ,
-      alpha: Math.random(),
-      speed: Math.random() * 0.02 + 0.01
-    });
+function createStars(count) {
+  if (stars.length === 0) {
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + 0.5,
+        alpha: Math.random(),
+        speed: (Math.random() * 0.005 + 0.05) * (Math.random() < 0.5 ? 1 : -1) // 🌟 سرعت بسیار نرم
+      });
+    }
   }
 }
+
 
 
 
@@ -967,7 +994,7 @@ function drawFuelGaugeAnimated() {
 // === حلقه بازی ===
 function gameLoop() {
   if (!gameRunning || paused) return;
-  drawBackground();
+drawBackground();
   const now = performance.now();
   const delta = (now - lastTime) / 16.67; 
   lastTime = now;
@@ -1320,7 +1347,7 @@ if(newMissiles > missiles) {
   createExplosion(e.x, e.y, e.w, e.h);
     explodeAirplane();
     enemies.splice(i, 1);
-   // endGame();
+   
   }
 });
 
@@ -1501,6 +1528,7 @@ function startGame() {
   document.getElementById("scoreContainer").style.display = "block";
   const controlPanel = document.getElementById('controlPanel');
   gameOverBackground = false;
+ cancelAnimationFrame(backgroundAnimation); // متوقف کن
   airplane.hidden = false;
   lives = 3;
   score = 0;
@@ -1532,48 +1560,22 @@ function startGame() {
 
 
   function endGame() {
-  gameRunning = false;
+    gameRunning = false;
     enemies = [];
     bullets = [];
     fuels = [];
     enemyBullets = [];
     activeMissiles = [];
     explosions = [];
-
-  gameOverBackground = true;
+    gameOverBackground = true;
+    animateGameOverBackground();
   
   // پاک کردن صفحه قبل از نمایش متن
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  //ctx.clearRect(0, 0, canvas.width, canvas.height);
   document.getElementById("scoreContainer").style.display = "none";
   controlPanel.style.display = 'none'; 
   pauseBtn.style.display = "none";
-  // 🌟 متن Game Over قرمز درخشان
-  const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
-  gradient.addColorStop(0, "#ff0000");
-  gradient.addColorStop(0.5, "#ff4d4d");
-  gradient.addColorStop(1, "#ff0000");
-  drawBackground();
-  ctx.save();
-  ctx.fillStyle = gradient;
-  ctx.shadowColor = "red";
-  ctx.shadowBlur = 30;
-  ctx.font = "bold 50px Arial Black";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.fillText("GAME OVER", canvas.width / 2, canvas.height / 2.6);
-
-
-  // 🌟 امتیاز نهایی بازیکن
-  ctx.shadowColor = "white";
-  ctx.shadowBlur = 10;
-  ctx.fillStyle = "white";
-  ctx.font = "bold 32px Arial";
-  ctx.fillText("Your Score : " + score, canvas.width*0.5, canvas.height*0.47 );
-
-  ctx.restore();
-
   explosionRunning = false;
-
   const startBtn = document.getElementById("startBtn");
   const scoreBtn = document.getElementById("scoreBtn");
   startBtn.style.display = "block";
@@ -1581,6 +1583,7 @@ function startGame() {
   document.getElementById("joystick").style.display = "none";
   document.getElementById("shoot").style.display = "none";
   document.getElementById("missileBtn").style.display = "none";
+  animateGameOverBackground(); 
 }
 
 
@@ -1710,6 +1713,7 @@ function explodeMeteor(x, y, w, h) {
 
   const animateParticles = () => {
     if (frame < totalFrames) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
       particles.forEach(p => {
         ctx.fillStyle = p.color;
         ctx.globalAlpha = p.alpha;
