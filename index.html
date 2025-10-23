@@ -1093,7 +1093,7 @@ fuels.forEach((f, i) => {
 
 
 
-fuel -= 0.02; // کاهش تدریجی سوخت
+fuel -= 0.01; // کاهش تدریجی سوخت
 if (fuel < 0) {
   fuel = 0;
 explodeAirplane();
@@ -1101,8 +1101,8 @@ explodeAirplane();
 
 
 
-  airplane.x += dx * 4;
-  airplane.y += dy * 4;
+  airplane.x += dx * 3;
+  airplane.y += dy * 3;
   airplane.x = Math.max(0, Math.min(canvas.width - airplane.w, airplane.x));
   airplane.y = Math.max(0, Math.min(canvas.height - airplane.h, airplane.y));
 
@@ -1484,7 +1484,7 @@ function enemyShoot(enemy) {
     x: enemy.x,
     y: enemy.y + enemy.h / 2,
     vx: 0,
-    vy: 2
+    vy: 1
   });
 }
 
@@ -1821,6 +1821,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
 
