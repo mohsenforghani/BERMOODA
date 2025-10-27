@@ -437,7 +437,7 @@ canvas.height = window.innerHeight;
 let airplane = { x: canvas.width / 2, y: canvas.height - 200, w: 50, h: 50 };
 let selectedPlaneImg =""; // تصویر هواپیمای انتخابی
 let selectedPlane = null;
-
+let lastMissileBonusLevel = 0;
 document.querySelectorAll('.plane').forEach(plane => {
   plane.addEventListener('click', () => {
     // حذف انتخاب قبلی
@@ -518,6 +518,25 @@ function createMeteorExplosion(x, y) {
   }
   meteorExplosions.push(particles);
 }
+
+
+function addScore(points, enemyCount = 1) {
+  // افزایش امتیاز بر اساس تعداد دشمن
+  score += points * enemyCount;
+
+  // بررسی سطح جدید برای پاداش موشک
+  let newLevel = Math.floor(score / 50);
+  if (newLevel > lastMissileBonusLevel) {
+    missiles += (newLevel - lastMissileBonusLevel);
+    lastMissileBonusLevel = newLevel;
+  }
+
+  // به‌روزرسانی نمایش
+  document.getElementById("scoreValue").textContent = score;
+  updateMissileBtn();
+}
+
+
 
 
 function updateMeteorExplosions() {
@@ -1080,8 +1099,7 @@ fuels.forEach((f, i) => {
         b.y > f.y && b.y < f.y + f.h) {
       fuels.splice(i, 1);
       bullets.splice(j, 1);
-      score += 10;
-      document.getElementById("scoreValue").textContent = score;
+      addScore(10);
     }
   });
 });
@@ -1174,8 +1192,7 @@ for (let i = activeMissiles.length - 1; i >= 0; i--) {
       createExplosion(e.x, e.y, e.w, e.h);
 
       // اضافه کردن امتیاز برای هر دشمن
-      score += 10;
-      document.getElementById("scoreValue").textContent = score;
+   addScore(10);
 
       // حذف دشمن و موشک
       enemies.splice(j, 1);
@@ -1193,8 +1210,7 @@ for (let i = activeMissiles.length - 1; i >= 0; i--) {
     enemies.forEach(e => createExplosion(e.x, e.y, e.w, e.h));
 
     // اضافه کردن امتیاز برای همه دشمنان باقی مانده
-    score += enemies.length * 10;
-    document.getElementById("scoreValue").textContent = score;
+   addScore(10, enemies.length);
 
     enemies = [];
     enemyBullets = [];
@@ -1322,16 +1338,7 @@ enemyBullets.forEach((b, i) => {
       createExplosion(e.x, e.y, e.w, e.h); // انفجار ترکیبی
       enemies.splice(i, 1);
       bullets.splice(j, 1);
-      score += 10;
-      document.getElementById("scoreValue").textContent = score;
-
-// هر 50 امتیاز یک موشک
-let newMissiles = Math.floor(score / 50);
-if(newMissiles > missiles) {
-  missiles = newMissiles;
-  updateMissileBtn(); // متن دکمه بروزرسانی شود
-}
-
+   addScore(10, enemies.length);
 
     }
   });
@@ -1439,8 +1446,7 @@ if (m.hp <= 0) {
   createMeteorExplosion(m.x + m.w/2, m.y + m.h/2); 
   meteors.splice(i, 1);
   // اضافه کردن امتیاز برای ترکاندن شهاب سنگ
-      score += 100;
-      document.getElementById("scoreValue").textContent = score;
+      addScore(100);
   break;
 }
 
@@ -1499,24 +1505,37 @@ function launchMissile() {
   updateMissileBtn();
   enemyBullets = [];
 
-// 🎯 انتخاب تصادفی بین مدل‌های مختلف موشک
-const missileImage = missileImages[Math.floor(Math.random() * missileImages.length)];
+  // 🎯 انتخاب تصادفی بین مدل‌های مختلف موشک
+  const missileImage = missileImages[Math.floor(Math.random() * missileImages.length)];
 
+  // ✨ تعیین اندازه بر اساس نوع تصویر
+  let missileW = 15;
+  let missileH = 30;
 
+  if (missileImage.src.includes("mooshak.png")) {
+    missileW = 20;
+    missileH = 20;
+  } else if (missileImage.src.includes("mooshak2.png")) {
+    missileW = 14;
+    missileH = 27;
+  }
+
+  // 🚀 اضافه کردن موشک به لیست فعال‌ها
   activeMissiles.push({
-    x: airplane.x + airplane.w / 2 - 10,
-    y: airplane.y - 10,
-    w: 10,
-    h: 35,
+    x: airplane.x + airplane.w / 2 - missileW / 2,
+    y: airplane.y - missileH,
+    w: missileW,
+    h: missileH,
     speed: 3,
     angle: 0,
     amplitude: 50,
-    prevX: airplane.x + airplane.w / 2 - 10,
-    prevY: airplane.y - 10,
-    baseX: airplane.x + airplane.w / 2 - 10,
-    img: missileImage // ✅ ذخیره تصویر تصادفی
+    prevX: airplane.x + airplane.w / 2 - missileW / 2,
+    prevY: airplane.y - missileH,
+    baseX: airplane.x + airplane.w / 2 - missileW / 2,
+    img: missileImage // ✅ تصویر انتخاب‌شده
   });
 }
+
 
 
 
@@ -1546,6 +1565,7 @@ function startGame() {
   enemyBullets = []; // ✅ پاک کردن تمام تیرهای دشمن
   lastFuelSpawn = Date.now(); // ریست تایمر تولید سوخت
   missiles = 0;              // ← تعداد موشک‌ها صفر
+  lastMissileBonusLevel = 0; // 🔁 ریست سطح پاداش موشک‌ها
   updateMissileBtn();        // ← بروزرسانی دکمه
   gameRunning = true;
   document.getElementById("startBtn").style.display = "none";
@@ -1821,6 +1841,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
 
