@@ -468,26 +468,26 @@ for (let i = 1; i <= meteorCount; i++) {
 
 function spawnMeteor() {
   // هر 15 ثانیه یک شهاب سنگ
-  if (Date.now() - lastMeteorSpawn < 15000) return;
+  if (Date.now() - lastMeteorSpawn < 20000) return;
   lastMeteorSpawn = Date.now();
 
   const img = meteorImages[Math.floor(Math.random() * meteorImages.length)];
-  const size = Math.random() * 60 + 60; // سایز بین 70 تا 120
+  const size = Math.random() * 60 + 50; // سایز بین 70 تا 120
   const direction = Math.random() < 0.5 ? "right" : "left";
-  const rotationSpeed = (Math.random() * 7 + 1) * (Math.random() < 0.5 ? -1 : 1); // سرعت چرخش تصادفی
+  const rotationSpeed = (Math.random() * 5 + 1) * (Math.random() < 0.5 ? -1 : 1); // سرعت چرخش تصادفی
 
   let startX, startY, vx, vy;
   startY = -size; // شروع از بالای صفحه
 
   if (direction === "right") {
     startX = -size;
-    vx = Math.random() * 1.2 + 1; // از چپ به راست
+    vx = Math.random() * 1.2 + .6; // از چپ به راست
   } else {
     startX = canvas.width + size;
-    vx = -(Math.random() * 1.2 + 1); // از راست به چپ
+    vx = -(Math.random() * 1.2 + .6); // از راست به چپ
   }
 
-  vy = Math.random() * 1.2 + 1.2; // حرکت رو به پایین
+  vy = Math.random() * 1.2 + .6; // حرکت رو به پایین
 
   meteors.push({
     x: startX,
