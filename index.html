@@ -23,20 +23,14 @@
 
 #gameTitle {
   position: absolute;
-  top: 80%;
+  bottom: 2%;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 50px;
-  font-weight: bold;
+  font-size: 15px;
+  font-weight: normal;
   color: #00ffcc;
   font-family: 'Arial Black', sans-serif;
-  text-shadow:
-    0 0 2px #00ffcc,
-    0 0 4px #00ffcc,
-    0 0 6px #00ffff,
-    0 0 8px #00ffff;
-    z-index: 1000;
-    
+  z-index: 1000;   
 }
 
   /* صفحه لودینگ */
@@ -120,10 +114,33 @@
 }
 
 
+  #startBtn {
+  position: absolute;
+  width: 300px;     /* عرض یکسان */
+  height: 40px;
+  bottom: 30%; 
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #00c3ff, #0072ff);
+  color: white;
+  white-space: nowrap;
+  border: none;
+  border-radius: 25px;
+  font-size: 20px;
+  font-family: 'Calibri', sans-serif;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
+  transition: all 0.3s ease;
+  display: none; /* اول بازی مخفی باشد */
+  z-index: 999;
+}
+
+
   #scoreBtn {
   position: absolute;
   width: 300px;     /* عرض یکسان */
-  padding: 12px 0;  /* فقط ارتفاع دکمه */
+  height: 40px;
   bottom: 20%; 
   left: 50%;
   transform: translateX(-50%);
@@ -141,11 +158,11 @@
   display: none; /* اول بازی مخفی باشد */
   z-index: 999;
 }
-#startBtn {
+ #exitBtn {
   position: absolute;
   width: 300px;     /* عرض یکسان */
-  padding: 12px 0;  /* فقط ارتفاع دکمه */
-  bottom: 30%; 
+  height: 40px;
+  bottom: 10%; 
   left: 50%;
   transform: translateX(-50%);
   background: linear-gradient(135deg, #00c3ff, #0072ff);
@@ -182,6 +199,19 @@
 #scoreBtn:active {
   transform: translateX(-50%) scale(0.95);
 }
+
+#exitBtn:hover {
+  background: linear-gradient(135deg, #33ccff, #0066ff);
+  transform: translateX(-50%) scale(1.08);
+  box-shadow: 0 0 25px rgba(0, 114, 255, 0.9);
+}
+
+#exitBtn:active {
+  transform: translateX(-50%) scale(0.95);
+}
+
+
+
 
   #creatorName {
     position: absolute;
@@ -362,6 +392,27 @@
   border-radius: 12px;
 }
 
+#missileBtn {
+  position: absolute;
+  bottom: 11%;        /* فاصله از پایین صفحه */
+  left: 2.5%;         /* فاصله از چپ صفحه */
+  width: 60px;         /* عرض دکمه */
+  height: 40px;        /* ارتفاع دکمه */
+  background: gray;    /* رنگ پس‌زمینه */
+  color: white;        /* رنگ متن */
+  border-radius: 20px; /* گوشه‌های گرد */
+  font-weight: bold;   /* ضخامت متن */
+  border: none;        /* بدون حاشیه */
+  cursor: pointer;     /* نشانگر موس */
+  z-index: 1000;       /* روی عناصر دیگر */
+}
+
+/* وضعیت غیر فعال */
+#missileBtn:disabled {
+  opacity: 0.5;       /* شفافیت کمتر */
+  cursor: not-allowed; /* نشانگر غیر فعال */
+}
+
 
 
 
@@ -372,8 +423,9 @@
 <canvas id="gameCanvas"></canvas>
 <button id="startBtn">شروع بازی</button>
 <button id="scoreBtn">نمایش امتیازات</button>
+<button id="exitBtn">خروج</button>
 <div id="creatorName">Created by Mohsen Forghani</div>
-<button id="missileBtn" style="position:absolute; bottom:11%; left:2.5%; width:60px; height:40px; background:gray; color:white; border-radius:20px; font-weight:bold;" disabled>🚀</button>
+<button id="missileBtn" disabled>🚀</button>
 <div id="gameTitle">BERMOODA</div>
 <div id="controlPanel"></div>
 
@@ -451,6 +503,8 @@ document.querySelectorAll('.plane').forEach(plane => {
 
     // بعد از انتخاب، دکمه شروع بازی را نمایش بده
     startBtn.style.display = "block";
+    scoreBtn.style.display = "block";
+    exitBtn.style.display = "block";
   });
 });
 
@@ -791,8 +845,9 @@ preloadImages(() => {
     loadingScreen.style.transition = "opacity 0.8s ease";
     loadingScreen.remove();
 
-   startBtn.style.display = "block";
+    startBtn.style.display = "block";
     scoreBtn.style.display = "block";
+    exitBtn.style.display = "block";
     document.getElementById("gameTitle").style.display = "block";
   // نمایش صفحه انتخاب هواپیما
     const airplaneContainer = document.getElementById("airplaneSelectContainer");
@@ -809,6 +864,8 @@ preloadImages(() => {
         p.classList.add("selected"); // انتخاب فعلی
         selectedPlaneImg = p.querySelector("img").src;
         startBtn.style.display = "block";
+        scoreBtn.style.display = "block";
+        exitBtn.style.display = "block";
       });
     });
 
@@ -818,6 +875,12 @@ preloadImages(() => {
   startBtn.onclick = () => {
   startBtn.style.display = "none";
   startGame();
+};
+
+  exitBtn.onclick = () => {
+  startBtn.style.display = "none";
+  exitBtn.style.display = "none";
+  window.close();
 };
 
 
@@ -1192,7 +1255,7 @@ for (let i = activeMissiles.length - 1; i >= 0; i--) {
       createExplosion(e.x, e.y, e.w, e.h);
 
       // اضافه کردن امتیاز برای هر دشمن
-   addScore(10);
+      addScore(10);
 
       // حذف دشمن و موشک
       enemies.splice(j, 1);
@@ -1546,6 +1609,7 @@ function startGame() {
     document.getElementById("airplaneSelectContainer").style.display = "none";
   document.getElementById("scoreContainer").style.display = "block";
   const controlPanel = document.getElementById('controlPanel');
+controlPanel.style.display = 'block'; 
   gameOverBackground = false;
  cancelAnimationFrame(backgroundAnimation); // متوقف کن
   airplane.hidden = false;
@@ -1565,10 +1629,11 @@ function startGame() {
   enemyBullets = []; // ✅ پاک کردن تمام تیرهای دشمن
   lastFuelSpawn = Date.now(); // ریست تایمر تولید سوخت
   missiles = 0;              // ← تعداد موشک‌ها صفر
-  lastMissileBonusLevel = 0; // 🔁 ریست سطح پاداش موشک‌ها
+  lastMissileBonusLevel = 0; //  ریست سطح پاداش موشک‌ها
   updateMissileBtn();        // ← بروزرسانی دکمه
   gameRunning = true;
   document.getElementById("startBtn").style.display = "none";
+ document.getElementById("exitBtn").style.display = "none";
   document.getElementById("scoreBtn").style.display = "none";
   document.getElementById("joystick").style.display = "block";
   document.getElementById("shoot").style.display = "block";
@@ -1597,8 +1662,10 @@ function startGame() {
   pauseBtn.style.display = "none";
   explosionRunning = false;
   const startBtn = document.getElementById("startBtn");
+const exitBtn = document.getElementById("exitBtn");
   const scoreBtn = document.getElementById("scoreBtn");
   startBtn.style.display = "block";
+  exitBtn.style.display = "block";
   scoreBtn.style.display = "block";
   document.getElementById("joystick").style.display = "none";
   document.getElementById("shoot").style.display = "none";
@@ -1827,9 +1894,16 @@ function addTouchAndClick(id, handler){
 }
 
 startBtn.addEventListener('click', () => {
-  controlPanel.style.display = 'block'; 
+  
   startGame();
 });
+
+
+//exitBtn.addEventListener('click', () => {
+// window.close();
+
+//});
+
 
 addTouchAndClick("shoot",shoot);
 addTouchAndClick("missileBtn", launchMissile);
@@ -1841,6 +1915,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
 
