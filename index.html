@@ -179,7 +179,27 @@
   display: none; /* اول بازی مخفی باشد */
   z-index: 999;
 }
-
+ #continuetBtn {
+  position: absolute;
+  width: 300px;     /* عرض یکسان */
+  height: 40px;
+  bottom: 20%; 
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, #00c3ff, #0072ff);
+  color: white;
+  white-space: nowrap;
+  border: none;
+  border-radius: 25px;
+  font-size: 20px;
+  font-family: 'Calibri', sans-serif;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
+  transition: all 0.3s ease;
+  display: none; /* اول بازی مخفی باشد */
+  z-index: 999;
+ }
 #startBtn:hover {
   background: linear-gradient(135deg, #33ccff, #0066ff);
   transform: translateX(-50%) scale(1.08);
@@ -199,7 +219,16 @@
 #scoreBtn:active {
   transform: translateX(-50%) scale(0.95);
 }
+#continueBtn:hover {
+  background: linear-gradient(135deg, #33ccff, #0066ff);
+  transform: translateX(-50%) scale(1.08);
+  box-shadow: 0 0 25px rgba(0, 114, 255, 0.9);
+}
 
+#continueBtn:active {
+  transform: translateX(-50%) scale(0.95);
+}
+  
 #exitBtn:hover {
   background: linear-gradient(135deg, #33ccff, #0066ff);
   transform: translateX(-50%) scale(1.08);
@@ -423,6 +452,7 @@
 <canvas id="gameCanvas"></canvas>
 <button id="startBtn">شروع بازی</button>
 <button id="scoreBtn">نمایش امتیازات</button>
+<button id="continueBtn">ادامه بازی</button>
 <button id="exitBtn">خروج</button>
 <div id="creatorName">Created by Mohsen Forghani</div>
 <button id="missileBtn" disabled>🚀</button>
@@ -463,7 +493,7 @@
     </div>
     <div class="plane" data-plane="33">
       <img src="plane33.png" alt="Plane 4">
-      <p>اژدر بی کله</p>
+    <p> اژدر </p>
     </div>
   </div>
 </div>
@@ -619,7 +649,7 @@ function updateMeteorExplosions() {
 
 
 let bullets = [];
-
+     
 let backgroundAnimation;
 function animateGameOverBackground() {
   drawBackground(); // فقط آسمان شب و ستاره‌ها
@@ -657,12 +687,20 @@ pauseBtn.addEventListener("click", () => {
         paused = true;
         pauseTime = performance.now(); // ذخیره زمان Pause
         pauseBtn.innerText = "Play";
+      
+    startBtn.style.display = "block";
+    continuebtn.style.display = "block";
+    exitBtn.style.display = "block";
     } else {
         paused = false;
         const now = performance.now();
         lastTime += (now - pauseTime); // اصلاح lastTime بعد از Resume
         pauseBtn.innerText = "Pause";
-        requestAnimationFrame(gameLoop); // ادامه بازی
+      
+    startBtn.style.display = "none";
+    continueBtn.style.display = "none";
+    exitBtn.style.display = "none";
+    requestAnimationFrame(gameLoop); // ادامه بازی
     }
 });
 
@@ -877,6 +915,16 @@ preloadImages(() => {
   startGame();
 };
 
+  continueBtn.onclick = () => {
+  startBtn.style.display = "none";
+  continueBtn.style.display = "none";
+  exitBtn.style.display = "none";
+  requestAnimationFrame(gameLoop);
+};
+  
+
+
+  
   exitBtn.onclick = () => {
   startBtn.style.display = "none";
   exitBtn.style.display = "none";
@@ -1915,6 +1963,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
 
