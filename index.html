@@ -696,7 +696,6 @@ pauseBtn.addEventListener("click", () => {
     paused = true;
     pauseTime = performance.now();
     pauseBtn.innerHTML = "▶"; // علامت Play روی دکمه Pause
-
     // 🎯 نمایش دکمه‌های منوی Pause
     continueBtn.style.display = "block";
     startBtn.style.display = "block";
@@ -868,7 +867,7 @@ for (let i = 0; i < 6; i++) {
     y: Math.random() * canvas.height,
     speed: 0.2 + Math.random() * 0.5,
     img: cloudImages[Math.floor(Math.random() * cloudImages.length)],
-    size: 60 + Math.random() * 100
+    size: 65 + Math.random() * 100
   });
 }
 
@@ -1997,3 +1996,5 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
+
