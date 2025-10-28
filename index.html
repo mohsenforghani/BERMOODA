@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fa">
 <head>
@@ -179,7 +180,7 @@
   display: none; /* اول بازی مخفی باشد */
   z-index: 999;
 }
- #continuetBtn {
+ #continueBtn {
   position: absolute;
   width: 300px;     /* عرض یکسان */
   height: 40px;
@@ -341,7 +342,6 @@
 
 #pauseBtn {
   position: absolute;
-  outline: none; /* حذف خط تمرکز */
   bottom: 60px;
   right: 110px;
   width: 60px;
@@ -349,18 +349,26 @@
   border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.4);
   background: radial-gradient(circle at center, #0ff, #00f);
-  color: black;
+  color: #001122; /* تیره‌تر برای خوانایی بهتر */
   font-weight: bold;
-  font-size: 12px;
-  opacity: 1;
+  font-size: 16px;
+  display: flex; /* برای وسط‌چین کردن */
+  justify-content: center; /* افقی در مرکز */
+  align-items: center; /* عمودی در مرکز */
   cursor: pointer;
   box-shadow: 0 0 15px #0ff, 0 0 30px #0ff inset;
   transition: all 0.2s ease;
+  text-shadow: 0 0 8px #0ff, 0 0 15px #0ff; /* جلوه نئونی نوشته */
 }
 
 #pauseBtn:hover {
   box-shadow: 0 0 25px #0ff, 0 0 50px #0ff inset;
+  text-shadow: 0 0 10px #0ff, 0 0 25px #0ff, 0 0 40px #00f;
 }
+
+
+
+
 
 /* کانتینر انتخاب هواپیما ابتدا مخفی باشد */
 #airplaneSelectContainer {
@@ -507,7 +515,7 @@
 </div>
 
 
-<button id="pauseBtn" style="display:none;">Pause</button>
+<button id="pauseBtn" style="display:none;">⏸</button>
 
 
 <script>
@@ -683,26 +691,50 @@ const pauseBtn = document.getElementById("pauseBtn");
 let paused = false;
 let pauseTime = 0;
 pauseBtn.addEventListener("click", () => {
-    if (!paused) {
-        paused = true;
-        pauseTime = performance.now(); // ذخیره زمان Pause
-        pauseBtn.innerText = "Play";
-      
+  if (!paused) {
+    // ⏸ وقتی بازی متوقف می‌شود
+    paused = true;
+    pauseTime = performance.now();
+    pauseBtn.innerHTML = "▶"; // علامت Play روی دکمه Pause
+
+    // 🎯 نمایش دکمه‌های منوی Pause
+    continueBtn.style.display = "block";
     startBtn.style.display = "block";
-    continuebtn.style.display = "block";
     exitBtn.style.display = "block";
-    } else {
-        paused = false;
-        const now = performance.now();
-        lastTime += (now - pauseTime); // اصلاح lastTime بعد از Resume
-        pauseBtn.innerText = "Pause";
-      
-    startBtn.style.display = "none";
+
+    // جایگذاری زیبا وسط صفحه
+    continueBtn.style.position = "absolute";
+    continueBtn.style.top = "45%";
+    continueBtn.style.left = "50%";
+    continueBtn.style.transform = "translate(-50%, -50%)";
+
+    startBtn.style.position = "absolute";
+    startBtn.style.top = "55%";
+    startBtn.style.left = "50%";
+    startBtn.style.transform = "translate(-50%, -50%)";
+
+    exitBtn.style.position = "absolute";
+    exitBtn.style.top = "65%";
+    exitBtn.style.left = "50%";
+    exitBtn.style.transform = "translate(-50%, -50%)";
+
+  } else {
+    // ▶ وقتی بازی از Pause خارج می‌شود
+    paused = false;
+    const now = performance.now();
+    lastTime += (now - pauseTime);
+    pauseBtn.innerHTML = "⏸"; // علامت Pause روی دکمه
+
+    // 🔹 پنهان کردن دکمه‌ها هنگام ادامه بازی
     continueBtn.style.display = "none";
+    startBtn.style.display = "none";
     exitBtn.style.display = "none";
-    requestAnimationFrame(gameLoop); // ادامه بازی
-    }
+
+    // 🎮 ادامه بازی
+    requestAnimationFrame(gameLoop);
+  }
 });
+
 
 let fuelLabels = []; // آرایه نگهداری لیبل‌ها
 let gameOverBackground = false;
@@ -915,12 +947,17 @@ preloadImages(() => {
   startGame();
 };
 
-  continueBtn.onclick = () => {
-  startBtn.style.display = "none";
-  continueBtn.style.display = "none";
-  exitBtn.style.display = "none";
-  requestAnimationFrame(gameLoop);
+ continueBtn.onclick = () => {
+    paused = false;
+    const now = performance.now();
+    lastTime += (now - pauseTime);
+    pauseBtn.innerHTML = "⏸"; // علامت Pause روی دکمه
+    continueBtn.style.display = "none";
+    startBtn.style.display = "none";
+    exitBtn.style.display = "none";
+    requestAnimationFrame(gameLoop);
 };
+
   
 
 
@@ -1681,6 +1718,7 @@ controlPanel.style.display = 'block';
   updateMissileBtn();        // ← بروزرسانی دکمه
   gameRunning = true;
   document.getElementById("startBtn").style.display = "none";
+  document.getElementById("continueBtn").style.display = "none";
  document.getElementById("exitBtn").style.display = "none";
   document.getElementById("scoreBtn").style.display = "none";
   document.getElementById("joystick").style.display = "block";
@@ -1710,6 +1748,7 @@ controlPanel.style.display = 'block';
   pauseBtn.style.display = "none";
   explosionRunning = false;
   const startBtn = document.getElementById("startBtn");
+const continueBtn = document.getElementById("continueBtn");
 const exitBtn = document.getElementById("exitBtn");
   const scoreBtn = document.getElementById("scoreBtn");
   startBtn.style.display = "block";
@@ -1947,11 +1986,6 @@ startBtn.addEventListener('click', () => {
 });
 
 
-//exitBtn.addEventListener('click', () => {
-// window.close();
-
-//});
-
 
 addTouchAndClick("shoot",shoot);
 addTouchAndClick("missileBtn", launchMissile);
@@ -1963,10 +1997,3 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
