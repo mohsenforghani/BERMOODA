@@ -115,16 +115,16 @@
 }
 
 
-  #startBtn {
+ #startBtn {
   position: absolute;
-  width: 300px;     /* عرض یکسان */
+  width: 300px;
   height: 40px;
-  bottom: 30%; 
+  bottom: 30%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(100vw); /* خارج از صفحه سمت راست */
+  opacity: 0;
   background: linear-gradient(135deg, #00c3ff, #0072ff);
   color: white;
-  white-space: nowrap;
   border: none;
   border-radius: 25px;
   font-size: 20px;
@@ -133,21 +133,34 @@
   cursor: pointer;
   box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
   transition: all 0.3s ease;
-  display: none; /* اول بازی مخفی باشد */
   z-index: 999;
+
+  display: block; /* مهم: حتما block باشه */
 }
+
+/* کلاس show برای ورود */
+#startBtn.show {
+  animation: enterFromRight 0.3s forwards;
+}
+
+/* انیمیشن ورود */
+@keyframes enterFromRight {
+  0% { transform: translateX(100vw); opacity: 0; }
+  100% { transform: translateX(-50%); opacity: 1; }
+}
+
 
 
   #scoreBtn {
   position: absolute;
-  width: 300px;     /* عرض یکسان */
+  width: 300px;
   height: 40px;
-  bottom: 20%; 
+  bottom: 20%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(100vw); /* خارج از صفحه سمت راست */
+  opacity: 0;
   background: linear-gradient(135deg, #00c3ff, #0072ff);
   color: white;
-  white-space: nowrap;
   border: none;
   border-radius: 25px;
   font-size: 20px;
@@ -156,19 +169,31 @@
   cursor: pointer;
   box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
   transition: all 0.3s ease;
-  display: none; /* اول بازی مخفی باشد */
   z-index: 999;
+  display: block;
 }
+
+/* کلاس show برای ورود */
+#scoreBtn.show {
+  animation: enterFromRight 0.3s forwards;
+}
+
+/* انیمیشن ورود */
+@keyframes enterFromRight {
+  0% { transform: translateX(100vw); opacity: 0; }
+  100% { transform: translateX(-50%); opacity: 1; }
+}
+
  #exitBtn {
   position: absolute;
-  width: 300px;     /* عرض یکسان */
+  width: 300px;
   height: 40px;
-  bottom: 10%; 
+  bottom: 10%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(100vw); /* خارج از صفحه سمت راست */
+  opacity: 0;
   background: linear-gradient(135deg, #00c3ff, #0072ff);
   color: white;
-  white-space: nowrap;
   border: none;
   border-radius: 25px;
   font-size: 20px;
@@ -177,19 +202,33 @@
   cursor: pointer;
   box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
   transition: all 0.3s ease;
-  display: none; /* اول بازی مخفی باشد */
   z-index: 999;
+  display: block;
 }
+
+/* کلاس show برای ورود */
+#exitBtn.show {
+  animation: enterFromRight 0.3s forwards;
+}
+
+/* انیمیشن ورود */
+@keyframes enterFromRight {
+  0% { transform: translateX(100vw); opacity: 0; }
+  100% { transform: translateX(-50%); opacity: 1; }
+}
+
+
+
  #continueBtn {
   position: absolute;
-  width: 300px;     /* عرض یکسان */
+  width: 300px;
   height: 40px;
-  bottom: 20%; 
+  bottom: 20%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(100vw); /* خارج از صفحه سمت راست */
+  opacity: 0;
   background: linear-gradient(135deg, #00c3ff, #0072ff);
   color: white;
-  white-space: nowrap;
   border: none;
   border-radius: 25px;
   font-size: 20px;
@@ -198,9 +237,23 @@
   cursor: pointer;
   box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
   transition: all 0.3s ease;
-  display: none; /* اول بازی مخفی باشد */
   z-index: 999;
- }
+  display: block;
+}
+
+/* کلاس show برای ورود */
+#continueBtn.show {
+  animation: enterFromRight 0.3s forwards;
+}
+
+/* انیمیشن ورود */
+@keyframes enterFromRight {
+  0% { transform: translateX(100vw); opacity: 0; }
+  100% { transform: translateX(-50%); opacity: 1; }
+}
+
+
+
 #startBtn:hover {
   background: linear-gradient(135deg, #33ccff, #0066ff);
   transform: translateX(-50%) scale(1.08);
@@ -258,86 +311,18 @@
 
   /* 🎮 جوی‌استیک */
   #joystick {
-  position: absolute;
-  bottom: 30px;
-  right: 20px;
-  width: 80px;
-  height: 80px;
-  background: rgba(255,255,255,0.1);
-  border: 3px solid rgba(255,255,255,0.4);
-  border-radius: 50%;
-  display: block; /* یا none اگر میخوای اول مخفی باشه */
-  z-index: 1000;
-  box-sizing: border-box;
-}
+    position: absolute;
+    bottom: 30px;
+    right: 20px;
+    width: 80px;
+    height: 80px;
+    background: rgba(255,255,255,0.1);
+    border: 3px solid rgba(255,255,255,0.4);
+    border-radius: 50%;
+   display = "none"
+   z-index: 1000;
 
-/* پیکان‌های جهت */
-#joystick::before,
-#joystick::after {
-  content: '';
-  position: absolute;
-  width: 2px;
-  height: 30px;
-  background: white;
-  top: 50%;
-  left: 50%;
-  transform-origin: center;
-}
-
-/* عمودی */
-#joystick::before {
-  transform: translate(-50%, -50%) rotate(0deg);
-}
-
-/* افقی */
-#joystick::after {
-  transform: translate(-50%, -50%) rotate(90deg);
-}
-
-/* پیکان‌ها برای نمایش جهت ها */
-.arrow {
-  position: absolute;
-  width: 0;
-  height: 0;
-  border-style: solid;
-}
-
-/* بالا */
-.arrow-up {
-  border-width: 0 5px 10px 5px;
-  border-color: transparent transparent white transparent;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* پایین */
-.arrow-down {
-  border-width: 10px 5px 0 5px;
-  border-color: white transparent transparent transparent;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-/* چپ */
-.arrow-left {
-  border-width: 5px 10px 5px 0;
-  border-color: transparent white transparent transparent;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-/* راست */
-.arrow-right {
-  border-width: 5px 0 5px 10px;
-  border-color: transparent transparent transparent white;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
+  }
 
   #stick {
     position: absolute;
@@ -521,6 +506,10 @@
 
 
 
+
+
+
+
 </style>
 </head>
 <body>
@@ -537,13 +526,8 @@
 
 <!-- 🎮 کنترل‌ها -->
 <div id="joystick">
-  <div class="arrow arrow-up"></div>
-  <div class="arrow arrow-down"></div>
-  <div class="arrow arrow-left"></div>
-  <div class="arrow arrow-right"></div>
+  <div id="stick"></div>
 </div>
-
-
 <div id="shoot">🔥</div>
 
  <div id="loadingScreen">
@@ -614,8 +598,11 @@ document.querySelectorAll('.plane').forEach(plane => {
 
     // بعد از انتخاب، دکمه شروع بازی را نمایش بده
     startBtn.style.display = "block";
+    startBtn.classList.add('show');
     scoreBtn.style.display = "block";
+    scoreBtn.classList.add('show');
     exitBtn.style.display = "block";
+    exitBtn.classList.add('show');
   });
 });
 
@@ -770,9 +757,13 @@ pauseBtn.addEventListener("click", () => {
     pauseTime = performance.now();
     pauseBtn.innerHTML = "▶"; // علامت Play روی دکمه Pause
     // 🎯 نمایش دکمه‌های منوی Pause
+  
     continueBtn.style.display = "block";
+    continueBtn.classList.add('show');
     startBtn.style.display = "block";
+    startBtn.classList.add('show');
     exitBtn.style.display = "block";
+    exitBtn.classList.add('show');
 
     // جایگذاری زیبا وسط صفحه
     continueBtn.style.position = "absolute";
@@ -988,8 +979,12 @@ preloadImages(() => {
     loadingScreen.remove();
 
     startBtn.style.display = "block";
+    startBtn.classList.add('show');
     scoreBtn.style.display = "block";
+    scoreBtn.classList.add('show');
     exitBtn.style.display = "block";
+    exitBtn.classList.add('show');
+
     document.getElementById("gameTitle").style.display = "block";
   // نمایش صفحه انتخاب هواپیما
     const airplaneContainer = document.getElementById("airplaneSelectContainer");
@@ -1006,8 +1001,11 @@ preloadImages(() => {
         p.classList.add("selected"); // انتخاب فعلی
         selectedPlaneImg = p.querySelector("img").src;
         startBtn.style.display = "block";
+        startBtn.classList.add('show');
         scoreBtn.style.display = "block";
+        scoreBtn.classList.add('show');
         exitBtn.style.display = "block";
+        exitBtn.classList.add('show');
       });
     });
 
@@ -1823,9 +1821,16 @@ controlPanel.style.display = 'block';
 const continueBtn = document.getElementById("continueBtn");
 const exitBtn = document.getElementById("exitBtn");
   const scoreBtn = document.getElementById("scoreBtn");
-  startBtn.style.display = "block";
-  exitBtn.style.display = "block";
-  scoreBtn.style.display = "block";
+    
+
+startBtn.style.display = "block";
+    startBtn.classList.add('show');
+    scoreBtn.style.display = "block";
+    scoreBtn.classList.add('show');
+    exitBtn.style.display = "block";
+    exitBtn.classList.add('show');
+
+
   document.getElementById("joystick").style.display = "none";
   document.getElementById("shoot").style.display = "none";
   document.getElementById("missileBtn").style.display = "none";
@@ -2069,10 +2074,3 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
