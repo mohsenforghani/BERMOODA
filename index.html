@@ -2036,6 +2036,7 @@ function startGame() {
   gameOverBackground = false;
   cancelAnimationFrame(backgroundAnimation); // متوقف کن
   airplane.hidden = false;
+  pauseBtn.innerHTML = "⏸";
   lives = 3;
   score = 0;
   document.getElementById("scoreValue").textContent = score;
@@ -2324,17 +2325,39 @@ joystick.addEventListener("touchend", e=>{
 });
 
 // === شلیک نگه داشتن ===
-shootBtn.addEventListener("touchstart", e=>{
-  if(!gameRunning) return;
-  updateBulletGrade(score);
-shootBullets();
-updateAndDrawBullets();
-  shootInterval=setInterval(shoot,110);
+shootBtn.addEventListener("touchstart", e => {
+  e.preventDefault();
+  if (!gameRunning) return;
+
+  shootBullets(); // شلیک فوری
+  clearInterval(shootInterval);
+  shootInterval = setInterval(() => {
+    shootBullets();
+  }, 110);
 });
-shootBtn.addEventListener("touchend", e=>{
+
+shootBtn.addEventListener("touchend", e => {
   clearInterval(shootInterval);
 });
 
+// --- کلیک (کامپیوتر)
+shootBtn.addEventListener("mousedown", e => {
+  if (!gameRunning) return;
+
+  shootBullets(); // شلیک فوری
+  clearInterval(shootInterval);
+  shootInterval = setInterval(() => {
+    shootBullets();
+  }, 110);
+});
+
+shootBtn.addEventListener("mouseup", e => {
+  clearInterval(shootInterval);
+});
+
+shootBtn.addEventListener("mouseleave", e => {
+  clearInterval(shootInterval);
+});
 
 
 // === دکمه‌ها ===
