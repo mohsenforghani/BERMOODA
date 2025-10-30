@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="fa">
 <head>
@@ -22,24 +21,56 @@
     background: black;
   }
 
+#controlPanel {
+  position: fixed;
+ top: calc(100vh - 30px - 80px - 20px); /* bottom جوی‌استیک + ارتفاع + 5px بالاتر */
+ width: 100%;
+  height: calc(30px + 80px + 40px); /* فاصله از بالا تا پایین صفحه */
+  border-radius: 30px;
+  pointer-events: none;
+  z-index: 0;
+  background: transparent;
+  box-sizing: border-box;
+  border: 3px solid transparent;
+  background-clip: padding-box; /* تا حاشیه از پس‌زمینه جدا باشد */
+display: none;
+}
+
+#controlPanel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  border: 3px solid;
+  border-color: rgba(128,128,128,1);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0));
+  pointer-events: none;
+}
+
+
+
 #playernameDisplay {
-position:absolute;
- font-size:12px;
- z-index:10;
--webkit-user-select: none;
--moz-user-select: none;
--ms-user-select: none;
-user-select: none;
-pointer-events: none;
-top:3%;
- left:10px; 
-color: #00FF00;
- text-shadow:0 1px 2px black;
+ position: fixed;
+  font-size: 12px;
+  z-index: 10;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  pointer-events: none;
+  top: 2%;
+  left: 10px;
+  color: black;
+  text-shadow: 
+    0 0 1px yellow,
+    0 0 2px yellow,
+    0 0 10px yellow,
+    0 0 20px yellow;
 }
 
 #finalScore {
   
-    position: absolute;
+    position: fixed;
     top: 10%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -51,7 +82,7 @@ color: #00FF00;
 }
 
 #gameTitle {
-  position: absolute;
+  position: fixed;
   bottom: 2%;
   left: 50%;
   transform: translateX(-50%);
@@ -144,7 +175,7 @@ color: #00FF00;
 
 
   #startBtn {
-  position: absolute;
+  position: fixed;
   width: 300px;     /* عرض یکسان */
   height: 40px;
   bottom: 30%; 
@@ -167,7 +198,7 @@ color: #00FF00;
 
 
   #scoreBtn {
-  position: absolute;
+  position: fixed;
   width: 300px;     /* عرض یکسان */
   height: 40px;
   bottom: 20%; 
@@ -188,7 +219,7 @@ color: #00FF00;
   z-index: 999;
 }
  #exitBtn {
-  position: absolute;
+  position: fixed;
   width: 300px;     /* عرض یکسان */
   height: 40px;
   bottom: 10%; 
@@ -209,7 +240,7 @@ color: #00FF00;
   z-index: 999;
 }
  #continueBtn {
-  position: absolute;
+  position: fixed;
   width: 300px;     /* عرض یکسان */
   height: 40px;
   bottom: 20%; 
@@ -272,9 +303,9 @@ color: #00FF00;
 
 
   #creatorName {
-    position: absolute;
-    bottom: 10px;
-    right: 10px;
+    position: fixed;
+    bottom: 12px;
+    right: 15px;
     font-size: 10px;
     color: rgba(255,255,255,0.5);
     font-style: italic;
@@ -284,7 +315,7 @@ color: #00FF00;
     font-family: Arial, sans-serif;
   }
 
-  /* 🎮 جوی‌استیک */
+/* 🎮 جوی‌استیک */
   #joystick {
     position: absolute;
     bottom: 30px;
@@ -313,12 +344,12 @@ color: #00FF00;
   }
 
   #shoot {
-    position: absolute;
+    position: fixed;
     bottom: 20px;
     left: 20px;
     width: 50px;
     height: 50px;
-    background: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.9);
     border-radius: 50%;
     color: white;
     font-size: 25px;
@@ -326,28 +357,13 @@ color: #00FF00;
     line-height: 50px;
     user-select: none;
     display = "none"
-    z-index: 1000;
+    z-index: 20000;
   }
 
 
 
-#controlPanel {
-  position: absolute;
-  bottom: -14px;
-  left: 0;
-  width: 101%;
-  height: 18.5%;
-  border-radius:20px;
-  background-color: rgba(128,128,128,0.5);
-  z-index: 1;
-  pointer-events: none; 
-  display: none;
-}
-
-
-
 #scoreContainer {
-  position: absolute;
+  position: fixed;
   top: 10px;
   right: 15px;
   color: #00ffcc;
@@ -369,11 +385,12 @@ color: #00FF00;
 }
 
 #pauseBtn {
-  position: absolute;
+  position: fixed;
   bottom: 60px;
   right: 110px;
   width: 60px;
   height: 60px;
+  z-index: 2000;
   border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.4);
   background: radial-gradient(circle at center, #0ff, #00f);
@@ -397,7 +414,7 @@ color: #00FF00;
 /* کانتینر انتخاب هواپیما ابتدا مخفی باشد */
 #airplaneSelectContainer {
   display: none;       /* اول مخفی */
-  position: absolute;  /* یا relative اگر نیاز به جریان عادی صفحه دارید */
+  position: fixed;  /* یا relative اگر نیاز به جریان عادی صفحه دارید */
   top: 30px;           /* فاصله از بالا */
   left: 50%;
   transform: translateX(-50%); /* وسط چین کردن افقی */
@@ -454,9 +471,9 @@ color: #00FF00;
 }
 
 #missileBtn {
-  position: absolute;
-  bottom: 11%;        /* فاصله از پایین صفحه */
-  left: 2.5%;         /* فاصله از چپ صفحه */
+  position: fixed;
+  bottom: 75px;        /* فاصله از پایین صفحه */
+  left: 15px;         /* فاصله از چپ صفحه */
   width: 60px;         /* عرض دکمه */
   height: 40px;        /* ارتفاع دکمه */
   background: gray;    /* رنگ پس‌زمینه */
@@ -470,12 +487,12 @@ color: #00FF00;
 
 /* وضعیت غیر فعال */
 #missileBtn:disabled {
-  opacity: 0.7;       /* شفافیت کمتر */
+  opacity: 1;       /* شفافیت کمتر */
   cursor: not-allowed; /* نشانگر غیر فعال */
 }
 
 #bestPlayer {
-  position: absolute;
+  position: fixed;
   font-size: 12px;
   z-index: 10;
   -webkit-user-select: none;
@@ -485,9 +502,14 @@ color: #00FF00;
   pointer-events: none;
   top: calc(3% + 15px); /* یعنی ۲۰ پیکسل پایین‌تر از نام بازیکن */
   left: 10px;
-  color: #00FF00;
-  text-shadow: 0 1px 2px black;
+  color: black;
+  text-shadow: 
+    0 0 1px yellow,
+    0 0 2px yellow,
+    0 0 10px yellow,
+    0 0 20px yellow;
 }
+
 
 #playernameDisplay,
 #bestPlayer {
@@ -651,7 +673,7 @@ document.querySelectorAll('.plane').forEach(plane => {
 
 let meteorExplosions = []; // ذرات فعال انفجار شهاب‌سنگ
 let meteors = [];
-let lastMeteorSpawn = Date.now();
+let lastMeteorSpawn = performance.now();
 const meteorImages = [];
 const meteorCount = 4;
 for (let i = 1; i <= meteorCount; i++) {
@@ -663,8 +685,8 @@ for (let i = 1; i <= meteorCount; i++) {
 
 function spawnMeteor() {
   // هر 15 ثانیه یک شهاب سنگ
-  if (Date.now() - lastMeteorSpawn < 20000) return;
-  lastMeteorSpawn = Date.now();
+  if (performance.now() - lastMeteorSpawn < 20000) return;
+  lastMeteorSpawn = performance.now();
 
   const img = meteorImages[Math.floor(Math.random() * meteorImages.length)];
   const size = Math.random() * 60 + 50; // سایز بین 70 تا 120
@@ -760,7 +782,13 @@ function updateMeteorExplosions() {
 
 
 let bullets = [];
-     
+
+let invincible = false; // مصون بودن موقت
+let respawnTime = 0;    // زمان شروع مصونیت  
+let lastBulletTime = 0;
+const bulletInterval = 200; // فاصله شلیک بر حسب میلی‌ثانیه
+
+
 let backgroundAnimation=null;
 function animateGameOverBackground() {
   drawBackground(); // فقط آسمان شب و ستاره‌ها
@@ -845,7 +873,7 @@ let lives = 3;
 let dx = 0, dy = 0; 
 let explosionRunning = false;
 let fuel = 100; // مقدار سوخت بین 0 تا 100
-let lastFuelSpawn = Date.now();
+let lastFuelSpawn = performance.now();
 let fuels = [];
 let lastShotTime = 0;
 const shootDelay = 70; // هر 80 میلی‌ثانیه یک گلوله
@@ -857,7 +885,18 @@ let refuelRate = 0.4; // میزان سوخت در هر فریم هنگام سو�
 const explosionImg = new Image();
 explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
 let enemyBullets = [];
-let bulletSpeed = 5; // مقدار اولیه
+
+// تعیین گرید گلوله‌ها بر اساس امتیاز
+let bulletGrade = 1; // پیشفرض
+let bulletSpeed = 10; // مقدار اولیه
+function updateBulletGrade(score) {
+  if (score >= 100) bulletGrade = 3;
+  else if (score >= 50) bulletGrade = 2;
+  else bulletGrade = 1;
+}
+
+
+
 let displayedFuel = 100; // مقدار بنزینی که فعلاً روی گیج نمایش داده می‌شود
 const noFlyZoneHeight = 100; // ارتفاع ناحیه غیرقابل استفاده پایین صفحه
 // تعریف آرایه ستاره‌ها در بیرون از تابع (فقط یک بار ساخته شوند)
@@ -1090,7 +1129,7 @@ function drawLives() {
   // محاسبه موقعیت شروع برای قرار گرفتن در وسط صفحه
   const totalWidth = lives * size + (lives - 1) * padding;
   const startX = (canvas.width - totalWidth) / 2;
-  const y = canvas.height - size - (canvas.height*0.13); // پایین صفحه با کمی فاصله از لبه
+  const y = canvas.height - 115; // پایین صفحه با کمی فاصله از لبه
 
   for (let i = 0; i < lives; i++) {
     ctx.drawImage(airplaneImg, startX + i * (size + padding), y, size, size);
@@ -1261,7 +1300,7 @@ function drawFuelGaugeAnimated() {
 
   // 🔹 افکت چشمک زن قرمز وقتی سوخت ≤ 10٪
   if (fuel <= 20) {
-    const fade = 0.3 + 0.7 * Math.abs(Math.sin(Date.now() / 300)); // 0.3 تا 1
+    const fade = 0.3 + 0.7 * Math.abs(Math.sin(performance.now() / 300)); // 0.3 تا 1
     ctx.beginPath();
     ctx.arc(centerX, centerY, radius - 10, Math.PI, 2 * Math.PI);
     ctx.lineWidth = 16;
@@ -1360,15 +1399,15 @@ if (inContact) {
       value: 0,
       text: "+0%",
       alpha: 1,
-      lastUpdate: Date.now(),
-      lastContact: Date.now()
+      lastUpdate: performance.now(),
+      lastContact: performance.now()
     };
     fuelLabels.push(lbl);
   } else {
-    lbl.lastContact = Date.now();
+    lbl.lastContact = performance.now();
   }
 
-  const now = Date.now();
+  const now = performance.now();
   if (now - lbl.lastUpdate >= 20) {
     if (fuel < 100) {
       // حداکثر افزایش واقعی که می‌توان اضافه کرد
@@ -1397,7 +1436,7 @@ if (inContact) {
     ctx.fillText(lbl.text, f.x + f.w/2, labelY);
 
     // حرکت لیبل به آرامی به بالا برای افکت
-    lbl.alpha -= (Date.now() - lbl.lastContact > 2000) ? 0.02 : 0;
+    lbl.alpha -= (performance.now() - lbl.lastContact > 2000) ? 0.02 : 0;
     
     if (lbl.alpha <= 0) {
       fuelLabels = fuelLabels.filter(l => l !== lbl);
@@ -1451,6 +1490,17 @@ airplane.tiltProgress += (airplane.direction - airplane.tiltProgress) * 0.3; // 
 
 if (!airplane.hidden) {
   ctx.save();
+
+//  حالت چشمک‌زن در زمان مصونیت
+  if (invincible) {
+    const elapsed = performance.now() - respawnTime;
+    const blink = Math.floor(elapsed / 40) % 2; // هر 150ms یک بار چشمک
+    ctx.globalAlpha = blink === 0 ? 0.3 : 1;
+  } else {
+    ctx.globalAlpha = 1;
+  }
+
+
   const tiltFactor = 1 + 0.3 * airplane.tiltProgress; // 0.3 مقدار کشش افقی
   const w = airplane.w * tiltFactor;
   const h = airplane.h;
@@ -1459,17 +1509,17 @@ if (!airplane.hidden) {
   ctx.restore();
 }
 
-// 🔫 رسم گلوله‌ها
-bullets.forEach((b, i) => {
-  if (score > 200) bulletSpeed = 5;
-  if (score > 400) bulletSpeed = 5;
-  if (score > 800) bulletSpeed = 5;
-
-b.y -= bulletSpeed;
-  ctx.fillStyle = "yellow";
-  ctx.fillRect(b.x - 2, b.y, 1.8, 4.2);
-  if (b.y < 0) bullets.splice(i, 1);
+// 🔫 رسم گلوله‌ها با توجه به گرید
+bullets.forEach((b,i) => {
+  b.y += b.vy;
+  b.x += b.vx;
+  ctx.fillStyle = b.color;
+  ctx.fillRect(b.x - b.w/2, b.y, b.w, b.h);
+  if (b.y < 0) bullets.splice(i,1);
 });
+
+
+
 
 
 
@@ -1585,16 +1635,17 @@ if (Math.random() < 0.005) {
 
 
 
-// تولید سوخت هر 20 ثانیه
-if (Date.now() - lastFuelSpawn > 15000) {
+// تولید سوخت هر 15 ثانیه
+if (performance.now() - lastFuelSpawn > 15000) {
   fuels.push({
     x: Math.random() * (canvas.width - 80) + 40,
     y: -50,
     w: 25,
     h: 60
   });
-  lastFuelSpawn = Date.now();
+  lastFuelSpawn = performance.now();
 }
+
 
 
 enemies.forEach((e, i) => {
@@ -1612,35 +1663,52 @@ enemies.forEach((e, i) => {
   }
 
 // شلیک دشمن
-  if (e.canShoot) {
-    const now = Date.now();
-    if (now - e.lastShotTime > 1500 && e.shotCount < 2) { // هر 1 ثانیه یک تیر، حداکثر 3 تیر
-      enemyShoot(e);
-      e.lastShotTime = now;
-      e.shotCount++;
-    }
-    // بعد از اینکه 3 تیر زد، 3 ثانیه صبر کن و دوباره می‌تونه شلیک کنه
-    if (e.shotCount >= 2 && now - e.lastShotTime > 4000) {
-      e.shotCount = 0;
-    }
+if (e.canShoot) {
+  const now = performance.now();
+  
+  // هر 0.7 ثانیه یک تیر، حداکثر 4 تیر
+  if (now - e.lastShotTime > 700 && e.shotCount < 4) {
+    enemyShoot(e);
+    e.lastShotTime = now;
+    e.shotCount++;
   }
-enemyBullets.forEach((b, i) => {
-  b.y += b.vy * delta;
+
+  // بعد از 4 تیر، فقط 1.5 ثانیه صبر کن
+  if (e.shotCount >= 4 && now - e.lastShotTime > 1500) {
+    e.shotCount = 0;
+  }
+}
+
+
+// 🎯 بررسی و رسم تیرهای دشمن — بیرون از enemies.forEach
+for (let i = enemyBullets.length - 1; i >= 0; i--) {
+  const b = enemyBullets[i];
+
+  // حرکت گلوله (سرعت متناسب با delta)
+  b.y += b.vy * delta * 3;
+
+  // رسم گلوله
   ctx.fillStyle = "white";
   ctx.fillRect(b.x - 2, b.y, 1.8, 4.2);
 
-  // برخورد با هواپیما
+  // برخورد با هواپیمای بازیکن
   if (
-    airplane.x < b.x && airplane.x + airplane.w > b.x &&
-    airplane.y < b.y && airplane.y + airplane.h > b.y
+    airplane.x < b.x &&
+    airplane.x + airplane.w > b.x &&
+    airplane.y < b.y &&
+    airplane.y + airplane.h > b.y
   ) {
     explodeAirplane();
     enemyBullets.splice(i, 1);
+    continue;
   }
 
-  // حذف گلوله اگر از پایین صفحه خارج شد
-  if (b.y > canvas.height-noFlyZoneHeight) enemyBullets.splice(i, 1);
-});
+  // حذف تیر بعد از خروج کامل از صفحه
+  if (b.y > canvas.height + 50) {
+    enemyBullets.splice(i, 1);
+  }
+}
+
 
 
 
@@ -1684,9 +1752,11 @@ enemyBullets.forEach((b, i) => {
 
 // 🔫 کنترل شلیک Space در حلقه بازی
 if (keys.space) {
-  const now = Date.now();
+  const now = performance.now();
   if (now - lastShotTime > shootDelay) {
-    shoot();
+    updateBulletGrade(score);
+shootBullets();
+updateAndDrawBullets();
     lastShotTime = now;
   }
 }
@@ -1799,11 +1869,102 @@ updateMeteorExplosions(); // رسم ذرات انفجار شهاب‌سنگ
 
 
 // === کنترل‌ها ===
-function shoot() {
-  if(!gameRunning) return;
-  if (airplane.hidden) return;
-  bullets.push({x:airplane.x+airplane.w/2,y:airplane.y});
+// 🔫 ایجاد تیرها
+function shootBullets() {
+  if (!airplane) return;
+
+  if (bulletGrade === 1) {
+    bullets.push({
+      x: airplane.x + airplane.w / 2,
+      y: airplane.y,
+      w: 2,
+      h: 6,
+      color: "#FFFF00", // زرد طلایی
+      vx: 0,
+      vy: -bulletSpeed,
+      glow: 6
+    });
+  }
+  else if (bulletGrade === 2) {
+    // دو تیر از دو بال
+    bullets.push({
+      x: airplane.x + 5,
+      y: airplane.y,
+      w: 2,
+      h: 6,
+      color: "#00FFFF", // آبی روشن
+      vx: 0,
+      vy: -bulletSpeed,
+      glow: 6
+    });
+    bullets.push({
+      x: airplane.x + airplane.w - 5,
+      y: airplane.y,
+      w: 2,
+      h: 6,
+      color: "#00FFFF",
+      vx: 0,
+      vy: -bulletSpeed,
+      glow: 6
+    });
+  }
+  else if (bulletGrade === 3) {
+    // سه تیر: نوک و دو بال با کمی زاویه
+    bullets.push({
+      x: airplane.x + airplane.w / 2,
+      y: airplane.y,
+      w: 4,
+      h: 8,
+      color: "#00FF00", // سبز نئونی
+      vx: 0,
+      vy: -bulletSpeed,
+      glow: 10
+    });
+    bullets.push({
+      x: airplane.x + 5,
+      y: airplane.y,
+      w: 3,
+      h: 7,
+      color: "#FF66FF", // بنفش نئونی
+      vx: -0.5,
+      vy: -bulletSpeed,
+      glow: 8
+    });
+    bullets.push({
+      x: airplane.x + airplane.w - 5,
+      y: airplane.y,
+      w: 3,
+      h: 7,
+      color: "#FF66FF",
+      vx: 0.5,
+      vy: -bulletSpeed,
+      glow: 8
+    });
+  }
 }
+
+// 🔫 به‌روزرسانی و رسم تیرها
+function updateAndDrawBullets() {
+  bullets.forEach((b, i) => {
+    b.x += b.vx || 0;
+    b.y += b.vy || -bulletSpeed;
+
+    // Glow ساده
+    ctx.shadowColor = b.color;
+    ctx.shadowBlur = b.glow || 0;
+
+    // رسم تیر
+    ctx.fillStyle = b.color;
+    ctx.fillRect(b.x - b.w / 2, b.y, b.w, b.h);
+
+    // غیرفعال کردن glow برای سایر اشیا
+    ctx.shadowBlur = 0;
+
+    // حذف تیر خارج از صفحه
+    if (b.y < -10 || b.x < -10 || b.x > canvas.width + 10) bullets.splice(i, 1);
+  });
+}
+
 
 function enemyShoot(enemy) {
   enemyBullets.push({
@@ -1889,7 +2050,7 @@ function startGame() {
   bullets = [];
   fuels = []; // پاک کردن سوخت‌های باقی‌مانده
   enemyBullets = []; // ✅ پاک کردن تمام تیرهای دشمن
-  lastFuelSpawn = Date.now(); // ریست تایمر تولید سوخت
+  lastFuelSpawn = performance.now(); // ریست تایمر تولید سوخت
   missiles = 0;              // ← تعداد موشک‌ها صفر
   lastMissileBonusLevel = 0; //  ریست سطح پاداش موشک‌ها
   updateMissileBtn();        // ← بروزرسانی دکمه
@@ -1985,6 +2146,7 @@ window.addEventListener("resize", resizeCanvas);
 resizeCanvas(); // اجرا در ابتدا
 
 function explodeAirplane() {
+  if (invincible) return; // اگر مصون است، بی‌تأثیر
   if (paused || !gameRunning || explosionRunning) return; // جلوگیری از انفجار دوباره
   explosionRunning = true;
 
@@ -1995,7 +2157,7 @@ function explodeAirplane() {
   const w = airplane.w;
   const h = airplane.h;
 
-  // تولید ذرات انفجار
+  // 🔥 تولید ذرات انفجار
   const particles = [];
   const numParticles = 60;
   for (let i = 0; i < numParticles; i++) {
@@ -2020,33 +2182,38 @@ function explodeAirplane() {
     particles: particles
   });
 
-  // کاهش جان بازیکن
+  // 🔹 کم کردن یک جان
   lives--;
 
-  // 🔹 ناپدید کردن موقت هواپیما (۲ ثانیه)
+  // 🔹 ناپدید کردن موقت هواپیما برای ۲ ثانیه
   airplane.hidden = true;
 
+  // اگر همه‌ی جان‌ها تمام شد
   if (lives <= 0) {
-
-    // پایان بازی بعد از ۲ ثانیه
-     setTimeout(() => {
-     endGame();
-    
-     
-
+    setTimeout(() => {
+      endGame();
     }, 2000);
-
   } else {
-    // بازگشت هواپیما بعد از ۲ ثانیه
+    // ✳️ بازگشت هواپیما پس از ۲ ثانیه
     setTimeout(() => {
       airplane.x = canvas.width / 2 - 40;
       airplane.y = canvas.height - 200;
       airplane.hidden = false;
       explosionRunning = false;
       fuel = 100;
+
+      // ✅ فعال‌سازی مصونیت و چشمک‌زن شدن
+      invincible = true;
+      respawnTime = performance.now();
+
+      // ❗ پس از ۳ ثانیه مصونیت تمام می‌شود
+      setTimeout(() => {
+        invincible = false;
+      }, 3000);
     }, 2000);
   }
 }
+
 
 
 function showFinalScore(){
@@ -2159,7 +2326,9 @@ joystick.addEventListener("touchend", e=>{
 // === شلیک نگه داشتن ===
 shootBtn.addEventListener("touchstart", e=>{
   if(!gameRunning) return;
-  shoot(); 
+  updateBulletGrade(score);
+shootBullets();
+updateAndDrawBullets();
   shootInterval=setInterval(shoot,110);
 });
 shootBtn.addEventListener("touchend", e=>{
@@ -2228,7 +2397,7 @@ document.getElementById("closeScoreBtn").addEventListener("click", () => {
 
 
 
-addTouchAndClick("shoot",shoot);
+addTouchAndClick("shoot",shootBullets)
 addTouchAndClick("missileBtn", launchMissile);
 window.addEventListener("resize",()=>{
   canvas.width=window.innerWidth;
@@ -2238,4 +2407,5 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
