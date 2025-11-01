@@ -1195,7 +1195,6 @@ function getNightFactor() {
   return 2 - t;                 // 1 -> 0 (شب -> روز)
 }
 
-// === نسخهٔ جدید drawBackground (نرم و اتوماتیک) ===
 function drawBackground() {
 
   const now = performance.now();
@@ -2098,8 +2097,21 @@ function launchMissile() {
 
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
- // مخفی کردن کل کانتینر انتخاب هواپیما
   showTopPlayerName();
+
+
+ // 🔹 هر بار شروع جدید، چرخه‌ی روز/شب از "روز کامل" آغاز شود
+  if (typeof dayNight !== 'undefined') {
+    dayNight.start = performance.now(); // از همین لحظه دوباره شروع کن → روز کامل
+  }
+
+  // 🔹 زمان آخرین فریم پس‌زمینه را هم ریست کن تا حرکت ابرها نرم بماند
+  if (typeof drawBackground !== 'undefined') {
+    drawBackground._lastTime = performance.now();
+  }
+
+
+
   document.getElementById("finalScore").style.display = "none";
   document.getElementById("playernameDisplay").style.display = "block";
   document.getElementById("bestPlayer").style.display = "block";
@@ -2117,7 +2129,7 @@ function startGame() {
   document.getElementById("scoreValue").textContent = score;
   fuel = 100;
   paused = false;
-  bulletSpeed = 5;
+  bulletSpeed = 10;
   airplane.x = canvas.width / 2 - (airplane.w)/2;
   airplane.y = canvas.height - 200;
  // ✅ اینجا تصویر هواپیمای بازیکن تعیین می‌شود
@@ -2140,6 +2152,16 @@ function startGame() {
   document.getElementById("gameTitle").style.display = "none";
   document.getElementById("missileBtn").style.display = "block";
   pauseBtn.style.display = "block";
+
+
+ // اگر حلقه‌ی پس‌زمینه‌ی game over فعال است، متوقفش کن
+  if (typeof backgroundAnimation !== 'undefined' && backgroundAnimation) {
+    cancelAnimationFrame(backgroundAnimation);
+    backgroundAnimation = null;
+  }
+
+
+
   cancelAnimationFrame(animationId); // animationId باید متغیر سراسری باشد
   animationId = null;
   animationId = requestAnimationFrame(gameLoop);
@@ -2518,6 +2540,5 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
 
 
