@@ -816,6 +816,7 @@ ctx.restore();
 
 
 let enemies = [];
+let playerName = "";
 let score = 0;
 let gameRunning = false;
 const pauseBtn = document.getElementById("pauseBtn");
@@ -1016,11 +1017,10 @@ function preloadImages(callback) {
 
       if (loadedCount === totalImages) {
         setTimeout(() => {
-        let playerName = prompt("نام بازیکن را وارد کنید:");
-        if(!playerName) playerName = "ناشناس"; 
+        playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
           
        // ذخیره و نمایش نام بازیکن
-          document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
+        document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
           
           // حالا در هر صورت بازی شروع می‌شود
           callback();
@@ -1308,11 +1308,10 @@ document.addEventListener("keyup", (e) => {
 function sendScore() {
     // مقدار عددی امتیاز
     let finalScore = parseFloat(document.getElementById('scoreValue').innerText) || 0;
-
+    const nameToSend = playerName || "ناشناس";
     // نام بازیکن
-    let playerName = document.getElementById('playerName')?.value || "نا شناس";
+  // let playerName = document.getElementById('playerNameInput')?.value || "نا شناس";
 
-    // نمایش اولیه امتیاز نهایی
     const scoreDiv = document.getElementById('finalScore');
     if(scoreDiv) {
         scoreDiv.style.display = "block";
@@ -1323,7 +1322,7 @@ function sendScore() {
     fetch("https://script.google.com/macros/s/AKfycbz56qAXFF0Ucs58mWGB-rQ8dP2C6Ci4KiS9yRAZRok7kIvuBGZDDrUdTqDqN7eK10XgDw/exec", {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'name=' + encodeURIComponent(playerName) + '&score=' + encodeURIComponent(finalScore)
+        body: 'name=' + encodeURIComponent(nameToSend) + '&score=' + encodeURIComponent(finalScore)
     })
     .then(res => res.json())
     .then(data => {
@@ -1338,7 +1337,6 @@ function sendScore() {
         }
     });
 }
-
 
 
 
