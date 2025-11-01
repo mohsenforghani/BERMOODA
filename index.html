@@ -904,24 +904,6 @@ const noFlyZoneHeight = 100; // ارتفاع ناحیه غیرقابل استف�
 
 
 
-const stars = [];
-function createStars(count) {
-  if (stars.length === 0) {
-    for (let i = 0; i < count; i++) {
-      stars.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        r: Math.random() * 1.5 + 0.5,
-        alpha: Math.random(),
-        speed: (Math.random() * 0.005 + 0.05) * (Math.random() < 0.5 ? 1 : -1) // 🌟 سرعت بسیار نرم
-      });
-    }
-  }
-}
-
-
-
-
 const missileImages = [
   "mooshak.png",
   "mooshak2.png",
@@ -1131,7 +1113,7 @@ function drawLives() {
   // محاسبه موقعیت شروع برای قرار گرفتن در وسط صفحه
   const totalWidth = lives * size + (lives - 1) * padding;
   const startX = (canvas.width - totalWidth) / 2;
-  const y = canvas.height - 115; // پایین صفحه با کمی فاصله از لبه
+  const y = canvas.height - 118; // پایین صفحه با کمی فاصله از لبه
 
   for (let i = 0; i < lives; i++) {
     ctx.drawImage(airplaneImg, startX + i * (size + padding), y, size, size);
@@ -1158,62 +1140,145 @@ async function showTopPlayerName() {
 
 
 
+// === day/night config (قرار بده نزدیک بقیهٔ تنظیمات گلوبال) ===
+const dayNight = {
+  halfCycle: 60 * 1000, 
+  start: performance.now()
+};
 
+// رنگ‌های پایه روز/شب
+const dayColors = { top: '#4da6ff', bottom: '#003366' };
+const nightColors = { top: '#000040', bottom: '#000000' };
 
-// 🌌 تابع رسم پس‌زمینه
-function drawBackground() {
-  if (gameOverBackground) {
-    // 🌌 حالت شب
-    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grad.addColorStop(0, "#000040"); // آسمان تیره
-    grad.addColorStop(1, "#000000");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    createStars(80);
-    // ✨ ستاره‌های سوسو زن
-    stars.forEach(s => {
-      s.alpha += s.speed;          // تغییر روشنایی
-      if (s.alpha >= 1 || s.alpha <= 0) s.speed *= -1; // معکوس کردن جهت سوسو
-
-      ctx.fillStyle = `rgba(255, 255, ${200 + Math.random()*55}, ${s.alpha})`;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fill();
-    });
-
-    // ☁️ ابرها
-    clouds.forEach(c => {
-      c.y += c.speed; // حرکت ابر
-      if (c.y > canvas.height + 100) {
-        c.y = -100;
-        c.x = Math.random() * canvas.width;
-      }
-      ctx.globalAlpha = 0.5;
-      ctx.drawImage(c.img, c.x, c.y, c.size, c.size * 0.6);
-      ctx.globalAlpha = 1;
-    });
-
-  } else {
-    // 🌤️ حالت روز
-    const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    grad.addColorStop(0, "#4da6ff");
-    grad.addColorStop(1, "#003366");
-    ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // ☁️ ابرها
-    clouds.forEach(c => {
-      c.y += c.speed;
-      if (c.y > canvas.height + 100) {
-        c.y = -100;
-        c.x = Math.random() * canvas.width;
-      }
-      ctx.globalAlpha = 0.5;
-      ctx.drawImage(c.img, c.x, c.y, c.size, c.size * 0.6);
-      ctx.globalAlpha = 1;
+// ستاره‌ها (یک‌بار ساخته می‌شوند)
+const stars = [];
+function createStars(count = 100) {
+  if (stars.length) return; // فقط یک‌بار بساز
+  for (let i = 0; i < count; i++) {
+    stars.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height * 0.65, // بیشتر در نیمهٔ بالایی
+      r: Math.random() * 1.4 + 0.4,
+      baseAlpha: Math.random() * 0.7 + 0.3,
+      twinkleSpeed: Math.random() * 0.02 + 0.005,
+      phase: Math.random() * Math.PI * 2
     });
   }
 }
+
+// --- توابع کمکی رنگ و lerp ---
+function hexToRgb(hex) {
+  const h = hex.replace('#','');
+  return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+}
+function rgbToCss([r,g,b]) { return `rgb(${Math.round(r)},${Math.round(g)},${Math.round(b)})`; }
+function lerp(a,b,t){ return a + (b-a) * t; }
+function lerpColor(c1, c2, t){
+  const a = hexToRgb(c1), b = hexToRgb(c2);
+  return rgbToCss([ lerp(a[0],b[0],t), lerp(a[1],b[1],t), lerp(a[2],b[2],t) ]);
+}
+
+// محاسبهٔ nightFactor بین 0..1 (0 = روز کامل, 1 = شب کامل)
+// نوسان به‌صورت مثلثی (ping-pong) انجام می‌شود
+function getNightFactor() {
+  // اگر بازی game over است و متغیر gameOverBackground قبلاً true شده،
+  // اگر می‌خواهی در game over حتماً شب کامل باشد، می‌توانی اینجا شرطی بگذاری.
+  // اما طبق خواست تو ما حالت استاندارد اتوماتیک را اعمال می‌کنیم:
+  const now = performance.now();
+  const period = dayNight.halfCycle * 2; // full cycle
+  const t = ((now - dayNight.start) % period) / dayNight.halfCycle; // 0..2
+  if (t <= 1) return t;         // 0 -> 1 (روز -> شب)
+  return 2 - t;                 // 1 -> 0 (شب -> روز)
+}
+
+// === نسخهٔ جدید drawBackground (نرم و اتوماتیک) ===
+function drawBackground() {
+  // --- محاسبهٔ delta time امن ---
+  const now = performance.now();
+  const last = drawBackground._lastTime || now;
+  const dt = Math.min(0.06, (now - last) / 1000); // dt بر حسب ثانیه، capped
+  drawBackground._lastTime = now;
+
+  // nightFactor
+  const nf = getNightFactor(); // 0..1
+
+  // گرادیان بین روز و شب (روز -> آبی مشخص، شب -> مشکی)
+  const topColor = lerpColor(dayColors.top, nightColors.top, nf);
+  const bottomColor = lerpColor(dayColors.bottom, nightColors.bottom, nf);
+
+  const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+  grad.addColorStop(0, topColor);
+  grad.addColorStop(1, bottomColor);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // ستاره‌ها (تدریجی بر اساس nf)
+  const starAppear = Math.max(0, (nf - 0.15) / (1 - 0.15)); // 0..1
+  if (starAppear > 0.001) {
+    createStars(120); // یک‌بار تولید می‌شوند
+    ctx.save();
+    for (let s of stars) {
+      s.phase += (s.twinkleSpeed || 0.01) * (0.6 + 0.4 * nf);
+      const tw = 0.6 + 0.4 * Math.sin(s.phase);
+      const alpha = (s.baseAlpha || 0.5) * tw * starAppear * (1 + 0.6 * nf);
+      if (alpha <= 0.002) continue;
+      ctx.globalAlpha = Math.min(1, alpha);
+      ctx.fillStyle = `rgba(255,255,230,${alpha})`;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+    ctx.globalAlpha = 1;
+  }
+
+  // ابرها: شفافیت وابسته به روز/شب
+  const cloudDayAlpha = 0.85;
+  const cloudNightAlpha = 0.45;
+  const cloudAlpha = lerp(cloudDayAlpha, cloudNightAlpha, nf);
+
+  ctx.save();
+  ctx.globalAlpha = cloudAlpha;
+
+  // اگر ابرها مقداردهی نشده‌اند، می‌توانی initClouds را صدا بزنی (یا از قبل صدا زده باشی)
+  if (!clouds || !clouds.length) {
+    // اگر تابع initClouds در کدت وجود دارد، آن را اینجا فراخوانی کن:
+    if (typeof initClouds === 'function') initClouds(8);
+  }
+
+  // تک‌حلقهٔ به‌روز/رندر ابرها — استفاده از dt و پشتیبانی از c.vy یا c.speed
+  for (let c of (clouds || [])) {
+    // سرعت عمودی (پیکسل/ثانیه): اول c.vy سپس c.speed (fallback)
+    const vy = (typeof c.vy === 'number') ? c.vy : (typeof c.vy === 'number' ? c.vy : 30);
+    const vx = (typeof c.vx === 'number') ? c.vx : 0;
+
+    c.y += vy * dt;   // حرکت به سمت پایین
+    c.x += vx * dt;   // حرکت افقی اندک
+
+    // اگر از پایین خارج شد -> بازنشانی از بالا با مشخصات رندوم
+    if (c.y > canvas.height + 200) {
+      c.y = - (50 + Math.random() * 200);
+      c.x = Math.random() * canvas.width;
+      c.size = 60 + Math.random() * 160;
+      c.vy = 20 + Math.random() * 120;
+      c.vx = (Math.random() - 0.5) * 30;
+      c.img = cloudImages && cloudImages.length ? cloudImages[Math.floor(Math.random() * cloudImages.length)] : c.img;
+    }
+
+    // رسم ابر
+    if (c.img && c.img.complete) {
+      ctx.drawImage(c.img, c.x, c.y, c.size, c.size * 0.6);
+    } else {
+      ctx.beginPath();
+      ctx.ellipse(c.x + (c.size||80)*0.4, c.y + (c.size||80)*0.25, (c.size||80)*0.6, (c.size||80)*0.3, 0, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(255,255,255,0.08)';
+      ctx.fill();
+    }
+  }
+
+  ctx.restore();
+}
+
 
 
 document.addEventListener("keydown", (e) => {
@@ -2455,8 +2520,5 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
-
-
 
 
