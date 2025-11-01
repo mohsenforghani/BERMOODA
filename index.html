@@ -862,6 +862,7 @@ pauseBtn.addEventListener("click", () => {
 
  
 cancelAnimationFrame(animationId); 
+animationId = null;
 animationId = requestAnimationFrame(gameLoop);
   }
 });
@@ -2454,3 +2455,8 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
+
+
+
+
