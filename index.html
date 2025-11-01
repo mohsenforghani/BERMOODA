@@ -873,7 +873,7 @@ let gameOverBackground = false;
 let lives = 3;
 let dx = 0, dy = 0; 
 let explosionRunning = false;
-let fuel = 100; // مقدار سوخت بین 0 تا 100
+let fuel = 100; 
 let lastFuelSpawn = performance.now();
 let fuels = [];
 let lastShotTime = 0;
@@ -885,6 +885,10 @@ let refueling = false; // آیا سوختگیری در حال انجام است�
 let refuelRate = 0.4; // میزان سوخت در هر فریم هنگام سوختگیری
 const explosionImg = new Image();
 explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
+
+const fuelImg = new Image();
+fuelImg.src = "fuel.png"; // مسیر تصویر پمپ بنزینت
+  
 let enemyBullets = [];
 
 // تعیین گرید گلوله‌ها بر اساس امتیاز
@@ -1193,16 +1197,15 @@ function getNightFactor() {
 
 // === نسخهٔ جدید drawBackground (نرم و اتوماتیک) ===
 function drawBackground() {
-  // --- محاسبهٔ delta time امن ---
+
   const now = performance.now();
   const last = drawBackground._lastTime || now;
-  const dt = Math.min(0.06, (now - last) / 1000); // dt بر حسب ثانیه، capped
+  const dt = Math.min(0.06, (now - last) / 1000); 
   drawBackground._lastTime = now;
 
   // nightFactor
-  const nf = getNightFactor(); // 0..1
+  const nf = getNightFactor();
 
-  // گرادیان بین روز و شب (روز -> آبی مشخص، شب -> مشکی)
   const topColor = lerpColor(dayColors.top, nightColors.top, nf);
   const bottomColor = lerpColor(dayColors.bottom, nightColors.bottom, nf);
 
@@ -1213,7 +1216,7 @@ function drawBackground() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // ستاره‌ها (تدریجی بر اساس nf)
-  const starAppear = Math.max(0, (nf - 0.15) / (1 - 0.15)); // 0..1
+  const starAppear = Math.max(0, (nf - 0.15) / (1 - 0.15)); 
   if (starAppear > 0.001) {
     createStars(120); // یک‌بار تولید می‌شوند
     ctx.save();
@@ -1236,24 +1239,20 @@ function drawBackground() {
   const cloudDayAlpha = 0.85;
   const cloudNightAlpha = 0.45;
   const cloudAlpha = lerp(cloudDayAlpha, cloudNightAlpha, nf);
-
   ctx.save();
   ctx.globalAlpha = cloudAlpha;
 
-  // اگر ابرها مقداردهی نشده‌اند، می‌توانی initClouds را صدا بزنی (یا از قبل صدا زده باشی)
   if (!clouds || !clouds.length) {
-    // اگر تابع initClouds در کدت وجود دارد، آن را اینجا فراخوانی کن:
     if (typeof initClouds === 'function') initClouds(8);
   }
 
-  // تک‌حلقهٔ به‌روز/رندر ابرها — استفاده از dt و پشتیبانی از c.vy یا c.speed
   for (let c of (clouds || [])) {
-    // سرعت عمودی (پیکسل/ثانیه): اول c.vy سپس c.speed (fallback)
+ 
     const vy = (typeof c.vy === 'number') ? c.vy : (typeof c.vy === 'number' ? c.vy : 30);
     const vx = (typeof c.vx === 'number') ? c.vx : 0;
 
     c.y += vy * dt;   // حرکت به سمت پایین
-    c.x += vx * dt;   // حرکت افقی اندک
+  //  c.x += vx * dt;
 
     // اگر از پایین خارج شد -> بازنشانی از بالا با مشخصات رندوم
     if (c.y > canvas.height + 200) {
@@ -1312,7 +1311,7 @@ function sendScore() {
     let finalScore = parseFloat(document.getElementById('scoreValue').innerText) || 0;
 
     // نام بازیکن
-    let playerName = document.getElementById('playerNameInput')?.value || "نا شناس";
+    let playerName = document.getElementById('playerName')?.value || "نا شناس";
 
     // نمایش اولیه امتیاز نهایی
     const scoreDiv = document.getElementById('finalScore');
@@ -1440,12 +1439,11 @@ drawBackground();
   const delta = (now - lastTime) / 16.67; 
   lastTime = now;
   //ctx.clearRect(0, 0, canvas.width, canvas.height);
-  const fuelImg = new Image();
-fuelImg.src = "fuel.png"; // مسیر تصویر پمپ بنزینت
+ 
 
 fuels.forEach((f, i) => {
   // حرکت پمپ به پایین
-  f.y += 0.4;
+  f.y += 0.45;
 
   // رسم پمپ
   ctx.drawImage(fuelImg, f.x, f.y, f.w, f.h);
@@ -1533,7 +1531,7 @@ fuels.forEach((f, i) => {
 
 
 
-fuel -= 0.01; // کاهش تدریجی سوخت
+fuel -= 0.02; // کاهش تدریجی سوخت
 if (!paused) {
   if (fuel < 0) {
     fuel = 0;
@@ -2520,5 +2518,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
