@@ -781,66 +781,6 @@ function updateMeteorExplosions() {
 
 
 
-let joystickClickCount = 0;
-let shootBtnClickCount = 0;
-const joystickEl = document.getElementById('joystick');
-const shootBtnEl = document.getElementById('shootBtn');
-
-function tryActivateCheat() {
-  if (joystickClickCount >= 20 && shootBtnClickCount >= 10) {
-    // ست کردن امتیاز بزرگ
-    score = 500000;
-
-    // به‌روزرسانی نمایش امتیاز در UI
-    const scoreEl = document.getElementById("scoreValue");
-    if (scoreEl) scoreEl.textContent = score;
-
-    // اگر تابع updateBulletGrade دارید، آپدیت کن
-    if (typeof updateBulletGrade === "function") updateBulletGrade(score);
-
-    // نمایش کوتاه پیام روی finalScore (اختیاری)
-    const finalEl = document.getElementById("finalScore");
-    if (finalEl) {
-      finalEl.innerText = " ... کد تقلب فعال شد";
-      finalEl.style.display = "block";
-      setTimeout(() => { finalEl.style.display = "none"; }, 3000);
-    }
-
-    // ریست شمارنده‌ها برای دفعات بعد
-    joystickClickCount = 0;
-    shootBtnClickCount = 0;
-  }
-}
-
-function onJoystickClick() {
-  joystickClickCount++;
-}
-
-function onShootBtnClick() {
-  if (joystickClickCount >= 20) { // فقط وقتی جوی‌استیک ۲۰ بار زده شد
-    shootBtnClickCount++;
-    tryActivateCheat();
-  }
-}
-
-if (joystickEl) {
-  joystickEl.addEventListener('click', onJoystickClick);
-  joystickEl.addEventListener('pointerdown', onJoystickClick);
-  joystickEl.addEventListener('touchstart', onJoystickClick, {passive:true});
-}
-
-if (shootBtnEl) {
-  shootBtnEl.addEventListener('click', onShootBtnClick);
-  shootBtnEl.addEventListener('pointerdown', onShootBtnClick);
-  shootBtnEl.addEventListener('touchstart', onShootBtnClick, {passive:true});
-}
-
-
-
-
-
-
-
 let bullets = [];
 
 let invincible = false; // مصون بودن موقت
@@ -957,8 +897,8 @@ let enemyBullets = [];
 let bulletGrade = 1; // پیشفرض
 let bulletSpeed = 10; // مقدار اولیه
 function updateBulletGrade(score) {
-  if (score >= 1000) bulletGrade = 3;
-  else if (score >= 500) bulletGrade = 2;
+  if (score >= 1500) bulletGrade = 3;
+  else if (score >= 800) bulletGrade = 2;
   else bulletGrade = 1;
 }
 
@@ -1057,9 +997,9 @@ for (let i = 0; i < 6; i++) {
   clouds.push({
     x: Math.random() * canvas.width,
     y: Math.random() * canvas.height,
-    speed: 0.2 + Math.random() * 0.5,
+    speed: 0.2 + Math.random() * 0.3,
     img: cloudImages[Math.floor(Math.random() * cloudImages.length)],
-    size: 65 + Math.random() * 100
+    size: 70 + Math.random() * 70
   });
 }
 
@@ -1207,7 +1147,7 @@ async function showTopPlayerName() {
 
 // === day/night config (قرار بده نزدیک بقیهٔ تنظیمات گلوبال) ===
 const dayNight = {
-  halfCycle: 60 * 1000, 
+  halfCycle: 50 * 1000, 
   start: performance.now()
 };
 
@@ -1256,6 +1196,9 @@ function getNightFactor() {
   return 2 - t;                 // 1 -> 0 (شب -> روز)
 }
 
+
+
+
 function drawBackground() {
 
   const now = performance.now();
@@ -1276,28 +1219,36 @@ function drawBackground() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // ستاره‌ها (تدریجی بر اساس nf)
-  const starAppear = Math.max(0, (nf - 0.15) / (1 - 0.15)); 
-  if (starAppear > 0.001) {
-    createStars(120); // یک‌بار تولید می‌شوند
-    ctx.save();
-    for (let s of stars) {
-      s.phase += (s.twinkleSpeed || 0.01) * (0.6 + 0.4 * nf);
-      const tw = 0.6 + 0.4 * Math.sin(s.phase);
-      const alpha = (s.baseAlpha || 0.5) * tw * starAppear * (1 + 0.6 * nf);
-      if (alpha <= 0.002) continue;
-      ctx.globalAlpha = Math.min(1, alpha);
-      ctx.fillStyle = `rgba(255,255,230,${alpha})`;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-    ctx.globalAlpha = 1;
+  // ستاره‌ها (تدریجی بر اساس nf)
+const starAppear = Math.max(0, (nf - 0.15) / (1 - 0.15)); 
+if (starAppear > 0.001) {
+  createStars(120); // یک‌بار تولید می‌شوند
+  ctx.save();
+  for (let s of stars) {
+    // چشمک زدن
+    s.phase += (s.twinkleSpeed || 0.01) * (0.6 + 0.4 * nf);
+    const tw = 0.6 + 0.4 * Math.sin(s.phase);
+    const alpha = (s.baseAlpha || 0.5) * tw * starAppear * (1 + 0.6 * nf);
+    if (alpha <= 0.002) continue;
+    ctx.globalAlpha = Math.min(1, alpha);
+    ctx.fillStyle = `rgba(255,255,230,${alpha})`;
+
+    // حرکت به سمت پایین
+    s.y += (s.vy || 10) * dt;  // سرعت ستاره، می‌توانی 5 تا 20 تغییر دهی
+    if (s.y > canvas.height) s.y = 0; // اگر از پایین خارج شد، دوباره از بالا
+
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fill();
   }
+  ctx.restore();
+  ctx.globalAlpha = 1;
+}
+
 
   // ابرها: شفافیت وابسته به روز/شب
   const cloudDayAlpha = 0.85;
-  const cloudNightAlpha = 0.45;
+  const cloudNightAlpha = 0.65;
   const cloudAlpha = lerp(cloudDayAlpha, cloudNightAlpha, nf);
   ctx.save();
   ctx.globalAlpha = cloudAlpha;
@@ -1776,7 +1727,7 @@ if (Math.random() < 0.005) {
 
 
 // تولید سوخت هر 15 ثانیه
-if (performance.now() - lastFuelSpawn > 15000) {
+if (performance.now() - lastFuelSpawn > 18000) {
   fuels.push({
     x: Math.random() * (canvas.width - 80) + 40,
     y: -50,
@@ -2165,7 +2116,7 @@ function launchMissile() {
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
   showTopPlayerName();
-
+  lastFuelSpawn = 0; // ریست زمان سوخت
 
  // 🔹 هر بار شروع جدید، چرخه‌ی روز/شب از "روز کامل" آغاز شود
   if (typeof dayNight !== 'undefined') {
@@ -2206,7 +2157,6 @@ function startGame() {
   airplaneImg.src = selectedPlaneImg || "plane30.png";
   enemies = [];
   bullets = [];
-  joystickClickCount = 0;
   fuels = []; // پاک کردن سوخت‌های باقی‌مانده
   enemyBullets = []; // ✅ پاک کردن تمام تیرهای دشمن
   lastFuelSpawn = performance.now(); // ریست تایمر تولید سوخت
