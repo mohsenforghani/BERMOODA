@@ -890,8 +890,8 @@ let enemyBullets = [];
 let bulletGrade = 1; // پیشفرض
 let bulletSpeed = 10; // مقدار اولیه
 function updateBulletGrade(score) {
-  if (score >= 1400) bulletGrade = 3;
-  else if (score >= 800) bulletGrade = 2;
+  if (score >= 1000) bulletGrade = 3;
+  else if (score >= 500) bulletGrade = 2;
   else bulletGrade = 1;
 }
 
@@ -1763,7 +1763,7 @@ for (let i = enemyBullets.length - 1; i >= 0; i--) {
 if (keys.space) {
   const now = performance.now();
   if (now - lastShotTime > shootDelay) {
-    updateBulletGrade(score);
+ updateBulletGrade(score);
 shootBullets();
 updateAndDrawBullets();
     lastShotTime = now;
@@ -2338,10 +2338,14 @@ shootBtn.addEventListener("touchstart", e => {
   e.preventDefault();
   if (!gameRunning) return;
 
-  shootBullets(); // شلیک فوری
   clearInterval(shootInterval);
+  updateBulletGrade(score);
+  shootBullets(); // شلیک فوری
+
+  //شلیک مداوم
   shootInterval = setInterval(() => {
-    shootBullets();
+  updateBulletGrade(score); 
+  shootBullets();
   }, 110);
 });
 
@@ -2349,13 +2353,20 @@ shootBtn.addEventListener("touchend", e => {
   clearInterval(shootInterval);
 });
 
+shootBtn.addEventListener("touchcancel", e => {
+  clearInterval(shootInterval);
+});
+
 // --- کلیک (کامپیوتر)
 shootBtn.addEventListener("mousedown", e => {
   if (!gameRunning) return;
 
+ clearInterval(shootInterval);
+ updateBulletGrade(score);
   shootBullets(); // شلیک فوری
-  clearInterval(shootInterval);
+ 
   shootInterval = setInterval(() => {
+  updateBulletGrade(score);
     shootBullets();
   }, 110);
 });
@@ -2439,6 +2450,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
 
