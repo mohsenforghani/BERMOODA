@@ -861,7 +861,7 @@ pauseBtn.addEventListener("click", () => {
     exitBtn.style.display = "none";
 
  
-cancelAnimationFrame(animationId); // animationId باید متغیر سراسری باشد
+cancelAnimationFrame(animationId); 
 animationId = requestAnimationFrame(gameLoop);
   }
 });
@@ -1106,6 +1106,7 @@ preloadImages(() => {
     exitBtn.style.display = "none";
 
    cancelAnimationFrame(animationId); // animationId باید متغیر سراسری باشد
+   animationId = null;
    animationId = requestAnimationFrame(gameLoop);
 };
 
@@ -1764,8 +1765,8 @@ if (keys.space) {
   const now = performance.now();
   if (now - lastShotTime > shootDelay) {
  updateBulletGrade(score);
- shootBullets();
- updateAndDrawBullets();
+shootBullets();
+updateAndDrawBullets();
     lastShotTime = now;
   }
 }
@@ -1872,7 +1873,8 @@ if (m.hp <= 0) {
 }
 
 updateMeteorExplosions(); // رسم ذرات انفجار شهاب‌سنگ
-
+cancelAnimationFrame(animationId); // animationId باید متغیر سراسری باشد
+animationId = null;
   animationId = requestAnimationFrame(gameLoop);
 } 
 
@@ -2074,6 +2076,8 @@ function startGame() {
   document.getElementById("gameTitle").style.display = "none";
   document.getElementById("missileBtn").style.display = "block";
   pauseBtn.style.display = "block";
+  cancelAnimationFrame(animationId); // animationId باید متغیر سراسری باشد
+  animationId = null;
   animationId = requestAnimationFrame(gameLoop);
 }
 
@@ -2450,9 +2454,3 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
-
-
-
-
-
