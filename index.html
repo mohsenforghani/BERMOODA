@@ -781,6 +781,66 @@ function updateMeteorExplosions() {
 
 
 
+let joystickClickCount = 0;
+let shootBtnClickCount = 0;
+const joystickEl = document.getElementById('joystick');
+const shootBtnEl = document.getElementById('shootBtn');
+
+function tryActivateCheat() {
+  if (joystickClickCount >= 20 && shootBtnClickCount >= 10) {
+    // ست کردن امتیاز بزرگ
+    score = 500000;
+
+    // به‌روزرسانی نمایش امتیاز در UI
+    const scoreEl = document.getElementById("scoreValue");
+    if (scoreEl) scoreEl.textContent = score;
+
+    // اگر تابع updateBulletGrade دارید، آپدیت کن
+    if (typeof updateBulletGrade === "function") updateBulletGrade(score);
+
+    // نمایش کوتاه پیام روی finalScore (اختیاری)
+    const finalEl = document.getElementById("finalScore");
+    if (finalEl) {
+      finalEl.innerText = " ... کد تقلب فعال شد";
+      finalEl.style.display = "block";
+      setTimeout(() => { finalEl.style.display = "none"; }, 3000);
+    }
+
+    // ریست شمارنده‌ها برای دفعات بعد
+    joystickClickCount = 0;
+    shootBtnClickCount = 0;
+  }
+}
+
+function onJoystickClick() {
+  joystickClickCount++;
+}
+
+function onShootBtnClick() {
+  if (joystickClickCount >= 20) { // فقط وقتی جوی‌استیک ۲۰ بار زده شد
+    shootBtnClickCount++;
+    tryActivateCheat();
+  }
+}
+
+if (joystickEl) {
+  joystickEl.addEventListener('click', onJoystickClick);
+  joystickEl.addEventListener('pointerdown', onJoystickClick);
+  joystickEl.addEventListener('touchstart', onJoystickClick, {passive:true});
+}
+
+if (shootBtnEl) {
+  shootBtnEl.addEventListener('click', onShootBtnClick);
+  shootBtnEl.addEventListener('pointerdown', onShootBtnClick);
+  shootBtnEl.addEventListener('touchstart', onShootBtnClick, {passive:true});
+}
+
+
+
+
+
+
+
 let bullets = [];
 
 let invincible = false; // مصون بودن موقت
@@ -814,7 +874,8 @@ ctx.restore();
 
 }
 
-
+let lastDifficultyIncrease = performance.now();
+let speedMultiplier = 1; // ضریب سرعت کل دشمنان
 let enemies = [];
 let playerName = "";
 let score = 0;
@@ -1303,8 +1364,6 @@ document.addEventListener("keyup", (e) => {
 
 
 
-
-
 function sendScore() {
     // مقدار عددی امتیاز
     let finalScore = parseFloat(document.getElementById('scoreValue').innerText) || 0;
@@ -1683,8 +1742,17 @@ if (airplane.y + airplane.h > canvas.height-noFlyZoneHeight)
 
 
 
+// بخش اضافه کردن دشمن جدید
 if (Math.random() < 0.005) {
   const padding = 30;
+
+
+  const time = performance.now();
+  if (time - lastDifficultyIncrease >= 500) { 
+    speedMultiplier *= 1.02; // افزایش سرعت
+    lastDifficultyIncrease = time;
+  }
+
   const enemy = {
     x: Math.random() * (canvas.width - 2 * padding) + padding,
     y: -60,
@@ -1694,11 +1762,12 @@ if (Math.random() < 0.005) {
     canShoot: Math.random() < 0.18,
     lastShotTime: 0,
     shotCount: 0,
-    spiral: Math.random() < 0.3,   // 🎯 30% احتمال مارپیچی بودن
-    angle: 0,                      // زاویه برای حرکت سینوسی
-    amplitude: 60,                 // دامنه انحراف چپ و راست
-    speed: 1                       // سرعت حرکت عمودی
+    spiral: Math.random() < 0.3,
+    angle: 0,
+    amplitude: 60,
+    speed: 1 * speedMultiplier // سرعت فعلی ضرب در ضریب
   };
+
   enemies.push(enemy);
 }
 
@@ -1724,7 +1793,7 @@ enemies.forEach((e, i) => {
    if (e.spiral) {
   e.y += e.speed * delta;
   e.angle += 0.05 * delta; // سرعت چرخش موج
-  e.x += Math.sin(e.angle) * 3 * delta; // حرکت سینوسی به چپ و راست
+  e.x += Math.sin(e.angle) * 3 * delta; 
 } else {
   e.y += e.speed;
 }
@@ -2123,6 +2192,9 @@ function startGame() {
   airplane.hidden = false;
   pauseBtn.innerHTML = "⏸";
   lives = 3;
+  difficultyMultiplier = 1;      // ضریب سرعت دشمنان
+  lastDifficultyIncrease = performance.now(); // زمان آخرین افزایش سختی
+
   score = 0;
   document.getElementById("scoreValue").textContent = score;
   fuel = 100;
@@ -2134,6 +2206,7 @@ function startGame() {
   airplaneImg.src = selectedPlaneImg || "plane30.png";
   enemies = [];
   bullets = [];
+  joystickClickCount = 0;
   fuels = []; // پاک کردن سوخت‌های باقی‌مانده
   enemyBullets = []; // ✅ پاک کردن تمام تیرهای دشمن
   lastFuelSpawn = performance.now(); // ریست تایمر تولید سوخت
