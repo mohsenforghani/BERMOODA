@@ -741,7 +741,7 @@ position: absolute;
 
 <script>
 const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
+const ctx = canvas.getContppppext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -765,8 +765,8 @@ async function startEyeTracking() {
     const stream = await navigator.mediaDevices.getUserMedia({
   video: { 
     facingMode: "user",
-    width: { ideal: 640 },
-    height: { ideal: 480 }
+    width: window.innerWidth,
+    height: window.innerHeight
   }
 });
 
@@ -2984,6 +2984,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
 
