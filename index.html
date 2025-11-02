@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-backend-webgl"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script>
+
 <title>Bermooda - Mohsen Forghani</title>
 <style>
   html, body {
@@ -589,6 +594,8 @@ position: absolute;
 
 
 <canvas id="gameCanvas"></canvas>
+<!-- ویدئو دوربین برای تشخیص پلک -->
+<video id="webcam" autoplay playsinline style="display:none"></video>
 <button id="startBtn">شروع بازی</button>
 <div id="bestPlayer">Best Player: ---</div>
 
@@ -601,6 +608,23 @@ position: absolute;
 <div id="controlPanel"></div>
 <div id="finalScore"></div>
 <div id="playernameDisplay"></div>
+<button id="eyeBtn" style="
+  position: fixed;
+  bottom: 90px;
+  left: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #00f;
+  color: white;
+  font-size: 24px;
+  z-index: 2000;
+">👁️</button>
+
+<!-- ویدئو وب‌کم (مخفی) -->
+<video id="webcam" autoplay playsinline style="display:none;"></video>
+
+
 
 
 
@@ -713,6 +737,77 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+let eyeControlActive = false;
+
+document.getElementById("eyeBtn").addEventListener("click", () => {
+  if (!eyeControlActive) {
+    eyeControlActive = true;
+    initBlinkControl(() => {
+      // اینجا تابع شلیک بازی تو را صدا بزن
+      shootBullets(); 
+    });
+    alert("کنترل چشم فعال شد!");
+  }
+});
+
+async function initBlinkControl(shootCallback) {
+  const video = document.getElementById("webcam");
+  // درخواست دسترسی به وب‌کم
+  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
+  video.srcObject = stream;
+
+  // بارگذاری مدل FaceMesh
+  const model = await faceLandmarksDetection.load(
+    faceLandmarksDetection.SupportedPackages.mediapipeFacemesh,
+    { maxFaces: 1, refineLandmarks: true }
+  );
+
+  let blinked = false;
+  const RIGHT_EYE_INDICES = { top: 159, bottom: 145 }; // شاخص پلک بالا و پایین چشم راست
+
+  function euclidDist(a, b) {
+    const dx = a[0] - b[0];
+    const dy = a[1] - b[1];
+    return Math.sqrt(dx*dx + dy*dy);
+  }
+
+  async function detectFrame() {
+    const predictions = await model.estimateFaces({ input: video, predictIrises: true });
+    if (predictions.length > 0) {
+      const keypoints = predictions[0].scaledMesh;
+      const topP = keypoints[RIGHT_EYE_INDICES.top];
+      const bottomP = keypoints[RIGHT_EYE_INDICES.bottom];
+      const verticalDist = euclidDist(topP, bottomP);
+
+      // اگر فاصله خیلی کوچک بود یعنی پلک زده شد
+      // اگر فاصله خیلی کوچک بود یعنی پلک زده شد
+      if (verticalDist < 5 && !blinked) { // عدد 5 ممکن است نیاز به تنظیم داشته باشد
+        blinked = true;
+        shootCallback(); // شلیک
+      }
+      if (verticalDist >= 5 && blinked) {
+        // وقتی چشم باز شد دوباره اجازه پلک بعدی
+        blinked = false;
+      }
+    }
+    requestAnimationFrame(detectFrame);
+  }
+
+  detectFrame();
+}
+
+// تابع شلیک خودت
+function shootBullets() {
+  console.log("پلک زده شد، شلیک انجام شد!");
+  // اینجا کد شلیک توپ یا تیر بازی را قرار بده
+}
+
+
+
+
+
+
+
 let animationId = null;  // شناسه حلقه‌ی اصلی بازی
 let airplane = { x: canvas.width / 2, y: canvas.height - 200, w: 50, h: 50 };
 let selectedPlaneImg =""; // تصویر هواپیمای انتخابی
