@@ -315,23 +315,72 @@ display: none;
     font-family: Arial, sans-serif;
   }
 
-/* 🎮 جوی‌استیک */
-  #joystick {
-    position: absolute;
-    bottom: 30px;
-    right: 20px;
-    width: 80px;
-    height: 80px;
-    background: rgba(255,255,255,0.1);
-    border: 3px solid rgba(255,255,255,0.4);
-    border-radius: 50%;
-   display = "none"
-   z-index: 1000;
 
-  }
+/* جوی‌استیک */
+#joystick {
+  position: fixed;
+  bottom: 30px;
+  right: 20px;
+  width: 80px;
+  height: 80px;
+  background: rgba(255,255,255,0.08);
+  border: 3px solid rgba(255,255,255,0.4);
+  border-radius: 50%;
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
-  #stick {
-    position: absolute;
+/* خطوط جهت‌نما */
+#joystick::before,
+#joystick::after {
+  content: "";
+  z-index: 1100
+  position: absolute;
+  background: rgba(255,255,255,0.3);
+  pointer-events: none;
+}
+#joystick::before {
+  content: "";
+  position: absolute;
+  width: 2px;
+  height: 100%;
+  background: rgba(255,255,255,0.25);
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+}
+
+#joystick::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background: rgba(255,255,255,0.25);
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+
+/* نقاط چهار جهت */
+#joystick span {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 50%;
+  pointer-events: none;
+}
+#joystick span.up    { top: 5px; left: 50%; transform: translateX(-50%); }
+#joystick span.down  { bottom: 5px; left: 50%; transform: translateX(-50%); }
+#joystick span.left  { left: 5px; top: 50%; transform: translateY(-50%); }
+#joystick span.right { right: 5px; top: 50%; transform: translateY(-50%); }
+
+/* خود استیک (دایره داخلی متحرک) */
+#stick {
+position: absolute;
     width: 30px;
     height:30px;
     background: orange;
@@ -340,8 +389,11 @@ display: none;
     left: 25px;
     transition: 0.05s;
     display = "none"
-    z-index: 1000;
-  }
+    z-index: 1200;
+  pointer-events: none;
+}
+
+
 
   #shoot {
     position: fixed;
@@ -517,9 +569,15 @@ display: none;
 }
 
 
+#game-container {
+  position: relative;
+}
 
-
-
+@keyframes blinkHelp {
+  0% { opacity: 1; }
+  50% { opacity: 0.4; }
+  100% { opacity: 1; }
+}
 
 
 
@@ -547,8 +605,13 @@ display: none;
 
 <!-- 🎮 کنترل‌ها -->
 <div id="joystick">
+  <span class="up"></span>
+  <span class="down"></span>
+  <span class="left"></span>
+  <span class="right"></span>
   <div id="stick"></div>
 </div>
+
 <div id="shoot">🔥</div>
 
  <div id="loadingScreen">
@@ -718,6 +781,33 @@ function spawnMeteor() {
     img
   });
 }
+
+
+function showHelpImage() {
+    const helpImg = document.createElement("img");
+    helpImg.src = "help.png"; // مسیر تصویر
+    helpImg.style.position = "absolute";
+    helpImg.style.bottom = "110px"; // بالای جوی‌استیک
+    helpImg.style.right = "70px";
+    helpImg.style.width = "140px";
+    helpImg.style.height = "auto";
+    helpImg.style.opacity = "1";
+    helpImg.style.zIndex = "1500";
+    helpImg.style.animation = "blinkHelp 0.6s infinite"; // چشمک زدن مداوم
+
+    const gameContainer = document.getElementById("game-container") || document.body;
+    gameContainer.appendChild(helpImg);
+
+    // بعد از 3 ثانیه تصویر محو شود
+    setTimeout(() => {
+        helpImg.style.transition = "opacity 0.5s ease";
+        helpImg.style.opacity = "0";
+        setTimeout(() => helpImg.remove(), 500);
+    }, 3000);
+}
+
+
+
 
 
 
@@ -2227,6 +2317,7 @@ function launchMissile() {
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
   showTopPlayerName();
+  showHelpImage();
   lastFuelSpawn = 0; // ریست زمان سوخت
 
  // 🔹 هر بار شروع جدید، چرخه‌ی روز/شب از "روز کامل" آغاز شود
