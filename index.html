@@ -3,13 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
- <script type="module">
-    import * as faceLandmarksDetection from 'https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection';
-    import '@tensorflow/tfjs-backend-webgl';
-
-    // می‌توانید متغیرها و توابع اصلی خود را هم اینجا تعریف کنید
-    window.faceLandmarksDetection = faceLandmarksDetection;
-  </script>
+<script type="module">
+import * as faceLandmarksDetection from 'https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection';
+import '@tensorflow/tfjs-backend-webgl';
+window.faceLandmarksDetection = faceLandmarksDetection;
+</script>
 
 
 <title>Bermooda - Mohsen Forghani</title>
@@ -763,33 +761,22 @@ let lastBlinkTime = 0;
 
 // فعالسازی دوربین و مدل تشخیص چهره
 async function startEyeTracking() {
-  if (eyeActive) return;
-  eyeActive = true;
+    if (eyeActive) return;
+    eyeActive = true;
 
-  // ایجاد ویدئو
-  video = document.createElement('video');
-  video.autoplay = true;
-  video.width = window.innerWidth;   // استفاده از اندازه واقعی صفحه
-  video.height = window.innerHeight; // استفاده از اندازه واقعی صفحه
-  video.style.position = "fixed";    // ویدئو پشت صحنه
-  video.style.top = "0";
-  video.style.left = "0";
-  video.style.opacity = "0";         // مخفی کردن ویدئو
-  video.style.zIndex = "-1";
-  
-  document.body.appendChild(video);
+    video = document.createElement('video');
+    video.autoplay = true;
+    video.width = window.innerWidth;
+    video.height = window.innerHeight;
 
-  // گرفتن دسترسی به دوربین
-  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-  video.srcObject = stream;
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    video.srcObject = stream;
 
-  // بارگذاری مدل تشخیص چهره
-  model = await faceLandmarksDetection.load(
-    faceLandmarksDetection.SupportedPackages.mediapipeFacemesh
-  );
+    model = await faceLandmarksDetection.load(faceLandmarksDetection.SupportedPackages.mediapipeFacemesh);
 
-  detectBlink();
+    detectBlink(); // فقط یک بار اینجا فراخوانی می‌شود
 }
+
 
 // تابع تشخیص پلک زدن چشم راست
 async function detectBlink() {
@@ -805,7 +792,7 @@ async function detectBlink() {
 
     const eyeOpenDistance = Math.hypot(top[0]-bottom[0], top[1]-bottom[1]);
 
-    if (eyeOpenDistance < 5) { // آستانه پلک زدن (تجربی)
+    if (eyeOpenDistance < 10) { // آستانه پلک زدن (تجربی)
       const now = Date.now();
       if (now - lastBlinkTime > 500) { // جلوگیری از چند شلیک همزمان
         shootBullets();
