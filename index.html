@@ -574,9 +574,11 @@ position: absolute;
 }
 
 @keyframes blinkHelp {
-  0% { opacity: 1; }
-  50% { opacity: 0.4; }
-  100% { opacity: 1; }
+  0%, 50%, 100% { opacity: 1; }
+  25%, 75% { opacity: 0; }
+}
+.help-img {
+  animation: blinkHelp 1.5s infinite;
 }
 
 
@@ -783,27 +785,40 @@ function spawnMeteor() {
 }
 
 
-function showHelpImage() {
-    const helpImg = document.createElement("img");
-    helpImg.src = "help.png"; // مسیر تصویر
-    helpImg.style.position = "absolute";
-    helpImg.style.bottom = "110px"; // بالای جوی‌استیک
-    helpImg.style.right = "70px";
-    helpImg.style.width = "140px";
-    helpImg.style.height = "auto";
-    helpImg.style.opacity = "1";
-    helpImg.style.zIndex = "1500";
-    helpImg.style.animation = "blinkHelp 0.6s infinite"; // چشمک زدن مداوم
-
+function showHelpImages() {
     const gameContainer = document.getElementById("game-container") || document.body;
-    gameContainer.appendChild(helpImg);
 
-    // بعد از 3 ثانیه تصویر محو شود
-    setTimeout(() => {
-        helpImg.style.transition = "opacity 0.5s ease";
-        helpImg.style.opacity = "0";
-        setTimeout(() => helpImg.remove(), 500);
-    }, 3000);
+    const images = [
+        { src: "help.png", duration: 3000, bottom: "110px", right: "70px" }, // تصویر اول
+        { src: "help2.png", duration: 3000, bottom: "110px", right: "60%" }  // تصویر دوم
+    ];
+
+    let delay = 0;
+
+    images.forEach(imgData => {
+        setTimeout(() => {
+            const img = document.createElement("img");
+            img.src = imgData.src;
+            img.style.position = "absolute";
+            img.style.bottom = imgData.bottom;
+            img.style.right = imgData.right;
+            img.style.width = "150px";
+            img.style.height = "auto";
+            img.style.zIndex = "1500";
+            img.classList.add("help-img"); // برای چشمک زدن
+
+            gameContainer.appendChild(img);
+
+            // fade out بعد از مدت زمان مشخص
+            setTimeout(() => {
+                img.style.transition = "opacity 0.6s ease";
+                img.style.opacity = "0";
+                setTimeout(() => img.remove(), 100);
+            }, imgData.duration);
+        }, delay);
+
+        delay += imgData.duration + 500; // مدت زمان + 0.5 ثانیه برای fade out
+    });
 }
 
 
@@ -2317,7 +2332,7 @@ function launchMissile() {
 function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
   showTopPlayerName();
-  showHelpImage();
+  showHelpImages();
   lastFuelSpawn = 0; // ریست زمان سوخت
 
  // 🔹 هر بار شروع جدید، چرخه‌ی روز/شب از "روز کامل" آغاز شود
