@@ -10,6 +10,7 @@ window.faceLandmarksDetection = faceLandmarksDetection;
 </script>
 
 
+
 <title>Bermooda - Mohsen Forghani</title>
 <style>
   html, body {
@@ -744,14 +745,7 @@ const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-
-
-
-
-
-
-
-
+  
 let eyeActive = false;
 let model, video;
 let lastBlinkTime = 0;
@@ -768,7 +762,10 @@ async function startEyeTracking() {
     video.width = window.innerWidth;
     video.height = window.innerHeight;
 
-    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    const stream = await navigator.mediaDevices.getUserMedia({
+  video: { facingMode: "user" }
+});
+
     video.srcObject = stream;
 
     model = await faceLandmarksDetection.load(faceLandmarksDetection.SupportedPackages.mediapipeFacemesh);
@@ -2958,5 +2955,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
