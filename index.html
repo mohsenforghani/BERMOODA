@@ -3,6 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <script type="module">
+    import * as faceLandmarksDetection from 'https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection';
+    import '@tensorflow/tfjs-backend-webgl';
+
+    // می‌توانید متغیرها و توابع اصلی خود را هم اینجا تعریف کنید
+    window.faceLandmarksDetection = faceLandmarksDetection;
+  </script>
+
+
 <title>Bermooda - Mohsen Forghani</title>
 <style>
   html, body {
@@ -581,6 +590,30 @@ position: absolute;
   animation: blinkHelp 1.5s infinite;
 }
 
+ #startEyeBtn {
+     position: fixed;
+  bottom: 60px;
+  left: 110px;
+  width: 60px;
+  height: 60px;
+  z-index: 2000;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.4);
+  background: radial-gradient(circle at center, #0ff, #00f);
+  color: #001122; 
+  font-weight: bold;
+  font-size: 25px;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+  cursor: pointer;
+  box-shadow: 0 0 15px #0ff, 0 0 30px #0ff inset;
+  transition: all 0.2s ease;
+  text-shadow: 0 0 8px #0ff, 0 0 15px #0ff; /* جلوه نئونی نوشته */
+  display:none;
+  }
+
+
 
 
 </style>
@@ -591,7 +624,7 @@ position: absolute;
 <canvas id="gameCanvas"></canvas>
 <button id="startBtn">شروع بازی</button>
 <div id="bestPlayer">Best Player: ---</div>
-
+<button id="startEyeBtn">👁️</button>
 <button id="scoreBtn">نمایش امتیازات</button>
 <button id="continueBtn">ادامه بازی</button>
 <button id="exitBtn">خروج</button>
@@ -713,6 +746,89 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+
+
+
+
+
+
+
+
+
+let eyeActive = false;
+let model, video;
+let lastBlinkTime = 0;
+
+
+
+// فعالسازی دوربین و مدل تشخیص چهره
+async function startEyeTracking() {
+  if (eyeActive) return;
+  eyeActive = true;
+
+  // ایجاد ویدئو
+  video = document.createElement('video');
+  video.autoplay = true;
+  video.width = window.innerWidth;   // استفاده از اندازه واقعی صفحه
+  video.height = window.innerHeight; // استفاده از اندازه واقعی صفحه
+  video.style.position = "fixed";    // ویدئو پشت صحنه
+  video.style.top = "0";
+  video.style.left = "0";
+  video.style.opacity = "0";         // مخفی کردن ویدئو
+  video.style.zIndex = "-1";
+  
+  document.body.appendChild(video);
+
+  // گرفتن دسترسی به دوربین
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  video.srcObject = stream;
+
+  // بارگذاری مدل تشخیص چهره
+  model = await faceLandmarksDetection.load(
+    faceLandmarksDetection.SupportedPackages.mediapipeFacemesh
+  );
+
+  detectBlink();
+}
+
+// تابع تشخیص پلک زدن چشم راست
+async function detectBlink() {
+  if (!eyeActive) return;
+
+  const predictions = await model.estimateFaces({ input: video });
+  if (predictions.length > 0) {
+    const keypoints = predictions[0].scaledMesh;
+
+    // نقاط چشم راست: 159 بالای پلک، 145 پایین پلک
+    const top = keypoints[159];
+    const bottom = keypoints[145];
+
+    const eyeOpenDistance = Math.hypot(top[0]-bottom[0], top[1]-bottom[1]);
+
+    if (eyeOpenDistance < 5) { // آستانه پلک زدن (تجربی)
+      const now = Date.now();
+      if (now - lastBlinkTime > 500) { // جلوگیری از چند شلیک همزمان
+        shootBullets();
+        lastBlinkTime = now;
+      }
+    }
+  }
+
+  requestAnimationFrame(detectBlink);
+}
+
+
+// کنترل دکمه فعالسازی
+document.getElementById('startEyeBtn').addEventListener('click', startEyeTracking);
+
+
+
+
+
+
+
+
+
 let animationId = null;  // شناسه حلقه‌ی اصلی بازی
 let airplane = { x: canvas.width / 2, y: canvas.height - 200, w: 50, h: 50 };
 let selectedPlaneImg =""; // تصویر هواپیمای انتخابی
@@ -2390,7 +2506,7 @@ function startGame() {
   document.getElementById("gameTitle").style.display = "none";
   document.getElementById("missileBtn").style.display = "block";
   pauseBtn.style.display = "block";
-
+  startEyeBtn.style.display = "block";
 
  // اگر حلقه‌ی پس‌زمینه‌ی game over فعال است، متوقفش کن
   if (typeof backgroundAnimation !== 'undefined' && backgroundAnimation) {
@@ -2424,6 +2540,7 @@ function startGame() {
   document.getElementById("scoreContainer").style.display = "none";
   controlPanel.style.display = 'none'; 
   pauseBtn.style.display = "none";
+  startEyeBtn.style.display = "none";
   explosionRunning = false;
   const startBtn = document.getElementById("startBtn");
   const continueBtn = document.getElementById("continueBtn");
