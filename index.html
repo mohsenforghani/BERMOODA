@@ -2467,7 +2467,8 @@ function updateExplosions(delta) {
 
       // حذف ذره اگر عمر تمام شد یا خیلی کوچک شد
       if (p.life <= 0.03 || p.w < 0.25 || p.h < 0.25) {
-        ex.particles.splice(j, 1);
+      ex.particles.splice(j, 1);
+      continue;
       }
     }
 
