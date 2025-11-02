@@ -1663,10 +1663,11 @@ ctx.globalAlpha = 1; // ریست alpha
 fuels.forEach((f, i) => {
   bullets.forEach((b, j) => {
     if (b.x > f.x && b.x < f.x + f.w &&
-        b.y > f.y && b.y < f.y + f.h) {
+      b.y > f.y && b.y < f.y + f.h) {
+      createExplosion(b.x, b.y, (f.w*2.5)/1.5, (f.h/1.5), 1); // ایجاد انفجار در موقعیت برخورد گلوله
       fuels.splice(i, 1);
       bullets.splice(j, 1);
-      addScore(10);
+      addScore(20);
     }
   });
 });
@@ -2410,13 +2411,13 @@ function updateExplosions(delta) {
     const drawX = cx - drawW / 2;
     const drawY = cy - drawH / 2;
 
-    ctx.save();
+    //ctx.save();
     ctx.globalAlpha = ex.imgAlpha;
     ctx.shadowColor = "rgba(255,180,100,0.9)";
     ctx.shadowBlur = 30 * ex.imgAlpha; // نور هم بر اساس آلفا کاهش می‌یابد
     ctx.drawImage(explosionImg, drawX, drawY, drawW, drawH);
     ctx.shadowBlur = 0;
-    ctx.restore();
+    //ctx.restore();
 
     // کاهش آلفا در هر فریم
     ex.imgAlpha -= ex.imgFadeStep;
