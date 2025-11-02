@@ -741,51 +741,38 @@ position: absolute;
 
 <script>
 const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContppppext("2d");
+const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
   
+let eyeActive = false;
+let model, video;
+let lastBlinkTime = 0;
+
+
 
 // فعالسازی دوربین و مدل تشخیص چهره
-let video, model, eyeActive = false;
-let lastBlinkTime = 0;
-let blinkBuffer = [];
 async function startEyeTracking() {
-  if (eyeActive) return;
-  eyeActive = true;
+    if (eyeActive) return;
+    eyeActive = true;
 
-  video = document.createElement('video');
-  video.autoplay = true;
-  video.playsInline = true;
-  video.style.display = "none"; // مخفی بماند
-  document.body.appendChild(video);
+    video = document.createElement('video');
+    video.autoplay = true;
+    video.width = window.innerWidth;
+    video.height = window.innerHeight;
 
-  try {
     const stream = await navigator.mediaDevices.getUserMedia({
-  video: { 
-    facingMode: "user",
-    width: window.innerWidth,
-    height: window.innerHeight
-  }
+  video: { facingMode: "user" }
 });
 
     video.srcObject = stream;
-  } catch (err) {
-    alert("دسترسی به دوربین ممکن نیست یا اجازه داده نشده.");
-    console.error(err);
-    eyeActive = false;
-    return;
-  }
 
-  // بارگذاری مدل
-  model = await faceLandmarksDetection.load(
-    faceLandmarksDetection.SupportedPackages.mediapipeFacemesh
-  );
-  console.log("✅ مدل تشخیص چهره بارگذاری شد");
+    model = await faceLandmarksDetection.load(faceLandmarksDetection.SupportedPackages.mediapipeFacemesh);
 
-  detectBlink(); // فقط یک بار صدا زده شود
+    detectBlink(); // فقط یک بار اینجا فراخوانی می‌شود
 }
+
 
 // تابع تشخیص پلک زدن چشم راست
 async function detectBlink() {
@@ -795,39 +782,23 @@ async function detectBlink() {
   if (predictions.length > 0) {
     const keypoints = predictions[0].scaledMesh;
 
-    // نقاط بالا و پایین پلک راست
-    const topPoints = [159, 158, 160];
-    const bottomPoints = [145, 144, 153];
+    // نقاط چشم راست: 159 بالای پلک، 145 پایین پلک
+    const top = keypoints[159];
+    const bottom = keypoints[145];
 
-    const topY = topPoints.reduce((s, i) => s + keypoints[i][1], 0) / topPoints.length;
-    const bottomY = bottomPoints.reduce((s, i) => s + keypoints[i][1], 0) / bottomPoints.length;
+    const eyeOpenDistance = Math.hypot(top[0]-bottom[0], top[1]-bottom[1]);
 
-    const eyeOpenDistance = bottomY - topY;
-
-    // میانگین‌گیری برای فریم‌های اخیر
-    blinkBuffer.push(eyeOpenDistance);
-    if (blinkBuffer.length > 5) blinkBuffer.shift(); // فقط ۵ فریم آخر نگه‌دار
-    const avgDist = blinkBuffer.reduce((a, b) => a + b, 0) / blinkBuffer.length;
-
-    // محاسبه اندازه چهره برای آستانه تطبیقی
-    const faceWidth = Math.hypot(
-      keypoints[234][0] - keypoints[454][0],
-      keypoints[234][1] - keypoints[454][1]
-    );
-
-    const ratio = avgDist / faceWidth;
-
-    // اگر فاصله خیلی کم شد یعنی پلک زده
-    if (ratio < 0.015) {
+    if (eyeOpenDistance < 10) { // آستانه پلک زدن (تجربی)
       const now = Date.now();
-      if (now - lastBlinkTime > 600) { // جلوگیری از چند شلیک پشت‌سرهم
-        shootBullets(); // تابع شلیک
+      if (now - lastBlinkTime > 500) { // جلوگیری از چند شلیک همزمان
+        shootBullets();
         lastBlinkTime = now;
       }
     }
   }
 
   requestAnimationFrame(detectBlink);
+}
 
 
 // کنترل دکمه فعالسازی
@@ -2984,10 +2955,5 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
-
-
-
-
 
 
