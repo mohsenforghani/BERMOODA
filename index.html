@@ -3,11 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- کتابخانه‌های تشخیص چهره -->
 <script type="module">
-import * as faceLandmarksDetection from 'https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection';
-import '@tensorflow/tfjs-backend-webgl';
-window.faceLandmarksDetection = faceLandmarksDetection;
+  import * as faceLandmarksDetection from "https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection";
+  import "@tensorflow/tfjs-backend-webgl";
+
+  // در دسترس کردن کتابخانه برای بقیه کدها
+  window.faceLandmarksDetection = faceLandmarksDetection;
 </script>
+
 
 
 
@@ -589,7 +593,7 @@ position: absolute;
   animation: blinkHelp 1.5s infinite;
 }
 
- #startEyeBtn {position: fixed;
+ #startMouthBtn {position: fixed;
   bottom: 75px;
   left: 100px;
   width: 40px;
@@ -622,7 +626,7 @@ position: absolute;
 <canvas id="gameCanvas"></canvas>
 <button id="startBtn">شروع بازی</button>
 <div id="bestPlayer">Best Player: ---</div>
-<button id="startEyeBtn">👁️</button>
+<button id="startMouthBtn">👄</button>
 <button id="scoreBtn">نمایش امتیازات</button>
 <button id="continueBtn">ادامه بازی</button>
 <button id="exitBtn">خروج</button>
@@ -746,66 +750,99 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
   
-let eyeActive = false;
-let model, video;
-let lastBlinkTime = 0;
+// -----------------------------
+let video, model, mouthTrackingActive = false;
+let lastMouthOpenTime = 0;
 
+// -----------------------------
+// 🔹 فعالسازی دوربین و مدل
+// -----------------------------
+async function startMouthTracking() {
+  if (mouthTrackingActive) return;
+  mouthTrackingActive = true;
 
+  // ایجاد ویدیو (دوربین سلفی)
+  video = document.createElement('video');
+  video.autoplay = true;
+  video.playsInline = true;
+  video.style.display = "none"; // پنهان بماند
+  document.body.appendChild(video);
 
-// فعالسازی دوربین و مدل تشخیص چهره
-async function startEyeTracking() {
-    if (eyeActive) return;
-    eyeActive = true;
-
-    video = document.createElement('video');
-    video.autoplay = true;
-    video.width = window.innerWidth;
-    video.height = window.innerHeight;
-
+  // گرفتن اجازه استفاده از دوربین جلو
+  try {
     const stream = await navigator.mediaDevices.getUserMedia({
-  video: { facingMode: "user" }
-});
-
+      video: {
+        facingMode: "user",
+        width: { ideal: window.innerWidth },
+        height: { ideal: window.innerHeight }
+      }
+    });
     video.srcObject = stream;
+  } catch (err) {
+    alert("⛔ دسترسی به دوربین رد شد یا در دسترس نیست.");
+    console.error(err);
+    mouthTrackingActive = false;
+    return;
+  }
 
-    model = await faceLandmarksDetection.load(faceLandmarksDetection.SupportedPackages.mediapipeFacemesh);
+  // بارگذاری مدل Mediapipe
+  model = await faceLandmarksDetection.load(
+    faceLandmarksDetection.SupportedPackages.mediapipeFacemesh
+  );
 
-    detectBlink(); // فقط یک بار اینجا فراخوانی می‌شود
+  console.log("✅ مدل تشخیص چهره بارگذاری شد.");
+  detectMouthOpen(); // شروع تشخیص
 }
 
-
-// تابع تشخیص پلک زدن چشم راست
-async function detectBlink() {
-  if (!eyeActive) return;
+// -----------------------------
+// 🔹 تشخیص باز شدن دهان
+// -----------------------------
+async function detectMouthOpen() {
+  if (!mouthTrackingActive) return;
 
   const predictions = await model.estimateFaces({ input: video });
   if (predictions.length > 0) {
     const keypoints = predictions[0].scaledMesh;
 
-    // نقاط چشم راست: 159 بالای پلک، 145 پایین پلک
-    const top = keypoints[159];
-    const bottom = keypoints[145];
+    // نقاط لب بالا و پایین
+    const topLip = keypoints[13];
+    const bottomLip = keypoints[14];
 
-    const eyeOpenDistance = Math.hypot(top[0]-bottom[0], top[1]-bottom[1]);
+    const mouthOpenDist = Math.hypot(
+      topLip[0] - bottomLip[0],
+      topLip[1] - bottomLip[1]
+    );
 
-    if (eyeOpenDistance < 10) { // آستانه پلک زدن (تجربی)
+    // اندازه چهره (برای مقیاس‌گذاری تطبیقی)
+    const faceWidth = Math.hypot(
+      keypoints[234][0] - keypoints[454][0],
+      keypoints[234][1] - keypoints[454][1]
+    );
+
+    const ratio = mouthOpenDist / faceWidth;
+
+    // اگر نسبت باز شدن دهان بزرگ‌تر از حد آستانه بود = باز شدن دهان
+    if (ratio > 0.06) { // مقدار آستانه تجربی
       const now = Date.now();
-      if (now - lastBlinkTime > 500) { // جلوگیری از چند شلیک همزمان
-        shootBullets();
-        lastBlinkTime = now;
+      if (now - lastMouthOpenTime > 700) { // هر ۰.۷ ثانیه فقط یک شلیک
+        shootBullets(); // ✅ تابع شلیک بازی تو
+        lastMouthOpenTime = now;
       }
     }
   }
 
-  requestAnimationFrame(detectBlink);
+  requestAnimationFrame(detectMouthOpen);
 }
 
 
+
+
+
 // کنترل دکمه فعالسازی
-document.getElementById('startEyeBtn').addEventListener('click', startEyeTracking);
-
-
-
+document.getElementById("startMouthBtn").addEventListener("click", () => {
+  startMouthTracking();
+  document.getElementById("startMouthBtn").style.display = "none"; // دکمه مخفی شود
+});
 
 
 
@@ -2432,7 +2469,6 @@ function startGame() {
   if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
   showTopPlayerName();
   showHelpImages();
-  detectBlink();
   lastFuelSpawn = 0; // ریست زمان سوخت
 
  // 🔹 هر بار شروع جدید، چرخه‌ی روز/شب از "روز کامل" آغاز شود
@@ -2490,7 +2526,7 @@ function startGame() {
   document.getElementById("gameTitle").style.display = "none";
   document.getElementById("missileBtn").style.display = "block";
   pauseBtn.style.display = "block";
-  startEyeBtn.style.display = "block";
+  startMouthBtn.style.display = "block";
 
  // اگر حلقه‌ی پس‌زمینه‌ی game over فعال است، متوقفش کن
   if (typeof backgroundAnimation !== 'undefined' && backgroundAnimation) {
@@ -2524,7 +2560,7 @@ function startGame() {
   document.getElementById("scoreContainer").style.display = "none";
   controlPanel.style.display = 'none'; 
   pauseBtn.style.display = "none";
-  startEyeBtn.style.display = "none";
+ startMouthBtn.style.display = "none";
   explosionRunning = false;
   const startBtn = document.getElementById("startBtn");
   const continueBtn = document.getElementById("continueBtn");
