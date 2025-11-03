@@ -2972,59 +2972,45 @@ function avgPointY(landmarks, indices) {
 
 
 function isMouthOpen(landmarks) {
-  // نکته: coords نرمال‌شده (0..1) نسبت به ابعاد تصویر
   const upperY = avgPointY(landmarks, UPPER_LIP);
   const lowerY = avgPointY(landmarks, LOWER_LIP);
-  if (upperY == null || lowerY == null) return false;
-  const diff = lowerY - upperY; // در تصویر، y بیشتر = پایین‌تر
+  // از if غیرضروری جلوگیری می‌کنیم
+  const diff = lowerY - upperY;
   return diff > MOUTH_THRESHOLD;
 }
 
-// onResults از MediaPipe
+// نسخه سبک‌تر onFaceResults
 function onFaceResults(results) {
   if (!mouthActive) return;
-  if (!results.multiFaceLandmarks || results.multiFaceLandmarks.length === 0) {
+
+  const faces = results.multiFaceLandmarks;
+  if (!faces || faces.length === 0) {
     mouthOpenCount = 0;
-    // clear preview if visible
-    if (previewCtx) {
-      previewCtx.clearRect(0,0,previewCanvas.width, previewCanvas.height);
+    // پاک کردن پیش‌نمایش فقط در حالت دیباگ
+    if (previewCtx && USE_PREVIEW) {
+      previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
     }
     return;
   }
 
-  const landmarks = results.multiFaceLandmarks[0];
-  // رسم برای دیباگ (اختیاری)
-  if (previewCtx) {
-    previewCtx.save();
-    previewCtx.clearRect(0,0,previewCanvas.width, previewCanvas.height);
-    // mirror preview to match selfie
-    previewCtx.scale(-1,1);
-    previewCtx.translate(-previewCanvas.width,0);
-    // draw video frame small
-    previewCtx.drawImage(faceVideo, 0,0, previewCanvas.width, previewCanvas.height);
-    previewCtx.restore();
+  const landmarks = faces[0];
 
-    // رسم نقاط لب
+  // 🔹 پردازش فقط لب‌ها (نه همه ۴۶۸ نقطه)
+  // در اینجا فقط همان اندیس‌های لب بالا و پایین را بررسی می‌کنیم
+  const open = isMouthOpen(landmarks);
+
+  // 🔹 حذف کامل رسم ویدیو و نقاط (اگر USE_PREVIEW=false)
+  if (USE_PREVIEW && previewCtx) {
+    previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+    // فقط اگر بخواهی ببینی، نقاط لب را بکش
     previewCtx.fillStyle = 'rgba(0,255,0,0.9)';
     for (const i of UPPER_LIP) {
       const p = landmarks[i];
-      if (!p) continue;
-      previewCtx.beginPath();
-      previewCtx.arc(previewCanvas.width * (1 - p.x), previewCanvas.height * p.y, 2, 0, Math.PI*2);
-      previewCtx.fill();
-    }
-    previewCtx.fillStyle = 'rgba(255,0,60,0.9)';
-    for (const i of LOWER_LIP) {
-      const p = landmarks[i];
-      if (!p) continue;
-      previewCtx.beginPath();
-      previewCtx.arc(previewCanvas.width * (1 - p.x), previewCanvas.height * p.y, 2, 0, Math.PI*2);
-      previewCtx.fill();
+      previewCtx.fillRect(previewCanvas.width * (1 - p.x), previewCanvas.height * p.y, 2, 2);
     }
   }
 
-  // محاسبهٔ باز بودن دهان
-  const open = isMouthOpen(landmarks);
+  // 🔹 منطق شلیک ساده و بدون delay اضافی
   if (open) {
     mouthOpenCount++;
   } else {
@@ -3035,89 +3021,61 @@ function onFaceResults(results) {
   if (mouthOpenCount >= FRAMES_REQUIRED && (now - lastMouthTriggered) > COOLDOWN_MS) {
     lastMouthTriggered = now;
     mouthOpenCount = 0;
-    // ---------- اینجا شلیک را فعال کن ----------
-    try {
-      if (typeof shootBullets === 'function') {
-        shootBullets(); // تابع شلیک شما
-        // در صورت نیاز به شلیک مداوم: setInterval یا loop خاص بزاری
-      } else {
-        console.warn("تابع shootBullets پیدا نشد. نام تابع شلیک را جایگزین کنید.");
-      }
-    } catch (e) {
-      console.error("خطا هنگام صدا زدن تابع شلیک:", e);
-    }
+    // فراخوانی تابع تیر
+    if (typeof shootBullets === 'function') shootBullets();
   }
 }
 
-// راه‌اندازی MediaPipe FaceMesh
+
+// ===== نسخه سبک‌تر و سریع‌تر initFaceMesh =====
 async function initFaceMesh() {
   if (typeof FaceMesh === 'undefined' || typeof Camera === 'undefined') {
     console.error("MediaPipe FaceMesh یا Camera utils لود نشده‌اند. بررسی کنید اسکریپت CDN اضافه شده باشد.");
     return;
   }
 
-  faceMesh = new FaceMesh({
-    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
-  });
+  // 🔹 فقط یک بار ایجاد شود (از ساخت مجدد در هر فعال‌سازی جلوگیری کن)
+  if (!faceMesh) {
+    faceMesh = new FaceMesh({
+      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}`
+    });
 
-  faceMesh.setOptions({
-    maxNumFaces: 1,
-    refineLandmarks: true,           // دقیق‌تر برای لب و عنبیه
-    minDetectionConfidence: 0.6,
-    minTrackingConfidence: 0.6
-  });
+    // ⚡ گزینه‌های سبک‌تر
+    faceMesh.setOptions({
+      maxNumFaces: 1,                 // فقط 1 چهره
+      refineLandmarks: false,         // خاموش برای سرعت (چشم و عنبیه حذف)
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+      selfieMode: true                // برای دوربین سلفی
+    });
 
-  faceMesh.onResults(onFaceResults);
+    faceMesh.onResults(onFaceResults);
+  }
 
-  // رزولوشن کمتر برای موبایل -> بهتر برای فریم‌ریت
+  // 🔹 کنترل پردازش فریم‌ها (skip)
+  let frameCounter = 0;
+
+  // 🔹 رزولوشن پایین‌تر برای موبایل
   faceCamera = new Camera(faceVideo, {
     onFrame: async () => {
-      await faceMesh.send({image: faceVideo});
+      frameCounter++;
+      // فقط هر 3 فریم یکبار پردازش کن (حدود 10fps)
+      if (frameCounter % 3 !== 0) return;
+      await faceMesh.send({ image: faceVideo });
     },
-    width: 320,      // کم باشه سریعتره؛ قابل تنظیم
+    width: 320,   // ↓ کمتر = سریع‌تر
     height: 240,
     facingMode: 'user'
   });
 
   try {
     await faceCamera.start();
-    console.log("دوربین صورت با موفقیت شروع شد");
+    console.log("✅ دوربین سلفی و FaceMesh سبک شده با موفقیت شروع شد");
   } catch (err) {
-    console.error("خطا در شروع دوربین:", err);
+    console.error("❌ خطا در شروع دوربین:", err);
   }
 }
 
-// روشن/خاموش کردن کنترل دهان با دکمه
-mouthBtn.addEventListener('click', async () => {
-  if (!mouthActive) {
-    // فعال سازی
-    // بررسی اینکه مرورگر اجازه می‌دهد دوربین باز شود
-    try {
-      // درخواست دسترسی یکبار در اینجا
-      await initFaceMesh();
-      mouthActive = true;
-      mouthBtn.classList.add('active');
-      mouthBtn.innerText = 'کنترل دهان: روشن';
-      // اگر می‌خواهی پیش‌نمایش ببینی:
-      // previewCanvas.style.display = 'block';
-      console.log("مجهز به کنترل دهان شد.");
-    } catch (e) {
-      console.error("خطا در فعال‌سازی کنترل دهان:", e);
-      alert("دسترسی به دوربین ممکن نیست یا خطایی رخ داد.");
-    }
-  } else {
-    // غیرفعال‌سازی
-    mouthActive = false;
-    mouthBtn.classList.remove('active');
-    mouthBtn.innerText = 'فعال‌سازی کنترل دهان';
-    if (faceCamera) {
-      try { faceCamera.stop(); } catch(e) {}
-      faceCamera = null;
-    }
-    if (previewCanvas) previewCanvas.style.display = 'none';
-    console.log("کنترل دهان غیرفعال شد.");
-  }
-});
 
 
 
