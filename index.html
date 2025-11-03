@@ -3041,8 +3041,8 @@ async function initFaceMesh() {
   faceCamera = new Camera(faceVideo, {
 onFrame: async () => {
   frameCounter++;
-  if (frameCounter % 5 !== 0) return; // هر 4 فریم یک‌بار پردازش
-  setTimeout(async ()=> await faceMesh.send({image: faceVideo}), 0);
+  if (frameCounter % 4 !== 0) return; // هر 4 فریم یک‌بار پردازش
+  await faceMesh.send({image: faceVideo});
 },
    width: 96,
    height: 72,
@@ -3094,6 +3094,7 @@ mouthBtn.addEventListener('click', async () => {
 </script>
 </body>
 </html>
+
 
 
 
