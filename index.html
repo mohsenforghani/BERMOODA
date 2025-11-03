@@ -657,7 +657,8 @@ position: absolute;
 
 
 <!-- Mouth control UI -->
-<button id="mouthControlBtn">👄On</button>
+<button id="mouthControlBtn" style="display:none;">👄On</button>
+<button id="pauseBtn" style="display:none;">⏸</button>
 
 <!-- مخفی: video ورودی دوربین -->
 <video id="faceVideo" autoplay playsinline muted style="display:none"></video>
@@ -3037,8 +3038,8 @@ async function initFaceMesh() {
   faceMesh.setOptions({
     maxNumFaces: 1,
     refineLandmarks: false,   
-    minDetectionConfidence: 0.3,
-    minTrackingConfidence: 0.3
+    minDetectionConfidence: 0.4,
+    minTrackingConfidence: 0.4
   });
 
   faceMesh.onResults(onFaceResults);
@@ -3100,6 +3101,7 @@ mouthBtn.addEventListener('click', async () => {
 </script>
 </body>
 </html>
+
 
 
 
