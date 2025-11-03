@@ -3037,7 +3037,7 @@ async function initFaceMesh() {
 
   faceMesh.setOptions({
     maxNumFaces: 1,
-    refineLandmarks: false,   
+    refineLandmarks: false,           // دقیق‌تر برای لب و عنبیه
     minDetectionConfidence: 0.4,
     minTrackingConfidence: 0.4
   });
@@ -3046,13 +3046,11 @@ async function initFaceMesh() {
 
   // رزولوشن کمتر برای موبایل -> بهتر برای فریم‌ریت
   faceCamera = new Camera(faceVideo, {
-onFrame: async () => {
-  frameCounter++;
-  if (frameCounter % 4 !== 0) return; // هر 4 فریم یک‌بار پردازش
-  await faceMesh.send({image: faceVideo});
-},
-   width: 96,
-   height: 72,
+    onFrame: async () => {
+      await faceMesh.send({image: faceVideo});
+    },
+    width: 133,      // کم باشه سریعتره؛ قابل تنظیم
+    height: 100,
     facingMode: 'user'
   });
 
@@ -3098,9 +3096,11 @@ mouthBtn.addEventListener('click', async () => {
 
 
 
+
 </script>
 </body>
 </html>
+
 
 
 
