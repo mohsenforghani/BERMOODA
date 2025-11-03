@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- MediaPipe FaceMesh + Camera utils -->
 
-
+  <!-- MediaPipe FaceMesh + Camera utils -->
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 <!-- drawing_utils اختیاری، اما می‌گذاریم -->
@@ -2945,8 +2944,8 @@ let mouthActive = false;
 let lastMouthTriggered = 0;
 let mouthOpenCount = 0;
 const FRAMES_REQUIRED = 2;       // چند فریم پیاپی دهان باز لازم است
-const COOLDOWN_MS = 600;        // پس از هر شلیک حداقل اینقدر صبر کن
-const MOUTH_THRESHOLD = 0.035;  // آستانه اولیه (نرمالایزد) - قابل تنظیم
+const COOLDOWN_MS = 200;        // پس از هر شلیک حداقل اینقدر صبر کن
+const MOUTH_THRESHOLD = 0.06;  // آستانه اولیه (نرمالایزد) - قابل تنظیم
 
 // ایندکس‌های معروف لب (مجموعهٔ مرجع از منابع MediaPipe)
 // ما از میانگین yِ زیرمجموعه بالا و پایین لب استفاده می‌کنیم
@@ -2991,31 +2990,31 @@ function onFaceResults(results) {
   const landmarks = results.multiFaceLandmarks[0];
   // رسم برای دیباگ (اختیاری)
   if (previewCtx) {
-    previewCtx.save();
-    previewCtx.clearRect(0,0,previewCanvas.width, previewCanvas.height);
+   // previewCtx.save();
+   // previewCtx.clearRect(0,0,previewCanvas.width, previewCanvas.height);
     // mirror preview to match selfie
-    previewCtx.scale(-1,1);
-    previewCtx.translate(-previewCanvas.width,0);
+  //  previewCtx.scale(-1,1);
+   // previewCtx.translate(-previewCanvas.width,0);
     // draw video frame small
-    previewCtx.drawImage(faceVideo, 0,0, previewCanvas.width, previewCanvas.height);
-    previewCtx.restore();
+   // previewCtx.drawImage(faceVideo, 0,0, previewCanvas.width, previewCanvas.height);
+  //  previewCtx.restore();
 
     // رسم نقاط لب
-    previewCtx.fillStyle = 'rgba(0,255,0,0.9)';
+   // previewCtx.fillStyle = 'rgba(0,255,0,0.9)';
     for (const i of UPPER_LIP) {
-      const p = landmarks[i];
-      if (!p) continue;
-      previewCtx.beginPath();
-      previewCtx.arc(previewCanvas.width * (1 - p.x), previewCanvas.height * p.y, 2, 0, Math.PI*2);
-      previewCtx.fill();
+    //  const p = landmarks[i];
+   //   if (!p) continue;
+   //   previewCtx.beginPath();
+   //   previewCtx.arc(previewCanvas.width * (1 - p.x), previewCanvas.height * p.y, 2, 0, Math.PI*2);
+   //   previewCtx.fill();
     }
-    previewCtx.fillStyle = 'rgba(255,0,60,0.9)';
+  //  previewCtx.fillStyle = 'rgba(255,0,60,0.9)';
     for (const i of LOWER_LIP) {
-      const p = landmarks[i];
-      if (!p) continue;
-      previewCtx.beginPath();
-      previewCtx.arc(previewCanvas.width * (1 - p.x), previewCanvas.height * p.y, 2, 0, Math.PI*2);
-      previewCtx.fill();
+   //   const p = landmarks[i];
+   //   if (!p) continue;
+    //  previewCtx.beginPath();
+     // previewCtx.arc(previewCanvas.width * (1 - p.x), previewCanvas.height * p.y, 2, 0, Math.PI*2);
+    //  previewCtx.fill();
     }
   }
 
@@ -3037,10 +3036,10 @@ function onFaceResults(results) {
         shootBullets(); // تابع شلیک شما
         // در صورت نیاز به شلیک مداوم: setInterval یا loop خاص بزاری
       } else {
-        console.warn("تابع shootBullets پیدا نشد. نام تابع شلیک را جایگزین کنید.");
+        //console.warn("تابع shootBullets پیدا نشد. نام تابع شلیک را جایگزین کنید.");
       }
     } catch (e) {
-      console.error("خطا هنگام صدا زدن تابع شلیک:", e);
+     // console.error("خطا هنگام صدا زدن تابع شلیک:", e);
     }
   }
 }
@@ -3048,7 +3047,7 @@ function onFaceResults(results) {
 // راه‌اندازی MediaPipe FaceMesh
 async function initFaceMesh() {
   if (typeof FaceMesh === 'undefined' || typeof Camera === 'undefined') {
-    console.error("MediaPipe FaceMesh یا Camera utils لود نشده‌اند. بررسی کنید اسکریپت CDN اضافه شده باشد.");
+    //console.error("MediaPipe FaceMesh یا Camera utils لود نشده‌اند. بررسی کنید اسکریپت CDN اضافه شده باشد.");
     return;
   }
 
@@ -3058,9 +3057,9 @@ async function initFaceMesh() {
 
   faceMesh.setOptions({
     maxNumFaces: 1,
-    refineLandmarks: true,           // دقیق‌تر برای لب و عنبیه
-    minDetectionConfidence: 0.6,
-    minTrackingConfidence: 0.6
+    refineLandmarks: false,           // دقیق‌تر برای لب و عنبیه
+    minDetectionConfidence: 0.4,
+    minTrackingConfidence: 0.4
   });
 
   faceMesh.onResults(onFaceResults);
@@ -3070,16 +3069,16 @@ async function initFaceMesh() {
     onFrame: async () => {
       await faceMesh.send({image: faceVideo});
     },
-    width: 480,      // کم باشه سریعتره؛ قابل تنظیم
-    height: 360,
+    width: 133,      // کم باشه سریعتره؛ قابل تنظیم
+    height: 100,
     facingMode: 'user'
   });
 
   try {
     await faceCamera.start();
-    console.log("دوربین صورت با موفقیت شروع شد");
+    //console.log("دوربین صورت با موفقیت شروع شد");
   } catch (err) {
-    console.error("خطا در شروع دوربین:", err);
+  //  console.error("خطا در شروع دوربین:", err);
   }
 }
 
@@ -3093,25 +3092,25 @@ mouthBtn.addEventListener('click', async () => {
       await initFaceMesh();
       mouthActive = true;
       mouthBtn.classList.add('active');
-      mouthBtn.innerText = 'کنترل دهان: روشن';
+      mouthBtn.innerText = '👄On';
       // اگر می‌خواهی پیش‌نمایش ببینی:
       // previewCanvas.style.display = 'block';
-      console.log("مجهز به کنترل دهان شد.");
+      //console.log("مجهز به کنترل دهان شد.");
     } catch (e) {
       console.error("خطا در فعال‌سازی کنترل دهان:", e);
-      alert("دسترسی به دوربین ممکن نیست یا خطایی رخ داد.");
+      //alert("دسترسی به دوربین ممکن نیست یا خطایی رخ داد.");
     }
   } else {
     // غیرفعال‌سازی
     mouthActive = false;
     mouthBtn.classList.remove('active');
-    mouthBtn.innerText = 'فعال‌سازی کنترل دهان';
+    mouthBtn.innerText = '👄Off';
     if (faceCamera) {
       try { faceCamera.stop(); } catch(e) {}
       faceCamera = null;
     }
     if (previewCanvas) previewCanvas.style.display = 'none';
-    console.log("کنترل دهان غیرفعال شد.");
+    //console.log("کنترل دهان غیرفعال شد.");
   }
 });
 
@@ -3120,3 +3119,4 @@ mouthBtn.addEventListener('click', async () => {
 </script>
 </body>
 </html>
+
