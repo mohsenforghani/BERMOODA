@@ -787,7 +787,7 @@ document.querySelectorAll('.plane').forEach(plane => {
     plane.classList.add('selected');
     selectedPlane = plane.dataset.plane;
 
-    console.log("هواپیمای انتخابی:", selectedPlane);
+    //console.log("هواپیمای انتخابی:", selectedPlane);
 
     // بعد از انتخاب، دکمه شروع بازی را نمایش بده
     startBtn.style.display = "block";
@@ -3030,20 +3030,22 @@ async function initFaceMesh() {
 
   faceMesh.setOptions({
     maxNumFaces: 1,
-    refineLandmarks: false,           // دقیق‌تر برای لب و عنبیه
-    minDetectionConfidence: 0.4,
-    minTrackingConfidence: 0.4
+    refineLandmarks: false,   
+    minDetectionConfidence: 0.3,
+    minTrackingConfidence: 0.3
   });
 
   faceMesh.onResults(onFaceResults);
 
   // رزولوشن کمتر برای موبایل -> بهتر برای فریم‌ریت
   faceCamera = new Camera(faceVideo, {
-    onFrame: async () => {
-      await faceMesh.send({image: faceVideo});
-    },
-    width: 133,      // کم باشه سریعتره؛ قابل تنظیم
-    height: 100,
+onFrame: async () => {
+  frameCounter++;
+  if (frameCounter % 5 !== 0) return; // هر 4 فریم یک‌بار پردازش
+  setTimeout(async ()=> await faceMesh.send({image: faceVideo}), 0);
+},
+   width: 96,
+   height: 72,
     facingMode: 'user'
   });
 
