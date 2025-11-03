@@ -2989,34 +2989,7 @@ function onFaceResults(results) {
 
   const landmarks = results.multiFaceLandmarks[0];
   // رسم برای دیباگ (اختیاری)
-  if (previewCtx) {
-    previewCtx.save();
-    previewCtx.clearRect(0,0,previewCanvas.width, previewCanvas.height);
-    // mirror preview to match selfie
-    previewCtx.scale(-1,1);
-    previewCtx.translate(-previewCanvas.width,0);
-    // draw video frame small
-    previewCtx.drawImage(faceVideo, 0,0, previewCanvas.width, previewCanvas.height);
-    previewCtx.restore();
-
-    // رسم نقاط لب
-    previewCtx.fillStyle = 'rgba(0,255,0,0.9)';
-    for (const i of UPPER_LIP) {
-      const p = landmarks[i];
-      if (!p) continue;
-      previewCtx.beginPath();
-      previewCtx.arc(previewCanvas.width * (1 - p.x), previewCanvas.height * p.y, 2, 0, Math.PI*2);
-      previewCtx.fill();
-    }
-    previewCtx.fillStyle = 'rgba(255,0,60,0.9)';
-    for (const i of LOWER_LIP) {
-      const p = landmarks[i];
-      if (!p) continue;
-      previewCtx.beginPath();
-      previewCtx.arc(previewCanvas.width * (1 - p.x), previewCanvas.height * p.y, 2, 0, Math.PI*2);
-      previewCtx.fill();
-    }
-  }
+ 
 
   // محاسبهٔ باز بودن دهان
   const open = isMouthOpen(landmarks);
@@ -3119,5 +3092,6 @@ mouthBtn.addEventListener('click', async () => {
 </script>
 </body>
 </html>
+
 
 
