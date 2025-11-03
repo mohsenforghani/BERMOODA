@@ -3067,6 +3067,8 @@ async function initFaceMesh() {
   // رزولوشن کمتر برای موبایل -> بهتر برای فریم‌ریت
   faceCamera = new Camera(faceVideo, {
     onFrame: async () => {
+    frameCounter++;
+    if (frameCounter % 4 !== 0) return;
       await faceMesh.send({image: faceVideo});
     },
     width: 133,      // کم باشه سریعتره؛ قابل تنظیم
