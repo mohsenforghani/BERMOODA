@@ -1330,7 +1330,7 @@ function preloadImages(callback) {
 
 
 // ✅ وقتی همه تصاویر لود شدن:
-preloadImages(() => {7
+preloadImages(() => {
   //loadingText.innerText = "ماموریت ...نابودی ناوگان هوایی اسرائیل!";
   progressFill.style.width = "100%";
 
@@ -1453,7 +1453,7 @@ function createStars(count = 100) {
       y: Math.random() * canvas.height * 0.65, // بیشتر در نیمهٔ بالایی
       r: Math.random() * 1.4 + 0.25,
       baseAlpha: Math.random() * 0.7 + 0.3,
-      twinkleSpeed: Math.r3andom() * 0.02 + 0.005,
+      twinkleSpeed: Math.random() * 0.02 + 0.005,
       phase: Math.random() * Math.PI * 2
     });
   }
@@ -1586,7 +1586,7 @@ document.addEventListener("keydown", (e) => {
     case "ArrowUp": keys.up = true; break;
     case "ArrowDown": keys.down = true; break;
     case "Space": keys.space = true; break;
-⁴  }
+ }
 });
 
 document.addEventListener("keyup", (e) => {
@@ -3066,16 +3066,6 @@ mouthBtn.addEventListener('click', async () => {
 });
 
 
-
-
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
