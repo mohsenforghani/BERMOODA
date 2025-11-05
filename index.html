@@ -1336,7 +1336,13 @@ function preloadImages(callback) {
     img.onerror = () => {
       console.warn("خطا در لود تصویر:", src);
       loadedCount++;
-      if (loadedCount === totalImages) callback();
+      if (loadedCount === totalImages) {
+    setTimeout(() => {
+      playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
+      document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
+      callback();
+    }, 400);
+  }
     };
 
     img.src = src;
