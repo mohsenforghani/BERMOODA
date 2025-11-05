@@ -793,7 +793,7 @@ function showHelpImages() {
 
     const images = [
         { src: "help.png", duration: 3000, bottom: "110px", right: "70px" }, // تصویر اول
-        { src: "help2.png", duration: 3000, bottom: "110px", right: "60%" }  // تصویر دوم
+        { src: "help2.png", duration: 3000, bottom: "110px", left: "60px" }  // تصویر دوم
     ];
 
     let delay = 0;
@@ -805,22 +805,22 @@ function showHelpImages() {
             img.style.position = "absolute";
             img.style.bottom = imgData.bottom;
             img.style.right = imgData.right;
+            img.style.left = imgData.left;
             img.style.width = "150px";
             img.style.height = "auto";
             img.style.zIndex = "1500";
             img.classList.add("help-img"); // برای چشمک زدن
-
             gameContainer.appendChild(img);
-
-            // fade out بعد از مدت زمان مشخص
+            
             setTimeout(() => {
                 img.style.transition = "opacity 0.6s ease";
                 img.style.opacity = "0";
-                setTimeout(() => img.remove(), 100);
+                setTimeout(() => img.remove(), 500);
             }, imgData.duration);
         }, delay);
 
-        delay += imgData.duration + 500; // مدت زمان + 0.5 ثانیه برای fade out
+        delay += imgData.duration + 500; 
+
     });
 }
 
@@ -1902,7 +1902,7 @@ for (let i = activeMissiles.length - 1; i >= 0; i--) {
       enemies.splice(j, 1);
       activeMissiles.splice(i, 1);
 
-      enemyBullets = [];
+      //enemyBullets = [];
       break; // خروج از حلقه دشمنان
     }
   }
@@ -1917,7 +1917,7 @@ for (let i = activeMissiles.length - 1; i >= 0; i--) {
    addScore(10, enemies.length);
 
     enemies = [];
-    enemyBullets = [];
+    //enemyBullets = [];
     activeMissiles.splice(i, 1);
   }
 }
@@ -2301,7 +2301,7 @@ function launchMissile() {
   if (missiles <= 0 || !gameRunning || airplane.hidden) return;
   missiles--;
   updateMissileBtn();
-  enemyBullets = [];
+  //enemyBullets = [];
 
   // 🎯 انتخاب تصادفی بین مدل‌های مختلف موشک
   const missileImage = missileImages[Math.floor(Math.random() * missileImages.length)];
