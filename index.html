@@ -2962,10 +2962,13 @@ async function startFaceCamera() {
   faceCamera = await navigator.mediaDevices.getUserMedia({ video: true });
   faceVideo.srcObject = faceCamera;
   await faceVideo.play();
+  previewCanvas.width = faceVideo.videoWidth;
+  previewCanvas.height = faceVideo.videoHeight;
 }
 
 // ====== تشخیص باز شدن دهان ======
 async function detectMouth() {
+  previewCtx.drawImage(faceVideo, 0, 0, previewCanvas.width, previewCanvas.height);
   if (!blazefaceModel || !mouthActive) return;
 
   const predictions = await blazefaceModel.estimateFaces(faceVideo, false);
@@ -3007,7 +3010,7 @@ async function detectMouth() {
 
     // اگر روشن‌تر شد یعنی دهان باز است (تخمینی)
     const now = performance.now();
-    if (brightness > 90 && now - lastMouthTriggered > 1000) {
+    if (brightness > 60 && now - lastMouthTriggered > 1000) {
       console.log("💥 دهان باز شد! شلیک!");
       lastMouthTriggered = now;
       shootBullets(); // تابع شلیک بازی تو
@@ -3036,5 +3039,6 @@ mouthBtn.addEventListener("click", async () => {
 </script>
 </body>
 </html>
+
 
 
