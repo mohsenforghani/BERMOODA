@@ -826,6 +826,10 @@ function showHelpImages() {
 
 
 
+
+
+
+
 function addScore(points, enemyCount = 1) {
   // افزایش امتیاز بر اساس تعداد دشمن
   score += points * enemyCount;
@@ -1376,6 +1380,8 @@ preloadImages(() => {
 };
 
   
+
+
   
   exitBtn.onclick = () => {
   startBtn.style.display = "none";
@@ -1622,6 +1628,13 @@ function sendScore() {
         }
     });
 }
+
+
+
+
+
+
+
 
 
 
@@ -2106,6 +2119,9 @@ for (let i = enemyBullets.length - 1; i >= 0; i--) {
    
   }
 });
+
+
+
 
 
 
@@ -2737,6 +2753,17 @@ function showFinalScore(){
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 // === جوی‌استیک لمسی ===
 const joystick = document.getElementById("joystick");
 const stick = document.getElementById("stick");
@@ -2895,9 +2922,8 @@ window.addEventListener("resize",()=>{
 });
 
 
-
-
 </script>
 </body>
 </html>
+
 
