@@ -1130,8 +1130,16 @@ let lastTime = performance.now();
 // در ابتدای فایل
 let refueling = false; // آیا سوختگیری در حال انجام است؟
 let refuelRate = 0.4; // میزان سوخت در هر فریم هنگام سوختگیری
-const explosionImg = new Image();
-explosionImg.src = "explosion.png"; // مسیر تصویر انفجار
+
+
+// ===== لود 9 فریم انفجار =====
+const explosionFrames = [];
+for (let i = 1; i <= 9; i++) {
+  const img = new Image();
+  img.src = `ex/ex${i}.png`;
+  explosionFrames.push(img);
+}
+
 
 const fuelImg = new Image();
 fuelImg.src = "fuel.png"; // مسیر تصویر پمپ بنزینت
@@ -1252,44 +1260,66 @@ for (let i = 0; i < 6; i++) {
 
 function preloadImages(callback) {
   document.getElementById("scoreContainer").style.display = "none";
+
+  // 🧩 افزودن فریم‌های انفجار به لیست تصاویر اصلی
+  for (let i = 1; i <= 9; i++) {
+    imageSources.push(`ex/ex${i}.png`);
+  }
+
+  const totalImages = imageSources.length;
+  let loadedCount = 0;
+
   imageSources.forEach(src => {
     const img = new Image();
     img.onload = () => {
       loadedImages[src] = img;
       loadedCount++;
+
+      // نمایش درصد بارگذاری
       const percent = Math.floor((loadedCount / totalImages) * 100);
       progressFill.style.width = percent + "%";
       loadingText.innerText = `Loading ${percent}%`;
 
+      // ✅ وقتی همه تصاویر لود شدند
       if (loadedCount === totalImages) {
-        setTimeout(() => {
-        playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
-          
-       // ذخیره و نمایش نام بازیکن
-        document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
-          
-          // حالا در هر صورت بازی شروع می‌شود
-          callback();
+        // ساخت آرایهٔ فریم‌های انفجار از تصاویر لودشده
+        window.explosionFrames = [];
+        for (let i = 1; i <= 9; i++) {
+          window.explosionFrames.push(loadedImages[`ex${i}.png`]);
+        }
 
+        // نمایش ادامه روند شروع بازی
+        setTimeout(() => {
+          playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
+          document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
+          callback();
         }, 400);
       }
     };
 
     img.onerror = () => {
-      console.warn("خطا در لود تصویر:", src);
+      console.warn("❌ خطا در لود تصویر:", src);
       loadedCount++;
       if (loadedCount === totalImages) {
-    setTimeout(() => {
-      playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
-      document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
-      callback();
-    }, 400);
-  }
+        window.explosionFrames = [];
+        for (let i = 1; i <= 9; i++) {
+          if (loadedImages[`ex${i}.png`]) {
+            window.explosionFrames.push(loadedImages[`ex${i}.png`]);
+          }
+        }
+
+        setTimeout(() => {
+          playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
+          document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
+          callback();
+        }, 400);
+      }
     };
 
     img.src = src;
   });
 }
+
 
 
 // ✅ وقتی همه تصاویر لود شدن:
@@ -2339,7 +2369,7 @@ function launchMissile() {
 
 
 function startGame() {
-  if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
+ if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
   showTopPlayerName();
   showHelpImages();
   lastFuelSpawn = 0; // ریست زمان سوخت
@@ -2484,15 +2514,18 @@ function createExplosion(x, y, w = 50, h = 50, power = 1) {
 
   const baseImgScale = 1.9 + 0.35 * Math.min(2, power);
 
-  explosions.push({
-    x: x - w / 2,
-    y: y - h / 2,
-    w, h,
-    particles,
-    fadeRate: 0.01 + Math.random() * 0.01,
-    imgAlpha: 1,      // <-- آلفای اولیه تصویر
-    imgFadeStep: 0.9/20, // <-- کاهش alpha در 4 فریم
-    callback: null
+explosions.push({
+  x: x - w / 2,
+  y: y - h / 2,
+  w, h,
+  particles,
+  fadeRate: 0.01 + Math.random() * 0.01,
+  imgAlpha: 1,
+  imgFadeStep: 1 / 20,
+  frame: 0,           // ✅ فریم فعلی
+  frameTimer: 0,      // ✅ شمارنده برای تعویض فریم
+  frameDelay: 3,      // ✅ هر چند فریم یک‌بار تغییر کند
+  callback: null
 });
 
   if (navigator.vibrate) navigator.vibrate(45);
@@ -2514,30 +2547,59 @@ function updateExplosions(delta) {
     }
 
 
-    if (typeof explosionImg !== "undefined" && explosionImg.complete) {
-    if (typeof ex.imgAlpha === "undefined") ex.imgAlpha = 1;
-    if (typeof ex.imgFadeStep === "undefined") ex.imgFadeStep = 1 / 20;
+   // ===== رسم تصویر انفجار (پشتیبانی از explosionImg یا explosionFrames) =====
+if (
+  (typeof explosionImg !== "undefined" && explosionImg.complete) ||
+  (typeof explosionFrames !== "undefined" && explosionFrames.length > 0)
+) {
+  if (typeof ex.imgAlpha === "undefined") ex.imgAlpha = 1;
+  if (typeof ex.imgFadeStep === "undefined") ex.imgFadeStep = 1 / 20;
 
-    const dynamicScale = ex.imgScale ? ex.imgScale * 1.9 : 1.9; // اندازه تصویر
-    const cx = ex.x + ex.w / 2;
-    const cy = ex.y + ex.h / 2;
-    const drawW = ex.w * dynamicScale;
-    const drawH = ex.h * dynamicScale;
-    const drawX = cx - drawW / 2;
-    const drawY = cy - drawH / 2;
+  // مطمئن شو این انفجار فیلدهای فریم رو داره (برای انفجارهایی که قبلاً با ساختار قدیمی ساخته شده‌اند)
+  if (typeof ex.frame === "undefined") ex.frame = 0;
+  if (typeof ex.frameTimer === "undefined") ex.frameTimer = 0;
+  if (typeof ex.frameDelay === "undefined") ex.frameDelay = 3;
 
-    //ctx.save();
-    ctx.globalAlpha = ex.imgAlpha;
-    ctx.shadowColor = "rgba(255,180,100,0.9)";
-    ctx.shadowBlur = 30 * ex.imgAlpha; // نور هم بر اساس آلفا کاهش می‌یابد
+  const dynamicScale = ex.imgScale ? ex.imgScale * 1.9 : 1.9;
+  const cx = ex.x + ex.w / 2;
+  const cy = ex.y + ex.h / 2;
+  const drawW = ex.w * dynamicScale;
+  const drawH = ex.h * dynamicScale;
+  const drawX = cx - drawW / 2;
+  const drawY = cy - drawH / 2;
+
+  ctx.globalAlpha = ex.imgAlpha;
+  ctx.shadowColor = "rgba(255,180,100,0.9)";
+  ctx.shadowBlur = 30 * ex.imgAlpha;
+
+  // اگر فریم‌ها موجودند، فریم فعلی را بکش
+  if (typeof explosionFrames !== "undefined" && explosionFrames.length > 0) {
+    const currentFrame = Math.min(explosionFrames.length - 1, Math.floor(ex.frame));
+    const img = explosionFrames[currentFrame];
+    if (img && img.complete) {
+      ctx.drawImage(img, drawX, drawY, drawW, drawH);
+    }
+
+    // افزایش فریم بر اساس timer
+    ex.frameTimer++;
+    if (ex.frameTimer >= ex.frameDelay) {
+      ex.frame++;
+      ex.frameTimer = 0;
+    }
+    // اگر از آخر گذشت، در آخرین فریم بماند
+    if (ex.frame >= explosionFrames.length) ex.frame = explosionFrames.length - 1;
+  } else if (typeof explosionImg !== "undefined" && explosionImg.complete) {
+    // حالت تصویر منفرد (fallback)
     ctx.drawImage(explosionImg, drawX, drawY, drawW, drawH);
-    ctx.shadowBlur = 0;
-    //ctx.restore();
+  }
 
-    // کاهش آلفا در هر فریم
-    ex.imgAlpha -= ex.imgFadeStep;
-    if (ex.imgAlpha < 0) ex.imgAlpha = 0;
+  ctx.shadowBlur = 0;
+
+  // کاهش آلفا مانند قبل
+  ex.imgAlpha -= ex.imgFadeStep;
+  if (ex.imgAlpha < 0) ex.imgAlpha = 0;
 }
+
 
 
     // ----- پردازش و رسم ذرات به همان شکل قبلی -----
@@ -2640,15 +2702,13 @@ function explodeAirplane() {
   }
 
   explosions.push({
-    x: x - w / 2,
-    y: y - h / 2,
-    w: w,
-    h: h,
-    alpha: 1,
-    fadeRate: 0.03,
-    particles: particles
-  });
-
+  x: x - w / 2,
+  y: y - h / 2,
+  w, h,
+  alpha: 1,
+  fadeRate: 0.03,
+  particles: particles,
+});
   // 🔹 کم کردن یک جان
   lives--;
 
@@ -2867,7 +2927,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
 
 
 
