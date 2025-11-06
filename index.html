@@ -721,7 +721,7 @@ canvas.height = window.innerHeight;
 
 
 // 🎶 آهنگ پس‌زمینه بازی
-let gameMusic = new Audio("sounds/BermoodaSound.ogg"); // مسیر آهنگ را تغییر بده
+let gameMusic = new Audio("sounds/BermoodaSound.mp3"); // مسیر آهنگ را تغییر بده
 gameMusic.loop = true;     // آهنگ تکرارشونده
 gameMusic.volume = 0.0;    // شروع بی‌صدا (برای fade in)
 let fadeGameMusic = null;
@@ -2487,6 +2487,7 @@ try {
 
 
 
+
  // اگر حلقه‌ی پس‌زمینه‌ی game over فعال است، متوقفش کن
   if (typeof backgroundAnimation !== 'undefined' && backgroundAnimation) {
     cancelAnimationFrame(backgroundAnimation);
@@ -3024,5 +3025,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
+
 
 
