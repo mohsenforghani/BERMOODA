@@ -716,6 +716,23 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+
+
+
+
+// 🎶 آهنگ پس‌زمینه بازی
+let gameMusic = new Audio("sounds/BermoodaSound.ogg"); // مسیر آهنگ را تغییر بده
+gameMusic.loop = true;     // آهنگ تکرارشونده
+gameMusic.volume = 0.0;    // شروع بی‌صدا (برای fade in)
+let fadeGameMusic = null;
+
+let gameOverMusic = new Audio("sounds/gameOverSound.mp3"); // آهنگ شکست
+gameOverMusic.loop = true;
+gameOverMusic.volume = 0.0;
+let fadeGameOverMusic = null;
+
+
+
 let animationId = null;  // شناسه حلقه‌ی اصلی بازی
 let airplane = { x: canvas.width / 2, y: canvas.height - 200, w: 50, h: 50 };
 let selectedPlaneImg =""; // تصویر هواپیمای انتخابی
@@ -2431,6 +2448,45 @@ function startGame() {
   pauseBtn.style.display = "block";
   
 
+
+// 🎮 شروع آهنگ بازی با fade-in نرم
+try {
+  // 🔸 توقف نرم آهنگ Game Over در صورت پخش
+  if (gameOverMusic && !gameOverMusic.paused) {
+    clearInterval(fadeGameOverMusic);
+    fadeGameOverMusic = setInterval(() => {
+      if (gameOverMusic.volume > 0.05) {
+        gameOverMusic.volume = Math.max(0, gameOverMusic.volume - 0.05);
+      } else {
+        gameOverMusic.pause();
+        gameOverMusic.currentTime = 0;
+        clearInterval(fadeGameOverMusic);
+      }
+    }, 150);
+  }
+
+  // 🔸 شروع یا ادامه آهنگ بازی با fade-in
+  if (gameMusic) {
+    gameMusic.currentTime = 0;
+    gameMusic.play();
+
+    clearInterval(fadeGameMusic);
+    fadeGameMusic = setInterval(() => {
+      if (gameMusic.volume < 1.0) {
+        gameMusic.volume = Math.min(1.0, gameMusic.volume + 0.05);
+      } else {
+        clearInterval(fadeGameMusic);
+      }
+    }, 150);
+  }
+} catch (e) {
+  console.warn("خطا در پخش آهنگ بازی:", e);
+}
+
+
+
+
+
  // اگر حلقه‌ی پس‌زمینه‌ی game over فعال است، متوقفش کن
   if (typeof backgroundAnimation !== 'undefined' && backgroundAnimation) {
     cancelAnimationFrame(backgroundAnimation);
@@ -2477,6 +2533,47 @@ function startGame() {
   animateGameOverBackground(); 
   showFinalScore();
   sendScore();
+
+
+
+
+// 💀 پخش آهنگ پایان بازی با fade
+try {
+  // 🔸 قطع نرم آهنگ اصلی بازی
+  if (gameMusic && !gameMusic.paused) {
+    clearInterval(fadeGameMusic);
+    fadeGameMusic = setInterval(() => {
+      if (gameMusic.volume > 0.05) {
+        gameMusic.volume = Math.max(0, gameMusic.volume - 0.05);
+      } else {
+        gameMusic.pause();
+        gameMusic.currentTime = 0;
+        clearInterval(fadeGameMusic);
+      }
+    }, 150);
+  }
+
+  // 🔸 بعد از کمی تأخیر آهنگ Game Over پخش شود
+  setTimeout(() => {
+    if (gameOverMusic) {
+      gameOverMusic.currentTime = 0;
+      gameOverMusic.play();
+
+      clearInterval(fadeGameOverMusic);
+      fadeGameOverMusic = setInterval(() => {
+        if (gameOverMusic.volume < 1.0) {
+          gameOverMusic.volume = Math.min(1.0, gameOverMusic.volume + 0.05);
+        } else {
+          clearInterval(fadeGameOverMusic);
+        }
+      }, 150);
+    }
+  }, 700);
+} catch (e) {
+  console.warn("خطا در پخش آهنگ Game Over:", e);
+}
+
+
 }
 
 
@@ -2920,6 +3017,8 @@ window.addEventListener("resize",()=>{
   canvas.width=window.innerWidth;
   canvas.height=window.innerHeight;
 });
+
+
 
 
 </script>
