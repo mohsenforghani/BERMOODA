@@ -826,10 +826,6 @@ function showHelpImages() {
 
 
 
-
-
-
-
 function addScore(points, enemyCount = 1) {
   // افزایش امتیاز بر اساس تعداد دشمن
   score += points * enemyCount;
@@ -1278,14 +1274,14 @@ function preloadImages(callback) {
       // نمایش درصد بارگذاری
       const percent = Math.floor((loadedCount / totalImages) * 100);
       progressFill.style.width = percent + "%";
-      loadingText.innerText = `Loading ${percent}%`;
+      loadingText.innerText = `Loading ${percent}% - ${src}`;
 
       // ✅ وقتی همه تصاویر لود شدند
       if (loadedCount === totalImages) {
         // ساخت آرایهٔ فریم‌های انفجار از تصاویر لودشده
         window.explosionFrames = [];
         for (let i = 1; i <= 9; i++) {
-          window.explosionFrames.push(loadedImages[`ex${i}.png`]);
+          window.explosionFrames.push(loadedImages[`ex/ex${i}.png`]);
         }
 
         // نمایش ادامه روند شروع بازی
@@ -1303,8 +1299,8 @@ function preloadImages(callback) {
       if (loadedCount === totalImages) {
         window.explosionFrames = [];
         for (let i = 1; i <= 9; i++) {
-          if (loadedImages[`ex${i}.png`]) {
-            window.explosionFrames.push(loadedImages[`ex${i}.png`]);
+          if (loadedImages[`ex/ex${i}.png`]) {
+            window.explosionFrames.push(loadedImages[`ex/ex${i}.png`]);
           }
         }
 
@@ -1380,8 +1376,6 @@ preloadImages(() => {
 };
 
   
-
-
   
   exitBtn.onclick = () => {
   startBtn.style.display = "none";
@@ -1628,13 +1622,6 @@ function sendScore() {
         }
     });
 }
-
-
-
-
-
-
-
 
 
 
@@ -2119,9 +2106,6 @@ for (let i = enemyBullets.length - 1; i >= 0; i--) {
    
   }
 });
-
-
-
 
 
 
@@ -2753,17 +2737,6 @@ function showFinalScore(){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 // === جوی‌استیک لمسی ===
 const joystick = document.getElementById("joystick");
 const stick = document.getElementById("stick");
@@ -2927,7 +2900,4 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
-
-
 
