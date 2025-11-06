@@ -733,6 +733,13 @@ gameOverMusic.volume = 0.0;
 let fadeGameOverMusic = null;
 gameOverMusic.volume = 0.7; 
 
+
+let shootSound = new Audio("sounds/shotSoundAirplane.wav");
+shootSound.volume = 0.7; 
+
+
+
+
 // 🔊 آرایه صداهای انفجار
 let explosionSounds = [];
 // تابع بارگذاری صداها
@@ -2249,7 +2256,17 @@ animationId = requestAnimationFrame(gameLoop);
 // === کنترل‌ها ===
 // 🔫 ایجاد تیرها
 function shootBullets() {
-  if (!airplane) return;
+  if (airplane.hidden) return;
+// 🎧 پخش صدای شلیک
+  try {
+    const sfx = shootSound.cloneNode(); // جلوگیری از تداخل شلیک‌های همزمان
+    sfx.volume = 0.1;
+    sfx.play().catch(() => {}); // جلوگیری از خطای مرورگر در حالت mute
+  } catch (e) {
+    console.warn("خطا در پخش صدای شلیک:", e);
+  }
+
+
 
   if (bulletGrade === 1) {
     bullets.push({
