@@ -725,12 +725,13 @@ let gameMusic = new Audio("sounds/BermoodaSound.mp3"); // مسیر آهنگ را
 gameMusic.loop = true;     // آهنگ تکرارشونده
 gameMusic.volume = 0.0;    // شروع بی‌صدا (برای fade in)
 let fadeGameMusic = null;
-
+gameMusic.volume = 0.7;
 
 let gameOverMusic = new Audio("sounds/gameOverSound.mp3"); // آهنگ شکست
 gameOverMusic.loop = true;
 gameOverMusic.volume = 0.0;
 let fadeGameOverMusic = null;
+gameOverMusic.volume = 0.7; 
 
 // 🔊 آرایه صداهای انفجار
 let explosionSounds = [];
@@ -2485,8 +2486,8 @@ try {
 
     clearInterval(fadeGameMusic);
     fadeGameMusic = setInterval(() => {
-      if (gameMusic.volume < 1.0) {
-        gameMusic.volume = Math.min(1.0, gameMusic.volume + 0.05);
+      if (gameMusic.volume < 0.70) {
+        gameMusic.volume = Math.min(0.70, gameMusic.volume + 0.05);
       } else {
         clearInterval(fadeGameMusic);
       }
@@ -2575,8 +2576,8 @@ try {
 
       clearInterval(fadeGameOverMusic);
       fadeGameOverMusic = setInterval(() => {
-        if (gameOverMusic.volume < 1.0) {
-          gameOverMusic.volume = Math.min(1.0, gameOverMusic.volume + 0.05);
+        if (gameOverMusic.volume < 0.70) {
+          gameOverMusic.volume = Math.min(0.70, gameOverMusic.volume + 0.05);
         } else {
           clearInterval(fadeGameOverMusic);
         }
@@ -3048,5 +3049,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
+
 
 
