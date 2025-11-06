@@ -727,6 +727,7 @@ gameMusic.volume = 0.0;    // شروع بی‌صدا (برای fade in)
 let fadeGameMusic = null;
 gameMusic.volume = 0.7;
 
+
 let gameOverMusic = new Audio("sounds/gameOverSound.mp3"); // آهنگ شکست
 gameOverMusic.loop = true;
 gameOverMusic.volume = 0.0;
@@ -738,6 +739,10 @@ let shootSound = new Audio("sounds/shotSoundAirplane.wav");
 shootSound.volume = 0.7; 
 
 
+let fuelAlarm = new Audio("sounds/gasAlert.wav");
+fuelAlarm.loop = true;     // صدای هشدار تکرار شود تا وقتی سوخت پایین است
+fuelAlarm.volume = 0.50;    // شدت صدا
+let fuelAlarmActive = false; // برای جلوگیری از پخش دوباره
 
 
 // 🔊 آرایه صداهای انفجار
@@ -1677,11 +1682,27 @@ function sendScore() {
 
 
 function drawFuelGaugeAnimated() {
-  if (!gameRunning) return;  
+  if (!gameRunning) return;
 
   const centerX = canvas.width / 2;
   const centerY = canvas.height - 20;
   const radius = 60;
+
+  // 🎧 بررسی وضعیت سوخت و پخش آلارم
+  try {
+    if (fuel <= 20 && !fuelAlarmActive) {
+      fuelAlarm.currentTime = 0;
+      fuelAlarm.play().catch(() => {});
+      fuelAlarmActive = true;
+    } 
+    else if (fuel > 20 && fuelAlarmActive) {
+      fuelAlarm.pause();
+      fuelAlarm.currentTime = 0;
+      fuelAlarmActive = false;
+    }
+  } catch (e) {
+    console.warn("خطا در پخش آلارم سوخت:", e);
+  }
 
   // 🔹 رسم نیم‌دایره پایه
   ctx.beginPath();
@@ -1690,7 +1711,7 @@ function drawFuelGaugeAnimated() {
   ctx.strokeStyle = "#333";
   ctx.stroke();
 
-  // 🔹 افکت چشمک زن قرمز وقتی سوخت ≤ 10٪
+  // 🔹 افکت چشمک‌زن قرمز وقتی سوخت ≤ 20٪
   if (fuel <= 20) {
     const fade = 0.3 + 0.7 * Math.abs(Math.sin(performance.now() / 300)); // 0.3 تا 1
     ctx.beginPath();
@@ -1700,19 +1721,19 @@ function drawFuelGaugeAnimated() {
     ctx.stroke();
   }
 
-  // 🔹 خطوط درجه‌بندی در ضلع بالایی داخلی نیم‌دایره
+  // 🔹 خطوط درجه‌بندی
   const totalTicks = 100;
   for (let i = 0; i <= totalTicks; i++) {
     const angle = Math.PI + (i / totalTicks) * Math.PI;
-    const outerRadius = radius - 2; // ضلع بالایی داخلی
-    const innerRadius = (i % 10 === 0) ? outerRadius - 10 : outerRadius - 5; // اصلی و فرعی
+    const outerRadius = radius - 2;
+    const innerRadius = (i % 10 === 0) ? outerRadius - 10 : outerRadius - 5;
     const x1 = centerX + innerRadius * Math.cos(angle);
     const y1 = centerY + innerRadius * Math.sin(angle);
     const x2 = centerX + outerRadius * Math.cos(angle);
     const y2 = centerY + outerRadius * Math.sin(angle);
 
-    ctx.strokeStyle = (i % 10 === 0) ? "#00ffff" : "rgba(0,255,255,0.3)"; // خطوط فرعی شفاف
-    ctx.lineWidth = (i % 10 === 0) ? 2 : 1; 
+    ctx.strokeStyle = (i % 10 === 0) ? "#00ffff" : "rgba(0,255,255,0.3)";
+    ctx.lineWidth = (i % 10 === 0) ? 2 : 1;
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
@@ -1723,8 +1744,8 @@ function drawFuelGaugeAnimated() {
   ctx.font = "18px Arial Black";
   ctx.fillStyle = "#00ffff";
   ctx.textAlign = "center";
-  ctx.fillText("E", centerX - radius-7, centerY + 10);
-  ctx.fillText("F", centerX + radius+7, centerY + 10);
+  ctx.fillText("E", centerX - radius - 7, centerY + 10);
+  ctx.fillText("F", centerX + radius + 7, centerY + 10);
 
   // 🔹 درصد سوخت
   ctx.font = "12px Arial";
@@ -1739,7 +1760,7 @@ function drawFuelGaugeAnimated() {
   const needleX = centerX + needleLength * Math.cos(needleAngle);
   const needleY = centerY + needleLength * Math.sin(needleAngle);
 
-  // 🔹 عقربه ثابت
+  // 🔹 عقربه
   ctx.beginPath();
   ctx.moveTo(centerX, centerY);
   ctx.lineTo(needleX, needleY);
@@ -1753,6 +1774,7 @@ function drawFuelGaugeAnimated() {
   ctx.fillStyle = "#ff0000";
   ctx.fill();
 }
+
 
 
 
@@ -2850,6 +2872,11 @@ function explodeAirplane() {
 });
   // 🔹 کم کردن یک جان
   lives--;
+
+// 💥 کاهش گرید تیر بعد از از دست دادن جان
+if (typeof bulletGrade !== "undefined") {
+  bulletGrade = Math.max(1, bulletGrade - 1);
+}
 
   // 🔹 ناپدید کردن موقت هواپیما برای ۲ ثانیه
   airplane.hidden = true;
