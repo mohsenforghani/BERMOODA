@@ -604,8 +604,7 @@ position: absolute;
 <div id="finalScore"></div>
 <div id="playernameDisplay"></div>
 
-<button id="pauseBtn" style="display:none;">⏸</button>
-
+<button id="pauseBtn" aria-label="Pause">⏸</button>
 
 
 <!-- 🎮 کنترل‌ها -->
@@ -1222,20 +1221,27 @@ let missiles = 0; // تعداد موشک‌ها
 let activeMissiles = []; // لیست موشک‌های فعال در حال حرکت
 let missileBtn = document.getElementById("missileBtn");
 // ✅ لیست تمام تصاویر
-const imageSources = [
+const assets = [
   "airplane.png",
-  "explosion.png",
   "fuel.png",
-  "mooshak.png", 
-"mooshak2.png", 
+  "mooshak.png", "mooshak2.png", 
   "plane1.png", "plane2.png", "plane3.png", "plane4.png",
-  "plane6.png", "plane8.png", "plane10.png", "plane12.png","plane30.png","plane31.png","plane32.png","plane33.png","plane34.png","sang1.png","sang2.png","sang3.png","sang4.png",
-  "cloud1.png", "cloud2.png", "cloud3.png"
+  "plane6.png", "plane8.png", "plane10.png", "plane12.png","plane30.png",
+  "plane31.png","plane32.png","plane33.png","plane34.png","sang1.png",
+  "sang2.png","sang3.png","sang4.png",
+  "cloud1.png", "cloud2.png", "cloud3.png",
+   "help.png", "help2.png",
+  "ex/ex1.png","ex/ex2.png","ex/ex3.png","ex/ex4.png","ex/ex5.png",
+  "ex/ex6.png","ex/ex7.png","ex/ex8.png","ex/ex9.png",
+"sounds/explosion/explosion1.wav","sounds/explosion/explosion2.wav","sounds/explosion/explosion3.wav",
+"sounds/explosion/explosion4.wav","sounds/explosion/explosion5.wav",
+"sounds/BermoodaSound.mp3","sounds/gameOverSound.mp3","sounds/gasAlert.mp3",
+"sounds/shotSoundAirplane.mp3"
+
 ];
 
-let loadedImages = {};
-let loadedCount = 0;
-const totalImages = imageSources.length;
+let loadedAssets = {};
+
 const loadingText = document.getElementById("loadingText");
 const progressFill = document.getElementById("progressFill");
 const loadingScreen = document.getElementById("loadingScreen");
@@ -1273,9 +1279,8 @@ const enemyImages = [
 
 let shootInterval = null;
 const shootBtn = document.getElementById("shoot");
-
-
-
+const totalAssets = assets.length;
+let loadedCount = 0;
 
 
 
@@ -1301,37 +1306,23 @@ for (let i = 0; i < 6; i++) {
 
 
 
-function preloadImages(callback) {
+
+
+function preloadAssets(callback) {
   document.getElementById("scoreContainer").style.display = "none";
 
-  // 🧩 افزودن فریم‌های انفجار به لیست تصاویر اصلی
-  for (let i = 1; i <= 9; i++) {
-    imageSources.push(`ex/ex${i}.png`);
-  }
-
-  const totalImages = imageSources.length;
+  const totalAssets = assets.length;
   let loadedCount = 0;
 
-  imageSources.forEach(src => {
-    const img = new Image();
-    img.onload = () => {
-      loadedImages[src] = img;
-      loadedCount++;
+  assets.forEach(src => {
 
-      // نمایش درصد بارگذاری
-      const percent = Math.floor((loadedCount / totalImages) * 100);
+    // تابع کمکی داخلی برای بروزرسانی درصد و چک کردن اتمام بارگذاری
+    const checkLoaded = () => {
+      const percent = Math.floor((loadedCount / totalAssets) * 100);
       progressFill.style.width = percent + "%";
       loadingText.innerText = `Loading ${percent}% - ${src}`;
 
-      // ✅ وقتی همه تصاویر لود شدند
-      if (loadedCount === totalImages) {
-        // ساخت آرایهٔ فریم‌های انفجار از تصاویر لودشده
-        window.explosionFrames = [];
-        for (let i = 1; i <= 9; i++) {
-          window.explosionFrames.push(loadedImages[`ex/ex${i}.png`]);
-        }
-
-        // نمایش ادامه روند شروع بازی
+      if (loadedCount === totalAssets) {
         setTimeout(() => {
           playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
           document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
@@ -1340,34 +1331,45 @@ function preloadImages(callback) {
       }
     };
 
-    img.onerror = () => {
-      console.warn("❌ خطا در لود تصویر:", src);
-      loadedCount++;
-      if (loadedCount === totalImages) {
-        window.explosionFrames = [];
-        for (let i = 1; i <= 9; i++) {
-          if (loadedImages[`ex/ex${i}.png`]) {
-            window.explosionFrames.push(loadedImages[`ex/ex${i}.png`]);
-          }
-        }
+    // ===== لود تصاویر =====
+    if (src.endsWith(".png") || src.endsWith(".jpg")) {
+      const img = new Image();
 
-        setTimeout(() => {
-          playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
-          document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
-          callback();
-        }, 400);
-      }
-    };
+      img.onload = () => {
+        loadedCount++;
+        checkLoaded();
+      };
 
-    img.src = src;
+      img.onerror = () => {
+        console.warn("خطا در لود تصویر:", src);
+        loadedCount++;
+        checkLoaded();
+      };
+
+      img.src = src;
+      loadedAssets[src] = img;
+
+    // ===== لود صدا =====
+    } else if (src.endsWith(".mp3") || src.endsWith(".wav")) {
+      const audio = new Audio();
+
+      audio.oncanplaythrough = () => {
+        loadedCount++;
+        checkLoaded();
+      };
+
+      audio.onerror = () => {
+        console.warn("خطا در لود صدا:", src);
+        loadedCount++;
+        checkLoaded();
+      };
+
+      audio.src = src;
+      loadedAssets[src] = audio;
+    }
   });
 }
-
-
-
-// ✅ وقتی همه تصاویر لود شدن:
-preloadImages(() => {
-  //loadingText.innerText = "ماموریت ...نابودی ناوگان هوایی اسرائیل!";
+preloadAssets(() => {
   progressFill.style.width = "100%";
 
   setTimeout(() => {
@@ -1379,17 +1381,19 @@ preloadImages(() => {
     scoreBtn.style.display = "block";
     exitBtn.style.display = "block";
     document.getElementById("gameTitle").style.display = "block";
-  // نمایش صفحه انتخاب هواپیما
+
+    // نمایش صفحه انتخاب هواپیما
     const airplaneContainer = document.getElementById("airplaneSelectContainer");
     airplaneContainer.style.display = "block";
     document.getElementById("joystick").style.display = "none";
     document.getElementById("shoot").style.display = "none";
     document.getElementById("missileBtn").style.display = "none";
+
     loadExplosionSounds();
- 
+
     const planes = document.querySelectorAll(".plane");
     planes.forEach(p => {
-        p.addEventListener("click", () => {
+      p.addEventListener("click", () => {
         planes.forEach(pl => pl.classList.remove("selected")); // حذف انتخاب قبلی
         p.classList.add("selected"); // انتخاب فعلی
         selectedPlaneImg = p.querySelector("img").src;
@@ -1401,6 +1405,17 @@ preloadImages(() => {
 
   }, 700);
 });
+
+
+
+
+
+
+
+
+
+
+
 
   startBtn.onclick = () => {
   startBtn.style.display = "none";
@@ -2919,17 +2934,6 @@ function showFinalScore(){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 // === جوی‌استیک لمسی ===
 const joystick = document.getElementById("joystick");
 const stick = document.getElementById("stick");
@@ -3093,6 +3097,4 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
-
 
