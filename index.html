@@ -715,33 +715,11 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+let loadedAssets = {};
 
 
 
 
-// 🎶 آهنگ پس‌زمینه بازی
-let gameMusic = new Audio("sounds/BermoodaSound.mp3"); // مسیر آهنگ را تغییر بده
-gameMusic.loop = true;     // آهنگ تکرارشونده
-gameMusic.volume = 0.0;    // شروع بی‌صدا (برای fade in)
-let fadeGameMusic = null;
-gameMusic.volume = 0.7;
-
-
-let gameOverMusic = new Audio("sounds/gameOverSound.mp3"); // آهنگ شکست
-gameOverMusic.loop = true;
-gameOverMusic.volume = 0.0;
-let fadeGameOverMusic = null;
-gameOverMusic.volume = 0.7; 
-
-
-let shootSound = new Audio("sounds/shotSoundAirplane.mp3");
-shootSound.volume = 0.7; 
-
-
-let fuelAlarm = new Audio("sounds/gasAlert.mp3");
-fuelAlarm.loop = true;     // صدای هشدار تکرار شود تا وقتی سوخت پایین است
-fuelAlarm.volume = 0.50;    // شدت صدا
-let fuelAlarmActive = false; // برای جلوگیری از پخش دوباره
 
 
 // 🔊 آرایه صداهای انفجار
@@ -786,11 +764,18 @@ let meteors = [];
 let lastMeteorSpawn = performance.now();
 const meteorImages = [];
 const meteorCount = 4;
+
+// استفاده از preloadAssets برای لود تصاویر
 for (let i = 1; i <= meteorCount; i++) {
-  const img = new Image();
-  img.src = `sang${i}.png`;
-  meteorImages.push(img);
+  const meteorImage = loadedAssets[`sang${i}.png`]; // استفاده از تصاویر لود شده در loadedAssets
+  if (meteorImage) {
+    meteorImages.push(meteorImage);
+  } else {
+    console.warn(`تصویر sang${i}.png لود نشده است!`);
+  }
 }
+
+
 
 
 function spawnMeteor() {
@@ -1240,7 +1225,7 @@ const assets = [
 
 ];
 
-let loadedAssets = {};
+
 
 const loadingText = document.getElementById("loadingText");
 const progressFill = document.getElementById("progressFill");
@@ -1310,13 +1295,14 @@ for (let i = 0; i < 6; i++) {
 
 function preloadAssets(callback) {
   document.getElementById("scoreContainer").style.display = "none";
-
+let gameMusic;
+let gameOverMusic;
+let shootSound;
+let fuelAlarm;
   const totalAssets = assets.length;
   let loadedCount = 0;
 
   assets.forEach(src => {
-
-    // تابع کمکی داخلی برای بروزرسانی درصد و چک کردن اتمام بارگذاری
     const checkLoaded = () => {
       const percent = Math.floor((loadedCount / totalAssets) * 100);
       progressFill.style.width = percent + "%";
@@ -1326,12 +1312,12 @@ function preloadAssets(callback) {
         setTimeout(() => {
           playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
           document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
-          callback();
+          callback();  // پس از بارگذاری کامل، تابع callback اجرا می‌شود
         }, 400);
       }
     };
 
-    // ===== لود تصاویر =====
+    // لود تصاویر
     if (src.endsWith(".png") || src.endsWith(".jpg")) {
       const img = new Image();
 
@@ -1349,7 +1335,7 @@ function preloadAssets(callback) {
       img.src = src;
       loadedAssets[src] = img;
 
-    // ===== لود صدا =====
+    // لود صدا
     } else if (src.endsWith(".mp3") || src.endsWith(".wav")) {
       const audio = new Audio();
 
@@ -1369,8 +1355,43 @@ function preloadAssets(callback) {
     }
   });
 }
+
+
+
 preloadAssets(() => {
   progressFill.style.width = "100%";
+
+
+  gameMusic = loadedAssets["sounds/BermoodaSound.mp3"];
+  gameOverMusic = loadedAssets["sounds/gameOverSound.mp3"];
+  shootSound = loadedAssets["sounds/shotSoundAirplane.mp3"];
+  fuelAlarm = loadedAssets["sounds/gasAlert.mp3"];
+// 🎶 آهنگ پس‌زمینه بازی
+gameMusic.loop = true;     // آهنگ تکرارشونده
+gameMusic.volume = 0.0;    // شروع بی‌صدا (برای fade in)
+let fadeGameMusic = null;
+gameMusic.volume = 0.7;
+
+
+gameOverMusic.loop = true;
+gameOverMusic.volume = 0.0;
+let fadeGameOverMusic = null;
+gameOverMusic.volume = 0.7; 
+
+
+shootSound.volume = 0.7; 
+
+
+fuelAlarm.loop = true;     // صدای هشدار تکرار شود تا وقتی سوخت پایین است
+fuelAlarm.volume = 0.50;    // شدت صدا
+let fuelAlarmActive = false; // برای جلوگیری از پخش دوباره
+
+
+
+
+
+
+
 
   setTimeout(() => {
     loadingScreen.style.opacity = 0;
@@ -3097,5 +3118,4 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
 
