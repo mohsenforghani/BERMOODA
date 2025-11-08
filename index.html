@@ -1099,7 +1099,6 @@ ctx.fillStyle = "white";
 ctx.font = "bold 32px Arial";
 ctx.fillText("Your Score : " + score, canvas.width * 0.5, canvas.height * 0.47);
 ctx.restore();
-
 }
 
 let lastDifficultyIncrease = performance.now();
@@ -1117,7 +1116,7 @@ pauseBtn.addEventListener("click", () => {
     paused = true;
     pauseTime = performance.now();
     pauseBtn.innerHTML = "▶"; // علامت Play روی دکمه Pause
-    // 🎯 نمایش دکمه‌های منوی Pause
+    // نمایش دکمه‌های منوی Pause
     continueBtn.style.display = "block";
     startBtn.style.display = "block";
     exitBtn.style.display = "block";
@@ -1333,7 +1332,7 @@ function preloadImages(callback) {
 
         // نمایش ادامه روند شروع بازی
         setTimeout(() => {
-          playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
+          playerName = prompt("نام خود را وارد کنید:") || "ناشناس";
           document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
           callback();
         }, 400);
@@ -1352,7 +1351,7 @@ function preloadImages(callback) {
         }
 
         setTimeout(() => {
-          playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
+          playerName = prompt("نام خود را وارد کنید:") || "ناشناس";
           document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
           callback();
         }, 400);
@@ -3093,5 +3092,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
