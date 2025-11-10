@@ -1829,25 +1829,29 @@ document.addEventListener("keyup", (e) => {
 function sendScore() {
     // مقدار عددی امتیاز
     let finalScore = parseFloat(document.getElementById('scoreValue').innerText) || 0;
+
+    // اگر امتیاز صفر است، ارسال را متوقف کن
+    if(finalScore <= 0) {
+        console.log("امتیاز شما صفر است و در جدول امتیازات ثبت نمیشود.");
+        return;
+    }
+
     let deviceInfo = navigator.userAgent || "Unknown Device";
     const nameToSend = (typeof playerName !== "undefined" ? playerName : "ناشناس");
-    // نام بازیکن
-  // let playerName = document.getElementById('playerNameInput')?.value || "نا شناس";
 
     const scoreDiv = document.getElementById('finalScore');
     if(scoreDiv) {
         scoreDiv.style.display = "block";
-        scoreDiv.innerHTML = `محاسبه رتبه...`;
+        scoreDiv.innerHTML = `...محاسبه رتبه`;
     }
 
     // ارسال امتیاز به Google Sheets
     fetch("https://script.google.com/macros/s/AKfycbz56qAXFF0Ucs58mWGB-rQ8dP2C6Ci4KiS9yRAZRok7kIvuBGZDDrUdTqDqN7eK10XgDw/exec", {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-       
-  body: 'name=' + encodeURIComponent(nameToSend) +
-            '&score=' + encodeURIComponent(finalScore) + 
-            '&device=' + encodeURIComponent(deviceInfo)
+        body: 'name=' + encodeURIComponent(nameToSend) +
+              '&score=' + encodeURIComponent(finalScore) + 
+              '&device=' + encodeURIComponent(deviceInfo)
     })
     .then(res => res.json())
     .then(data => {
@@ -1862,11 +1866,6 @@ function sendScore() {
         }
     });
 }
-
-
-
-
-
 
 
 
