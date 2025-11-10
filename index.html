@@ -1442,26 +1442,26 @@ function updateArc(off = offset) {
   const radiusY = 120;                     // بیضی عمودی
   const mid = Math.floor((visible - 1) / 2);
 
-  // فاصله از بالای کانتینر تا پایین‌ترین نقطه آرک
-  const offsetY = radiusY - 200; // هر چقدر بیشتر باشد آرک پایین‌تر می‌رود و کامل دیده می‌شود
+  // جدید: پایین‌ترین نقطه آرک داخل container
+  const containerHeight = arc.clientHeight; // 250px یا هر ارتفاع کانتینر
+  const bottomPadding = 100;                 // فاصله پایین کانتینر تا پایین هواپیما
+  const arcBottomY =  bottomPadding; // Y پایین آرک
 
   planes.forEach((el, i) => {
     const visIndex = i - off;
     if (visIndex >= 0 && visIndex < visible) {
       const angle = Math.PI / (visible - 1) * visIndex;
 
-      // محاسبه موقعیت X و Y
       const x = Math.cos(angle) * radiusX;
       const y = Math.sin(angle) * radiusY;
 
-      // محاسبه scale برای بزرگ‌تر شدن هواپیمای وسط
       const maxScale = 1.2;
       const minScale = 1.0;
       const scale = maxScale - Math.abs(visIndex - mid) * (maxScale - minScale) / mid;
 
       el.style.display = 'block';
-      // اضافه کردن offsetY به Y و معکوس کردن آن
-      el.style.transform = `translateX(${x}px) translateY(${offsetY - y}px) scale(${scale})`;
+      // اصلاح: Y نسبت به پایین container
+      el.style.transform = `translateX(${x}px) translateY(${arcBottomY - y - (el.offsetHeight || 80)}px) scale(${scale})`;
       el.style.zIndex = (visIndex === mid ? 9999 : 900 - Math.abs(visIndex - mid));
 
       if (visIndex === mid) {
