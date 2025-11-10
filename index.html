@@ -1455,8 +1455,8 @@ preloadImages(() => {
   arcContainer.addEventListener('touchstart', e => startX = e.touches[0].clientX, {passive:true});
   arcContainer.addEventListener('touchmove', e => {
     if (startX === null) return;
-    const delta = startX - e.touches[0].clientX;
-    scrollOffset += delta / planeWidth;
+    const delta =  e.touches[0].clientX - startX;
+    scrollOffset -= delta / planeWidth;
     startX = e.touches[0].clientX;
     updateArc();
   }, {passive:true});
@@ -1466,8 +1466,8 @@ preloadImages(() => {
   arcContainer.addEventListener('mousedown', e => mouseDownX = e.clientX);
   window.addEventListener('mousemove', e => {
     if (mouseDownX === null) return;
-    const delta = mouseDownX - e.clientX;
-    scrollOffset += delta / planeWidth;
+    const delta =  e.clientX - mouseDownX;
+    scrollOffset -= delta / planeWidth;
     mouseDownX = e.clientX;
     updateArc();
   });
@@ -3224,4 +3224,5 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
