@@ -464,64 +464,99 @@ position: absolute;
   text-shadow: 0 0 10px #0ff, 0 0 25px #0ff, 0 0 40px #00f;
 }
 
-/* کانتینر انتخاب هواپیما ابتدا مخفی باشد */
-#airplaneSelectContainer {
-  display: none;       /* اول مخفی */
-  position: fixed;  /* یا relative اگر نیاز به جریان عادی صفحه دارید */
-  top: 30px;           /* فاصله از بالا */
+/* 🎯 کانتینر اصلی انتخاب هواپیما (Arc) */
+#airplaneArcContainer {
+  display: none;            /* ابتدا مخفی باشد */
+  position: fixed;
+  top: 20px;
   left: 50%;
-  transform: translateX(-50%); /* وسط چین کردن افقی */
-  z-index: 9999;       /* بالاترین لایه */
-  min-height: 180px;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 400px;
+  overflow: hidden;
+  z-index: 9999;
   text-align: center;
   color: white;
-  white-space: nowrap;
+  touch-action: pan-x;       /* اجازه درگ افقی برای موبایل */
+  user-select: none;
 }
 
-
-/* استایل داخلی برای هواپیماها */
-.airplane-select {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
-  flex-wrap: wrap;
-  margin-top: 30px;
+/* 🔷 عنوان بالای صفحه انتخاب */
+#planeSelectTitle {
+  font-family: 'Arial Black', sans-serif;
+  font-size: 14px;
+  color: #00ffff;
+  text-shadow: 0 0 10px #00ffff, 0 0 25px #00ccff;
+  margin-bottom: 10px;
+  animation: glowTitle 1.8s ease-in-out infinite alternate;
 }
 
-.plane {
-  text-align: center;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+@keyframes glowTitle {
+  0% { text-shadow: 0 0 8px #00ffff, 0 0 20px #00ccff; transform: scale(1); }
+  100% { text-shadow: 0 0 20px #00ffff, 0 0 40px #00ccff; transform: scale(1.05); }
+}
+
+/* 🔹 نوار قوس (Arc) که هواپیماها داخل آن قرار می‌گیرند */
+#airplaneArc {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: bottom center;
+}
+
+/* ✈️ هر هواپیما در آرک */
+#airplaneArc .plane {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform-origin: bottom center;
+  transition: transform 0.3s ease, z-index 0.3s ease;
   cursor: pointer;
+  z-index: 9999;
 }
 
-.plane img {
+/* 🌟 ظاهر تصویر هواپیما */
+#airplaneArc .plane img {
   width: 80px;
   height: auto;
-  border-radius: 12px;
-  transition: all 0.3s ease;
+  border-radius: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-.plane p {
-  color: white;
-  font-size: 12px;
-  margin-top: 10px;
-  font-family: sans-serif;
-  transition: all 0.3s ease; /* برای انیمیشن نرم */
-}
-
-.plane.selected p {
-  font-size: 16px; /* بزرگتر شدن متن هنگام انتخاب */
-  font-weight: bold; /* اختیاری: ضخیم‌تر شدن */
-  color: yellow;     /* اختیاری: تغییر رنگ */
-}
-
-
-
-.plane.selected img {
+/* ✴️ افکت انتخاب */
+#airplaneArc .plane.selected img {
   transform: scale(1.5);
   box-shadow: 0 0 25px 8px yellow;
-  border-radius: 12px;
 }
+
+/* 🌈 اسم هواپیما زیر هر عکس (اختیاری) */
+#airplaneArc .plane p {
+  color: white;
+  font-size: 12px;
+  margin-top: 8px;
+  font-family: sans-serif;
+  text-shadow: 0 0 3px black;
+}
+
+#airplaneArc .plane.selected p {
+  color: yellow;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* ✨ برای انیمیشن ورود نرمی هنگام نمایش کل صفحه انتخاب */
+#airplaneArcContainer.show {
+  animation: fadeInArc 0.6s ease forwards;
+}
+
+@keyframes fadeInArc {
+  from { opacity: 0; transform: translate(-50%, -20px); }
+  to   { opacity: 1; transform: translate(-50%, 0); }
+}
+
+
 
 #missileBtn {
   position: fixed;
@@ -630,25 +665,21 @@ position: absolute;
 
 
 
-<div id="airplaneSelectContainer" style="display:none;">
-  <h3 style="color:white; text-align:center;">✈️ Please Select Your Airplane</h3>
-  <div class="airplane-select">
-    <div class="plane" data-plane="30">
-      <img src="plane30.png" alt="Plane 1">
-      <p>صاعقه</p>
-    </div>
-    <div class="plane" data-plane="31">
-      <img src="plane31.png" alt="Plane 2">
-      <p>آذرخش</p>
-    </div>
-    <div class="plane" data-plane="32">
-      <img src="plane32.png" alt="Plane 3">
-      <p>عقاب</p>
-    </div>
-    <div class="plane" data-plane="33">
-      <img src="plane33.png" alt="Plane 4">
-    <p> اژدر </p>
-    </div>
+<div id="airplaneArcContainer" style="display:none;">
+  <h3 id="planeSelectTitle" style="color:white; text-align:center; margin-top:10px;">
+    ✈️ لطفاً هواپیمای خود را انتخاب کنید
+  </h3>
+
+  <div id="airplaneArc">
+    <div class="plane" data-plane="30"><img src="plane30.png" alt="صاعقه"></div>
+    <div class="plane" data-plane="31"><img src="plane31.png" alt="آذرخش"></div>
+    <div class="plane" data-plane="32"><img src="plane32.png" alt="عقاب"></div>
+    <div class="plane" data-plane="33"><img src="plane33.png" alt="اژدر"></div>
+    <div class="plane" data-plane="34"><img src="plane34.png" alt="طوفان"></div>
+    <div class="plane" data-plane="35"><img src="plane35.png" alt="ققنوس"></div>
+    <div class="plane" data-plane="36"><img src="plane36.png" alt="رعد"></div>
+    <div class="plane" data-plane="37"><img src="plane37.png" alt="برق"></div>
+    <div class="plane" data-plane="38"><img src="plane38.png" alt="صاعقه ۲"></div>
   </div>
 </div>
 
@@ -866,6 +897,7 @@ function showHelpImages() {
 
     });
 }
+
 
 
 
@@ -1099,6 +1131,7 @@ ctx.fillStyle = "white";
 ctx.font = "bold 32px Arial";
 ctx.fillText("Your Score : " + score, canvas.width * 0.5, canvas.height * 0.47);
 ctx.restore();
+
 }
 
 let lastDifficultyIncrease = performance.now();
@@ -1116,7 +1149,7 @@ pauseBtn.addEventListener("click", () => {
     paused = true;
     pauseTime = performance.now();
     pauseBtn.innerHTML = "▶"; // علامت Play روی دکمه Pause
-    // نمایش دکمه‌های منوی Pause
+    // 🎯 نمایش دکمه‌های منوی Pause
     continueBtn.style.display = "block";
     startBtn.style.display = "block";
     exitBtn.style.display = "block";
@@ -1332,7 +1365,7 @@ function preloadImages(callback) {
 
         // نمایش ادامه روند شروع بازی
         setTimeout(() => {
-          playerName = prompt("نام خود را وارد کنید:") || "ناشناس";
+          playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
           document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
           callback();
         }, 400);
@@ -1351,7 +1384,7 @@ function preloadImages(callback) {
         }
 
         setTimeout(() => {
-          playerName = prompt("نام خود را وارد کنید:") || "ناشناس";
+          playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
           document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
           callback();
         }, 400);
@@ -1363,10 +1396,8 @@ function preloadImages(callback) {
 }
 
 
-
 // ✅ وقتی همه تصاویر لود شدن:
 preloadImages(() => {
-  //loadingText.innerText = "ماموریت ...نابودی ناوگان هوایی اسرائیل!";
   progressFill.style.width = "100%";
 
   setTimeout(() => {
@@ -1379,8 +1410,165 @@ preloadImages(() => {
     exitBtn.style.display = "block";
     document.getElementById("gameTitle").style.display = "block";
   // نمایش صفحه انتخاب هواپیما
-    const airplaneContainer = document.getElementById("airplaneSelectContainer");
-    airplaneContainer.style.display = "block";
+  
+(function setupRightToLeftArc() {
+  const arcContainer = document.getElementById('airplaneArcContainer');
+  const arc = document.getElementById('airplaneArc');
+  if (!arcContainer || !arc) {
+    console.warn('airplane arc elements not found');
+    return;
+  }
+
+  // نمایش امن کانتینر
+  arcContainer.style.display = 'block';
+  arcContainer.classList.add('show');
+
+  const planes = Array.from(arc.querySelectorAll('.plane'));
+  if (!planes.length) return;
+
+  const visible = 7; // همزمان چند تا دیده بشن
+  let offset = 0;    // ورق زدن
+  // شعاع وابسته به اندازه صفحه (responsive)
+  function getRadius() {
+    const w = Math.min(arc.clientWidth, window.innerWidth);
+    return Math.max(140, Math.min(360, Math.floor(w * 0.28)));
+  }
+
+function updateArc(off = offset) {
+  off = Math.max(0, Math.min(off, planes.length - visible));
+  offset = off;
+
+  const radiusX = arc.clientWidth * 0.65; // بیضی افقی
+  const radiusY = 120;                     // بیضی عمودی
+  const mid = Math.floor((visible - 1) / 2);
+
+  // فاصله از بالای کانتینر تا پایین‌ترین نقطه آرک
+  const offsetY = radiusY - 200; // هر چقدر بیشتر باشد آرک پایین‌تر می‌رود و کامل دیده می‌شود
+
+  planes.forEach((el, i) => {
+    const visIndex = i - off;
+    if (visIndex >= 0 && visIndex < visible) {
+      const angle = Math.PI / (visible - 1) * visIndex;
+
+      // محاسبه موقعیت X و Y
+      const x = Math.cos(angle) * radiusX;
+      const y = Math.sin(angle) * radiusY;
+
+      // محاسبه scale برای بزرگ‌تر شدن هواپیمای وسط
+      const maxScale = 1.2;
+      const minScale = 1.0;
+      const scale = maxScale - Math.abs(visIndex - mid) * (maxScale - minScale) / mid;
+
+      el.style.display = 'block';
+      // اضافه کردن offsetY به Y و معکوس کردن آن
+      el.style.transform = `translateX(${x}px) translateY(${offsetY - y}px) scale(${scale})`;
+      el.style.zIndex = (visIndex === mid ? 9999 : 900 - Math.abs(visIndex - mid));
+
+      if (visIndex === mid) {
+        el.classList.add('center');
+        centerPlane = el;
+      } else {
+        el.classList.remove('center');
+      }
+    } else {
+      el.style.display = 'none';
+      el.classList.remove('center');
+    }
+  });
+
+  // انتخاب خودکار وسط
+  if (centerPlane) {
+    planes.forEach(x => x.classList.remove('selected'));
+    centerPlane.classList.add('selected');
+    selectedPlaneImg = centerPlane.querySelector('img').src;
+    const alt = centerPlane.querySelector('img').alt || '';
+    document.getElementById('planeName').innerText = alt;
+    document.getElementById('startBtn').style.display = 'block';
+  }
+}
+
+
+
+
+  // لمسی: درگ / سوایپ برای ورق زدن
+  let startX = null;
+  arcContainer.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+  }, {passive: true});
+
+  arcContainer.addEventListener('touchmove', e => {
+    if (startX === null) return;
+    const x = e.touches[0].clientX;
+    const diff = startX - x;
+    // آستانه ورق زدن
+    const threshold = Math.max(30, window.innerWidth * 0.06);
+    if (diff > threshold && offset < planes.length - visible) {
+      offset++;
+      updateArc(offset);
+      startX = x;
+    } else if (diff < -threshold && offset > 0) {
+      offset--;
+      updateArc(offset);
+      startX = x;
+    }
+  }, {passive: true});
+
+  arcContainer.addEventListener('touchend', () => {
+    startX = null;
+  });
+
+  // برای دسکتاپ: دراگ با ماوس
+  let mouseDownX = null;
+  arcContainer.addEventListener('mousedown', e => { mouseDownX = e.clientX; });
+  window.addEventListener('mousemove', e => {
+    if (mouseDownX === null) return;
+    const diff = mouseDownX - e.clientX;
+    const threshold = 60;
+    if (diff > threshold && offset < planes.length - visible) {
+      offset++; updateArc(offset); mouseDownX = e.clientX;
+    } else if (diff < -threshold && offset > 0) {
+      offset--; updateArc(offset); mouseDownX = e.clientX;
+    }
+  });
+  window.addEventListener('mouseup', () => { mouseDownX = null; });
+
+  // کلیک / تاچ برای انتخاب هواپیما
+  planes.forEach(p => {
+    p.addEventListener('click', () => {
+      planes.forEach(x => x.classList.remove('selected'));
+      p.classList.add('selected');
+      // گذاشتن کلاس center روی نزدیک‌ترین ایندکس visible (تا عکس دیده بشه بزرگ‌تر)
+      // اگر p الان نمایش داده نمی‌شود، سعی می‌کنیم offset رو طوری تنظیم کنیم که p در منطقه visible بیاد
+      const idx = planes.indexOf(p);
+      if (idx < offset) { offset = Math.max(0, idx); updateArc(offset); }
+      else if (idx >= offset + visible) { offset = Math.min(planes.length - visible, idx - (visible - 1)); updateArc(offset); }
+      // اگر میخوای اطلاعات زیر صفحه نمایش داده بشه:
+      const alt = p.querySelector('img')?.alt || '';
+      document.getElementById('planeName').innerText = alt;
+      document.getElementById('startBtn').style.display = 'block';
+    });
+  });
+
+  // واکنش به تغییر اندازه پنجره
+  window.addEventListener('resize', () => updateArc(offset));
+
+  // مقدار اولیه
+  updateArc(0);
+})();
+
+
+
+
+
+
+const airplaneContainer = document.getElementById("airplaneArcContainer") || document.getElementById("airplaneSelectContainer");
+if (airplaneContainer) {
+  airplaneContainer.style.display = "block";
+} else {
+  console.warn("airplane container not found in DOM");
+}
+
+
     document.getElementById("joystick").style.display = "none";
     document.getElementById("shoot").style.display = "none";
     document.getElementById("missileBtn").style.display = "none";
@@ -1391,7 +1579,7 @@ preloadImages(() => {
         p.addEventListener("click", () => {
         planes.forEach(pl => pl.classList.remove("selected")); // حذف انتخاب قبلی
         p.classList.add("selected"); // انتخاب فعلی
-        selectedPlaneImg = p.querySelector("img").src;
+        selectedPlaneImg = p.querySelector("img").getAttribute("src");
         startBtn.style.display = "block";
         scoreBtn.style.display = "block";
         exitBtn.style.display = "block";
@@ -1641,7 +1829,8 @@ document.addEventListener("keyup", (e) => {
 function sendScore() {
     // مقدار عددی امتیاز
     let finalScore = parseFloat(document.getElementById('scoreValue').innerText) || 0;
-    const nameToSend = playerName || "ناشناس";
+    let deviceInfo = navigator.userAgent || "Unknown Device";
+    const nameToSend = (typeof playerName !== "undefined" ? playerName : "ناشناس");
     // نام بازیکن
   // let playerName = document.getElementById('playerNameInput')?.value || "نا شناس";
 
@@ -1655,7 +1844,10 @@ function sendScore() {
     fetch("https://script.google.com/macros/s/AKfycbz56qAXFF0Ucs58mWGB-rQ8dP2C6Ci4KiS9yRAZRok7kIvuBGZDDrUdTqDqN7eK10XgDw/exec", {
         method: 'POST',
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'name=' + encodeURIComponent(nameToSend) + '&score=' + encodeURIComponent(finalScore)
+       
+  body: 'name=' + encodeURIComponent(nameToSend) +
+            '&score=' + encodeURIComponent(finalScore) + 
+            '&device=' + encodeURIComponent(deviceInfo)
     })
     .then(res => res.json())
     .then(data => {
@@ -2041,12 +2233,21 @@ if (airplane.y + airplane.h > canvas.height-noFlyZoneHeight)
 if (Math.random() < 0.005) {
   const padding = 30;
 
-
   const time = performance.now();
   if (time - lastDifficultyIncrease >= 500) { 
-    speedMultiplier *= 1.02; // افزایش سرعت
+    speedMultiplier *= 1.01; // افزایش تدریجی سختی بازی
     lastDifficultyIncrease = time;
   }
+
+  // انتخاب تیپ سرعت به صورت تصادفی
+  const speedTypes = {
+    slow: 0.8,
+    normal: 1.0,
+    fast: 1.2
+  };
+  const typesArray = ["slow","normal","fast"];
+  const chosenType = typesArray[Math.floor(Math.random()*typesArray.length)];
+  const baseSpeed = speedTypes[chosenType];
 
   const enemy = {
     x: Math.random() * (canvas.width - 2 * padding) + padding,
@@ -2060,7 +2261,8 @@ if (Math.random() < 0.005) {
     spiral: Math.random() < 0.3,
     angle: 0,
     amplitude: 60,
-    speed: 1 * speedMultiplier // سرعت فعلی ضرب در ضریب
+    speedType: chosenType,         // ذخیره تیپ
+    speed: baseSpeed * speedMultiplier // سرعت واقعی
   };
 
   enemies.push(enemy);
@@ -2088,9 +2290,9 @@ enemies.forEach((e, i) => {
    if (e.spiral) {
   e.y += e.speed * delta;
   e.angle += 0.05 * delta; // سرعت چرخش موج
-  e.x += Math.sin(e.angle) * 3 * delta; 
+  e.x += e.baseX + Math.sin(e.angle) * 3 * delta;
 } else {
-  e.y += e.speed;
+  e.y += e.speed * delta;
 }
 // 🔹 حذف دشمن وقتی 100 پیکسل تا پایین فاصله دارد
   if (e.y > canvas.height - noFlyZoneHeight) {
@@ -2435,8 +2637,6 @@ function launchMissile() {
 
 
 
-
-
 function startGame() {
  if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
   showTopPlayerName();
@@ -2459,7 +2659,7 @@ function startGame() {
   document.getElementById("playernameDisplay").style.display = "block";
   document.getElementById("bestPlayer").style.display = "block";
 
-  document.getElementById("airplaneSelectContainer").style.display = "none";
+  document.getElementById("airplaneArcContainer").style.display = "none";
   document.getElementById("scoreContainer").style.display = "block";
   const controlPanel = document.getElementById('controlPanel');
   controlPanel.style.display = 'block'; 
@@ -2552,6 +2752,9 @@ try {
   animationId = null;
   animationId = requestAnimationFrame(gameLoop);
 }
+
+
+
 
 
   function endGame() {
@@ -3092,6 +3295,4 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
-
 
