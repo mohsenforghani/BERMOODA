@@ -1475,13 +1475,27 @@ preloadImages(() => {
 
   // کلیک برای انتخاب هواپیما
   planes.forEach(p => {
-    p.addEventListener('click', () => {
-      planes.forEach(x => x.classList.remove('selected'));
-      p.classList.add('selected');
-      const idx = planes.indexOf(p);
-      scrollOffset = idx;
-      updateArc();
-    });
+  p.addEventListener('click', () => {
+  planes.forEach(x => x.classList.remove('selected'));
+  p.classList.add('selected');
+  
+  const idx = planes.indexOf(p);
+  
+  // حرکت نرم scrollOffset به idx
+  const startOffset = scrollOffset;
+  const endOffset = idx;
+  const duration = 200; // 0.2 ثانیه
+  const startTime = performance.now();
+
+  function animate(time) {
+    const t = Math.min(1, (time - startTime)/duration);
+    scrollOffset = startOffset + (endOffset - startOffset) * t;
+    updateArc();
+    if (t < 1) requestAnimationFrame(animate);
+  }
+  requestAnimationFrame(animate);
+});
+
   });
 
   window.addEventListener('resize', updateArc);
@@ -3224,5 +3238,4 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
 
