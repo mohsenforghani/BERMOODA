@@ -998,7 +998,7 @@ function createMeteorExplosion(x, y, power = 1) {
   });
 
   // 🔶 لرزش صفحه
-  startScreenShake(10 * power, 250);
+  startScreenShake(10, 600);
 
   for (let i = 0; i < num; i++) {
     const angle = Math.random() * Math.PI * 2;
@@ -1934,15 +1934,23 @@ function drawFuelGaugeAnimated() {
   ctx.strokeStyle = "#333";
   ctx.stroke();
 
-  // 🔹 افکت چشمک‌زن قرمز وقتی سوخت ≤ 20٪
-  if (fuel <= 20) {
-    const fade = 0.3 + 0.7 * Math.abs(Math.sin(performance.now() / 300)); // 0.3 تا 1
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius - 10, Math.PI, 2 * Math.PI);
-    ctx.lineWidth = 16;
-    ctx.strokeStyle = `rgba(255,0,0,${fade})`;
-    ctx.stroke();
-  }
+// 🔹 افکت چشمک‌زن قرمز وقتی سوخت ≤ 20٪
+if (fuel <= 20) {
+  const fade = 0.3 + 0.7 * Math.abs(Math.sin(performance.now() / 300)); // 0.3 تا 1
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, radius - 10, Math.PI, 2 * Math.PI);
+  ctx.lineWidth = 16;
+  ctx.strokeStyle = `rgba(255,0,0,${fade})`;
+  ctx.stroke();
+
+  // لرزش صفحه وقتی سوخت ≤ 20٪
+  startScreenShake(5, 30000); // لرزش تا وقتی که بنزین زیر 20٪ است
+} else {
+  // وقتی سوخت > 20٪ لرزش متوقف شود
+  screenShake.strength = 0;
+  screenShake.duration = 0;
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+}
 
   // 🔹 خطوط درجه‌بندی
   const totalTicks = 100;
@@ -3396,8 +3404,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
-
 
 
 
