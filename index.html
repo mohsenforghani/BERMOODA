@@ -2527,7 +2527,7 @@ function updateHeatBar() {
 
 // ♻️ خنک شدن تدریجی — در حلقه‌ی اصلی بازی یا با setInterval
 setInterval(() => {
-  if (!overheated && heat > 0 && !isPaused) {
+  if (!overheated && heat > 0 && !Paused) {
     heat -= heatCoolRate;
     if (heat < 0) heat = 0;
     updateHeatBar();
@@ -3396,6 +3396,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
 
