@@ -825,6 +825,123 @@ let lastOverheatTime = 0;
 const heatBar = document.getElementById("heatBar");
 
 
+const SHEET_WEBAPP = "https://script.google.com/macros/s/AKfycbw4pH7vOhReS2onbuvM0reXGyPrvaDxB0HLiKyuAecFpSD9GLWfuk16HmKrqnLpwwYU/exec";
+
+
+let presenceIntervalId = null;
+let alreadySentScore = false;
+
+function startPresence() {
+  if (presenceIntervalId) return;
+  // ارسال یکبار فوری
+  sendPresence(true);
+  // ارسال هر 20 یا 30 ثانیه (از 10s به 20-30 پیشنهاد می‌کنم)
+  presenceIntervalId = setInterval(()=> sendPresence(true), 10000); // 20s
+}
+
+function stopPresence() {
+  clearInterval(presenceIntervalId);
+  presenceIntervalId = null;
+  sendPresence(false);   // 🔥 ثبت آفلاین
+}
+
+function sendPresence(isOnline) {
+  const id = window.playerId || getOrCreatePlayerId();
+  const name = window.playerName || (localStorage.getItem('bermooda_playerName') || "ناشناس");
+
+  const body = new URLSearchParams();
+  body.append('action', 'presence');
+  body.append('playerId', id);
+  body.append('name', name);
+  body.append('online', isOnline ? '1' : '0');     // 🔥 ضروری
+  body.append('device', navigator.userAgent);      // بهتر است
+
+  fetch(SHEET_WEBAPP, { method: 'POST', body })
+    .catch(err => console.warn("presence error:", err));
+}
+
+
+
+
+// === utility: secure uuid (modern) with fallback ===
+function getOrCreatePlayerId() {
+  try {
+    let id = localStorage.getItem('bermooda_playerId');
+    if (!id) {
+      // سعی کن از api امن مرورگر استفاده کنی
+      if (window.crypto && crypto.randomUUID) {
+        id = crypto.randomUUID();
+      } else {
+        // fallback استاندارد uuidv4 ساده
+        id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c=>{
+          const r = Math.random()*16|0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+          return v.toString(16);
+        });
+      }
+      try { localStorage.setItem('bermooda_playerId', id); } catch(e){ console.warn("localStorage ذخیره نشد:", e); }
+    }
+    window.playerId = id; // همیشه روی window ذخیره کن تا جای دیگر کد راحت دسترسی داشته باشه
+    return id;
+  } catch(err) {
+    console.warn("خطا در getOrCreatePlayerId — localStorage یا crypto دردسر دارند:", err);
+    const fallback = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2,8);
+    window.playerId = fallback;
+    return fallback;
+  }
+}
+
+
+// === init player name and id ===
+function initPlayer(name) {
+  window.playerName = name || "ناشناس";
+  try { localStorage.setItem('bermooda_playerName', window.playerName); } catch(e){}
+  getOrCreatePlayerId();
+
+  // نمایش روی صفحه (مثال)
+  const dn = document.getElementById('playernameDisplay');
+  if (dn) dn.innerText = 'Player : ' + window.playerName;
+
+  console.log("playerId=", window.playerId, "playerName=", window.playerName);
+}
+
+let onlinePingInterval = null;
+
+async function sendOnlineStatus(isOnline = true) {
+  try {
+    const id = window.playerId || getOrCreatePlayerId();
+    const name = window.playerName || (localStorage.getItem('bermooda_playerName') || 'ناشناس');
+    const payload = new URLSearchParams();
+    payload.append('action', 'status');
+    payload.append('playerId', id);
+    payload.append('name', name);
+    payload.append('online', isOnline ? 'online' : 'offline');
+    payload.append('score', String(typeof score !== 'undefined' ? score : 0));
+    payload.append('device', navigator.userAgent || 'unknown');
+
+    await fetch(SHEET_WEBAPP, {
+      method: 'POST',
+      body: payload
+    });
+    // اختیاری: handle response
+  } catch (err) {
+    console.warn("sendOnlineStatus failed:", err);
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1423,7 +1540,9 @@ function preloadImages(callback) {
 
         // نمایش ادامه روند شروع بازی
         setTimeout(() => {
+          getOrCreatePlayerId();
           playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
+          initPlayer(playerName);
           document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
           callback();
         }, 400);
@@ -1442,8 +1561,9 @@ function preloadImages(callback) {
         }
 
         setTimeout(() => {
+        getOrCreatePlayerId();
           playerName = prompt("نام بازیکن را وارد کنید:") || "ناشناس";
-          document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
+          initPlayer(playerName);
           callback();
         }, 400);
       }
@@ -1467,6 +1587,7 @@ preloadImages(() => {
     scoreBtn.style.display = "block";
     exitBtn.style.display = "block";
     document.getElementById("gameTitle").style.display = "block";
+    
   // نمایش صفحه انتخاب هواپیما
   function computeAxes() {
     // طول بیضی در محور X: دو برابر عرض صفحه
@@ -1673,7 +1794,7 @@ function drawLives() {
 
 async function showTopPlayerName() {
     try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbz56qAXFF0Ucs58mWGB-rQ8dP2C6Ci4KiS9yRAZRok7kIvuBGZDDrUdTqDqN7eK10XgDw/exec");
+        const response = await fetch("https://script.google.com/macros/s/AKfycbw4pH7vOhReS2onbuvM0reXGyPrvaDxB0HLiKyuAecFpSD9GLWfuk16HmKrqnLpwwYU/exec");
         const data = await response.json();
         data.sort((a, b) => b.score - a.score); // از بیشترین امتیاز به کمترین
         const topPlayer = data[0]?.name || "---";
@@ -1859,46 +1980,41 @@ document.addEventListener("keyup", (e) => {
 
 
 
-function sendScore() {
-    // مقدار عددی امتیاز
-    let finalScore = parseFloat(document.getElementById('scoreValue').innerText) || 0;
+async function sendScore() {
+  try {
+    if (alreadySentScore) return;
 
-    // اگر امتیاز صفر است، ارسال را متوقف کن
-    if(finalScore <= 0) {
-        console.log("امتیاز شما صفر است و در جدول امتیازات ثبت نمیشود.");
-        return;
-    }
+    const finalScore = Number(window.score || document.getElementById('scoreValue').innerText) || 0;
+    if (finalScore <= 0) return;
 
-    let deviceInfo = navigator.userAgent || "Unknown Device";
-    const nameToSend = (typeof playerName !== "undefined" ? playerName : "ناشناس");
+    const id = window.playerId || getOrCreatePlayerId();
+    const name = window.playerName || (localStorage.getItem('bermooda_playerName') || 'ناشناس');
+
+    const body = new URLSearchParams();
+    body.append('action', 'upsert');
+    body.append('playerId', id);
+    body.append('name', name);
+    body.append('score', String(finalScore));
+    body.append('device', navigator.userAgent);   // 🔥 لازم
+
+    const res = await fetch(SHEET_WEBAPP, { method: 'POST', body });
+    const json = await res.json().catch(()=>null);
+
+    alreadySentScore = true;
 
     const scoreDiv = document.getElementById('finalScore');
-    if(scoreDiv) {
-        scoreDiv.style.display = "block";
-        scoreDiv.innerHTML = `...محاسبه رتبه`;
+    if (scoreDiv) {
+      scoreDiv.style.display = "block";
+      scoreDiv.innerHTML = `امتیاز نهایی: ${finalScore}<br>رتبه: ${(json && json.rank) ? json.rank : '—'}`;
     }
 
-    // ارسال امتیاز به Google Sheets
-    fetch("https://script.google.com/macros/s/AKfycbz56qAXFF0Ucs58mWGB-rQ8dP2C6Ci4KiS9yRAZRok7kIvuBGZDDrUdTqDqN7eK10XgDw/exec", {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: 'name=' + encodeURIComponent(nameToSend) +
-              '&score=' + encodeURIComponent(finalScore) + 
-              '&device=' + encodeURIComponent(deviceInfo)
-    })
-    .then(res => res.json())
-    .then(data => {
-        if(scoreDiv) {
-            scoreDiv.innerHTML = `Your Rank: ${data.rank}`;
-        }
-    })
-    .catch(err => {
-        console.error(err);
-        if(scoreDiv) {
-            scoreDiv.innerHTML = `رتبه شما قابل دریافت نیست 😔`;
-        }
-    });
+    stopPresence();
+  } catch(err) {
+    console.error("sendScore error:", err);
+  }
 }
+
+
 
 
 
@@ -2737,6 +2853,9 @@ function launchMissile() {
 
 function startGame() {
  if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
+ getOrCreatePlayerId();
+  startPresence();            // شروع ارسال حضور هر 10 ثانیه
+  alreadySentScore = false;
   showTopPlayerName();
   showHelpImages();
   lastFuelSpawn = 0; // ریست زمان سوخت
@@ -2877,6 +2996,7 @@ try {
     explosions = [];
     gameOverBackground = true;
     animateGameOverBackground();
+    
   
   // پاک کردن صفحه قبل از نمایش متن
   //ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -3350,7 +3470,7 @@ document.getElementById("scoreBtn").addEventListener("click", () => {
   overlay.style.display = "flex";
   scoreList.innerHTML = "<div style='font-size:20px;color:#00FF00;'>در حال بارگذاری...</div>";
 
-  fetch("https://script.google.com/macros/s/AKfycbz56qAXFF0Ucs58mWGB-rQ8dP2C6Ci4KiS9yRAZRok7kIvuBGZDDrUdTqDqN7eK10XgDw/exec")
+  fetch("https://script.google.com/macros/s/AKfycbw4pH7vOhReS2onbuvM0reXGyPrvaDxB0HLiKyuAecFpSD9GLWfuk16HmKrqnLpwwYU/exec")
     .then(res => res.json())
     .then(data => {
       data.sort((a, b) => b.score - a.score);
@@ -3404,9 +3524,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
-
-
 
 
 
