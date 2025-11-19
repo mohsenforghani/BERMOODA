@@ -1065,7 +1065,7 @@ function initPlayer(onReady) {
         // update display if exists
         const dn = document.getElementById('playernameDisplay'); if (dn) dn.innerText = 'Player : ' + window.playerName;
         // notify server
-       try { sendPresence(true); } catch(e) {}
+      
         if (typeof onReady === 'function') onReady();
       } else {
         // no stored name unexpectedly -> show input
@@ -1091,7 +1091,7 @@ function initPlayer(onReady) {
       window.playerName = v;
       ensurePlayerId();
       const dn = document.getElementById('playernameDisplay'); if (dn) dn.innerText = 'Player : ' + window.playerName;
-     try { sendPresence(true); } catch(e) {}
+     
       if (typeof onReady === 'function') onReady();
     });
 
@@ -1116,7 +1116,7 @@ function initPlayer(onReady) {
     window.playerName = name;
     try { localStorage.setItem('bermooda_playerName', name); } catch(e){}
     ensurePlayerId();
-   try { sendPresence(true); } catch(e) {}
+  
     if (typeof onReady === 'function') onReady();
   }
 }
@@ -3974,6 +3974,9 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
+
+
 
 
 
