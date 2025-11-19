@@ -825,7 +825,7 @@ let lastOverheatTime = 0;
 const heatBar = document.getElementById("heatBar");
 
 
-const SHEET_WEBAPP = "https://script.google.com/macros/s/AKfycbwI_rTPhUd9zIqe4yMZilhT4rGuSoU8O8x7gnzpYlLKJtTP_yalIXSrDUDOkXtDQMI/exec";
+const SHEET_WEBAPP = "https://script.google.com/macros/s/AKfycbxTpvkLc2IgTYw3AKmVnBEXXyeVYVuax1YjVTHz1a5KIk4BjCEVoJ4GvisHS5e79f48/exec";
 
 
 let presenceIntervalId = null;
@@ -884,6 +884,13 @@ function sendPresence(isOnline) {
 
 
 
+
+
+
+
+
+
+
 // === utility: secure uuid (modern) with fallback ===
 function getOrCreatePlayerId() {
   try {
@@ -917,12 +924,12 @@ function getOrCreatePlayerId() {
 
 /**
  * initPlayer(onReady)
- * - اگر localStorage نام داشته باشد: نشان می‌دهد "<name> جان، آیا با همین نام بازی می‌کنی؟"
+ * - اگر localStorage نام داشته باشد: نشان می‌دهد "<name> عزیز، آیا با همین نام بازی می‌کنی؟"
  *   - اگر "با همین نام" زدن: همان نام استفاده می‌شود.
  *   - اگر "نام دیگر" زدن: پنجرهٔ ورودی باز می‌شود و نام جدید اجباری است (نمی‌تواند خالی یا 'ناشناس' باشد).
  * - اگر localStorage نام نداشته باشد: مستقیماً ورودی اجباری نمایش داده می‌شود.
  * - بعد از انتخاب نام: playerId ساخته/خوانده می‌شود، localStorage به‌روز می‌شود، نمایش روی صفحه انجام می‌شود،
- *   و در صورت وجود `sendOnlineStatus` یا `playerLogin` آن را صدا می‌زند.
+ *   و در صورت وجود `sendPresence` یا `playerLogin` آن را صدا می‌زند.
  * - onReady (اختیاری): تابعی که پس از تکمیل init صدا زده می‌شود (مثلاً startGame).
  */
 function initPlayer(onReady) {
@@ -1014,7 +1021,7 @@ function initPlayer(onReady) {
 
     // helpers to show states
     function showConfirm(storedName) {
-      title.innerText = `${storedName} جان،`;
+      title.innerText = `${storedName} عزیز،`;
       text.innerText = `آیا با همین نام بازی می‌کنی یا نام دیگری انتخاب می‌کنی؟`;
       stageConfirm.style.display = '';
       stageInput.style.display = 'none';
@@ -1058,7 +1065,7 @@ function initPlayer(onReady) {
         // update display if exists
         const dn = document.getElementById('playernameDisplay'); if (dn) dn.innerText = 'Player : ' + window.playerName;
         // notify server
-        try { if (typeof sendOnlineStatus === 'function') sendOnlineStatus(true); else if (typeof playerLogin === 'function') playerLogin(window.playerId, window.playerName, navigator.userAgent||'unknown'); } catch(e){}
+       try { sendPresence(true); } catch(e) {}
         if (typeof onReady === 'function') onReady();
       } else {
         // no stored name unexpectedly -> show input
@@ -1084,7 +1091,7 @@ function initPlayer(onReady) {
       window.playerName = v;
       ensurePlayerId();
       const dn = document.getElementById('playernameDisplay'); if (dn) dn.innerText = 'Player : ' + window.playerName;
-      try { if (typeof sendOnlineStatus === 'function') sendOnlineStatus(true); else if (typeof playerLogin === 'function') playerLogin(window.playerId, window.playerName, navigator.userAgent||'unknown'); } catch(e){}
+     try { sendPresence(true); } catch(e) {}
       if (typeof onReady === 'function') onReady();
     });
 
@@ -1098,10 +1105,10 @@ function initPlayer(onReady) {
     let name = '';
     const stored2 = (localStorage.getItem('bermooda_playerName') || '').trim();
     if (stored2) {
-      if (confirm(stored2 + " جان، آیا با همین نام بازی می‌کنی؟")) name = stored2;
+      if (confirm(stored2 + " عزیز، آیا با همین نام بازی می‌کنی؟")) name = stored2;
     }
     while (!name) {
-      const v = prompt("لطفاً نام خود را وارد کنید (نام نمی‌تواند 'ناشناس' باشد):") || '';
+      const v = prompt("لطفاً نام خود را وارد کنید :") || '';
       const t = v.trim();
       if (t && t.toLowerCase() !== 'ناشناس') { name = t; break; }
       alert("نام معتبر وارد کنید.");
@@ -1109,7 +1116,7 @@ function initPlayer(onReady) {
     window.playerName = name;
     try { localStorage.setItem('bermooda_playerName', name); } catch(e){}
     ensurePlayerId();
-    try { if (typeof sendOnlineStatus === 'function') sendOnlineStatus(true); else if (typeof playerLogin === 'function') playerLogin(window.playerId, window.playerName, navigator.userAgent||'unknown'); } catch(e){}
+   try { sendPresence(true); } catch(e) {}
     if (typeof onReady === 'function') onReady();
   }
 }
@@ -1119,8 +1126,95 @@ function initPlayer(onReady) {
 
 
 
+//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+let _offlineSent = false;      // جلوگیری از ارسال تکراری آفلاین
+let hiddenTimer = null;
+const HIDDEN_CLOSE_MS = 8000;  // میلی‌ثانیه تا زمانی که تب مخفی شد آفلاین بزن
+
+function forceOffline() {
+  if (_offlineSent) return;
+  _offlineSent = true;
+
+  try {
+    stopPresence(); // تابع خودت را فراخوانی کن
+
+    // ارسال مستقیم با sendBeacon در صورت وجود
+    const id = window.playerId || getOrCreatePlayerId();
+    const name = window.playerName || (localStorage.getItem('bermooda_playerName') || "ناشناس");
+
+    const params = new URLSearchParams();
+    params.append('action', 'presence');
+    params.append('playerId', id);
+    params.append('name', name);
+    params.append('online', '0');
+    params.append('device', navigator.userAgent || 'unknown');
+    params.append('lastSeen', new Date().toISOString());
+
+    const blob = new Blob([params.toString()], { type: 'application/x-www-form-urlencoded' });
+
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(SHEET_WEBAPP, blob);
+      return;
+    }
+
+    // fallback با fetch keepalive
+    fetch(SHEET_WEBAPP, { method: 'POST', body: params, keepalive: true }).catch(()=>{});
+
+  } catch (e) {
+    console.warn("forceOffline failed:", e);
+  }
+}
+
+// pagehide
+window.addEventListener('pagehide', () => {
+  forceOffline();
+}, { passive: true });
+
+// beforeunload
+window.addEventListener('beforeunload', () => {
+  forceOffline();
+}, { passive: true });
+
+// visibilitychange
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    if (hiddenTimer) clearTimeout(hiddenTimer);
+    hiddenTimer = setTimeout(() => {
+      forceOffline();
+    }, HIDDEN_CLOSE_MS);
+  } else {
+    if (hiddenTimer) { clearTimeout(hiddenTimer); hiddenTimer = null; }
+    // وقتی برگشت آنلاین شو
+    sendPresence(true);
+  }
+}, { passive: true });
+
+// blur
+window.addEventListener('blur', () => {
+  setTimeout(() => {
+    if (document.hidden || document.visibilityState === 'hidden') {
+      forceOffline();
+    }
+  }, 220);
+}, { passive: true });
+
+// freeze (Page Lifecycle API)
+window.addEventListener('freeze', () => {
+  forceOffline();
+}, { passive: true });
+
+//----------------------------------------------------------------------------------------------------------------------------------------------------
 
 
+
+function markPlaying() {
+  const body = new URLSearchParams();
+  body.append('action','playing');
+  body.append('playerId', window.playerId || getOrCreatePlayerId());
+  body.append('name', window.playerName || '');
+  fetch(SHEET_WEBAPP, { method: 'POST', body });
+}
 
 
 
@@ -1962,6 +2056,7 @@ if (airplaneContainer) {
 
   
   exitBtn.onclick = () => {
+  stopPresence();
   startBtn.style.display = "none";
   exitBtn.style.display = "none";
   window.close();
@@ -1988,7 +2083,7 @@ function drawLives() {
 
 async function showTopPlayerName() {
     try {
-        const response = await fetch("https://script.google.com/macros/s/AKfycbwI_rTPhUd9zIqe4yMZilhT4rGuSoU8O8x7gnzpYlLKJtTP_yalIXSrDUDOkXtDQMI/exec");
+        const response = await fetch("https://script.google.com/macros/s/AKfycbxTpvkLc2IgTYw3AKmVnBEXXyeVYVuax1YjVTHz1a5KIk4BjCEVoJ4GvisHS5e79f48/exec");
         const data = await response.json();
         data.sort((a, b) => b.score - a.score); // از بیشترین امتیاز به کمترین
         const topPlayer = data[0]?.name || "---";
@@ -2189,7 +2284,7 @@ async function sendScore() {
     body.append('playerId', id);
     body.append('name', name);
     body.append('score', String(finalScore));
-    body.append('device', navigator.userAgent);   // 🔥 لازم
+    body.append('device', getDeviceInfo());
 
     const res = await fetch(SHEET_WEBAPP, { method: 'POST', body });
     const json = await res.json().catch(()=>null);
@@ -2202,15 +2297,76 @@ async function sendScore() {
       scoreDiv.innerHTML = `امتیاز نهایی: ${finalScore}<br>رتبه: ${(json && json.rank) ? json.rank : '—'}`;
     }
 
-    stopPresence();
+
   } catch(err) {
     console.error("sendScore error:", err);
   }
 }
 
+function getDeviceInfo() {
+  const ua = navigator.userAgent;
 
+  let brand = "Unknown";
+  let model = "Unknown";
+  let os = "Unknown";
+  let browser = "Unknown";
 
+  // --- iPhone ---
+  // Example: iPhone; CPU iPhone OS 18_6 like Mac OS X
+  if (/iPhone/i.test(ua)) {
+    brand = "Apple";
+    os = ua.match(/iPhone OS ([\d_]+)/i)?.[1].replace(/_/g, ".") || "iOS";
+    model = "iPhone"; // در iOS مدل دقیق در User-Agent وجود ندارد! (از 2021 حذف شده)
+    browser = /Version\/([\d\.]+)/i.test(ua) ? "Safari" : "Safari (Unknown)";
+  }
 
+  // --- Android ---
+  if (/Android/i.test(ua)) {
+    os = ua.match(/Android\s([\d\.]+)/i)?.[1] || "Android";
+
+    // Samsung Detection
+    if (/Samsung|SM-|SAMSUNG/i.test(ua)) {
+      brand = "Samsung";
+      model =
+        ua.match(/SM-[A-Z0-9]+/i)?.[0] ||    // مثل SM-A515F → A51
+        ua.match(/Samsung ([A-Za-z0-9\-]+)/i)?.[1] ||
+        "Samsung";
+      
+      // ساده‌سازی مدل Samsung
+      if (model.startsWith("SM-")) {
+        const c = model.split("-")[1]; // مثلا A515F
+        if (/^[A-Z][0-9]+/i.test(c)) {
+          const prefix = c.match(/^[A-Z]/i)[0];
+          const num = c.match(/[0-9]+/)[0].substring(0, 2);
+          model = prefix + num; // A51
+        }
+      }
+    } 
+    
+    // Xiaomi
+    else if (/Mi\s?|Redmi|M2010|M210/i.test(ua)) {
+      brand = "Xiaomi";
+      model =
+        ua.match(/Mi\s?[A-Za-z0-9]+/i)?.[0] ||
+        ua.match(/Redmi\s?[A-Za-z0-9]+/i)?.[0] ||
+        "Xiaomi";
+    }
+
+    // Huawei
+    else if (/Huawei|HUAWEI/i.test(ua)) {
+      brand = "Huawei";
+      model =
+        ua.match(/HUAWEI\s?[A-Za-z0-9\-]+/i)?.[0] ||
+        "Huawei";
+    }
+
+    // Samsung Browser
+    if (/SamsungBrowser/i.test(ua)) browser = "Samsung Browser";
+    else if (/Chrome/i.test(ua)) browser = "Chrome";
+  }
+
+  return `${brand} ${model} / ${os} / ${browser}`;
+}
 
 
 
@@ -3052,6 +3208,7 @@ function startGame() {
   alreadySentScore = false;
   showTopPlayerName();
   showHelpImages();
+  markPlaying(); 
   lastFuelSpawn = 0; // ریست زمان سوخت
 
  // 🔹 هر بار شروع جدید، چرخه‌ی روز/شب از "روز کامل" آغاز شود
@@ -3156,37 +3313,6 @@ try {
   console.warn("خطا در پخش آهنگ بازی:", e);
 }
 
-
-//----------------------------------------------------------------------------------------------------------------------------------------------------
-
-// هوک‌ها — قرارشون بده بعد از initPlayer (یعنی وقتی playerId موجوده)
-window.addEventListener('pagehide', () => {
-  // pagehide معمولا قابل اعتماد برای ارسال نهاییه
-  stopPresence();
-});
-
-// قبل از بسته شدن صفحه (اختیاری؛ ممکنه کار نکنه روی بعضی مرورگرها)
-window.addEventListener('beforeunload', () => {
-  // سعی برای ارسال آفلاین سریع
-  stopPresence();
-});
-
-// مدیریت visibility به صورت غیر تهاجمی (استاپ/استارت پس از یک تایمر)
-window.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    // کاربر فقط تب رو عوض کرده — تایمر راه میندازیم
-    hiddenTimer = setTimeout(() => {
-      // اگر بعد از HIDDEN_TIMEOUT_MS هنوز مخفی بود، آفلاین بزن
-      sendPresence(false);
-    }, HIDDEN_TIMEOUT_MS);
-  } else {
-    // تب دوباره فعال شد؛ تایمر رو کنسل کن و آنلاین رو بزن
-    if (hiddenTimer) { clearTimeout(hiddenTimer); hiddenTimer = null; }
-    sendPresence(true);
-  }
-});
-
-//----------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 
@@ -3694,7 +3820,7 @@ document.getElementById("scoreBtn").addEventListener("click", () => {
   overlay.style.display = "flex";
   scoreList.innerHTML = "<div style='font-size:20px;color:#00FF00;'>در حال بارگذاری...</div>";
 
-  fetch("https://script.google.com/macros/s/AKfycbwI_rTPhUd9zIqe4yMZilhT4rGuSoU8O8x7gnzpYlLKJtTP_yalIXSrDUDOkXtDQMI/exec")
+  fetch("https://script.google.com/macros/s/AKfycbxTpvkLc2IgTYw3AKmVnBEXXyeVYVuax1YjVTHz1a5KIk4BjCEVoJ4GvisHS5e79f48/exec")
     .then(res => {
       if (!res.ok) throw new Error("network response not ok: " + res.status);
       return res.json();
