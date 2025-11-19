@@ -1169,17 +1169,20 @@ function forceOffline() {
 
 // pagehide
 window.addEventListener('pagehide', () => {
+stopPlaying();
   forceOffline();
 }, { passive: true });
 
 // beforeunload
 window.addEventListener('beforeunload', () => {
+stopPlaying();
   forceOffline();
 }, { passive: true });
 
 // visibilitychange
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
+stopPlaying();
     if (hiddenTimer) clearTimeout(hiddenTimer);
     hiddenTimer = setTimeout(() => {
       forceOffline();
@@ -1187,6 +1190,7 @@ document.addEventListener('visibilitychange', () => {
   } else {
     if (hiddenTimer) { clearTimeout(hiddenTimer); hiddenTimer = null; }
     // وقتی برگشت آنلاین شو
+   markPlaying();
     sendPresence(true);
   }
 }, { passive: true });
@@ -3386,6 +3390,7 @@ try {
 
 
 
+
 // 💀 پخش آهنگ پایان بازی با fade
 try {
   // 🔸 قطع نرم آهنگ اصلی بازی
@@ -3912,9 +3917,10 @@ function fetchScores(showLoading = false) {
 
 // نمایش امتیازات
 document.getElementById("scoreBtn").addEventListener("click", () => {
+  stopPlaying();
   document.getElementById("scoreOverlay").style.display = "flex";
   fetchScores(true); // نمایش پیام در حال بارگذاری فقط بار اول
-  scoreInterval = setInterval(() => fetchScores(false), 3000); // رفرش بدون پیام
+  scoreInterval = setInterval(() => fetchScores(false), 2000); // رفرش بدون پیام
 });
 
 // بستن پنجره
