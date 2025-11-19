@@ -3855,7 +3855,9 @@ function updateScores(data) {
     status: item.status || ""
   }));
 
-  // تعداد آنلاین
+   // مرتب‌سازی از بیشترین امتیاز به کمترین
+normalized.sort((a, b) => b.score - a.score);
+ 
   const onlineCount = normalized.filter(r => r.online === 1).length;
   countLabel.innerText = `تعداد نفرات آنلاین: ${onlineCount}`;
 
@@ -3980,6 +3982,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
 
