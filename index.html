@@ -3839,10 +3839,7 @@ document.getElementById("scoreBtn").addEventListener("click", () => {
       return res.json();
     })
     .then(data => {
-      // doGet ghadim: array of {name, score, date}
-      // doGet jadid: array of {playerId, name, score, device, online, lastSeen}
       if (!Array.isArray(data)) {
-        // try if server returned {players: [...]}
         if (data.players && Array.isArray(data.players)) data = data.players;
         else {
           scoreList.innerHTML = "<div style='color:red;'>⚠️ دادهٔ نامعتبر از سرور دریافت شد</div>";
@@ -3850,22 +3847,23 @@ document.getElementById("scoreBtn").addEventListener("click", () => {
         }
       }
 
-      // Normalize: ensure each row has name, score, online (default 0)
+      // Normalize: include status (from object or array position 6)
       const normalized = data.map(item => {
-        // if item is array-like (old doGet using columns) handle it
         if (Array.isArray(item)) {
           return {
             name: item[1] || item[0] || "ناشناس",
             score: Number(item[2] || item[1] || 0) || 0,
             online: Number(item[4] || 0) || 0,
-            lastSeen: item[5] || ""
+            lastSeen: item[5] || "",
+            status: (item[6] || "").toString().trim()
           };
         } else {
           return {
             name: item.name || item[1] || "ناشناس",
             score: Number(item.score || item[2] || 0) || 0,
             online: (item.online !== undefined) ? Number(item.online) : (item[4] !== undefined ? Number(item[4]) : 0),
-            lastSeen: item.lastSeen || item[5] || ""
+            lastSeen: item.lastSeen || item[5] || "",
+            status: (item.status || item.st || item[6] || "").toString().trim()
           };
         }
       });
@@ -3890,7 +3888,12 @@ document.getElementById("scoreBtn").addEventListener("click", () => {
       top.forEach((row, idx) => {
         const color = idx === 0 ? "#FFD700" : idx === 1 ? "#C0C0C0" : idx === 2 ? "#CD7F32" : "#FFF";
         const isOnline = Number(row.online) === 1;
-        const dot = `<span title="${isOnline ? '' : ''}"
+        const statusText = (row.status || "").toString().trim();
+
+        // اگر status برابر "در حال بازی" بود، نمایش داده شود
+        const statusLabel = (statusText === "در حال بازی") ? "در حال بازی" : "";
+
+        const dot = `<span title="${escapeHtml(statusLabel)}"
                           style="display:inline-block;width:12px;height:12px;border-radius:50%;
                                  background:${isOnline ? '#00c853' : '#111'};
                                  box-shadow:${isOnline ? '0 0 6px #00c853' : 'none'};
@@ -3900,7 +3903,7 @@ document.getElementById("scoreBtn").addEventListener("click", () => {
                   <td style="padding:6px;color:${color};font-weight:bold;">${idx+1}</td>
                   <td style="padding:6px;color:${color};">${escapeHtml(row.name)}</td>
                   <td style="padding:6px;color:${color};">${Number(row.score)||0}</td>
-                  <td style="padding:6px;color:${color};">${dot}${isOnline ? '' : ''}</td>
+                  <td style="padding:6px;color:${color};">${dot}<span style="vertical-align:middle;">${escapeHtml(statusLabel)}</span></td>
                  </tr>`;
       });
 
@@ -3917,7 +3920,7 @@ document.getElementById("closeScoreBtn").addEventListener("click", () => {
   document.getElementById("scoreOverlay").style.display = "none";
 });
 
-// simple escape
+// simple escape 
 function escapeHtml(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
