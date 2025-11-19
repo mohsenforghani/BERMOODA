@@ -587,6 +587,18 @@ position: absolute;
 }
 
 
+#stage-input {
+  display: flex;
+  flex-direction: column; /* همه عناصر زیر هم قرار می‌گیرند */
+  align-items: center;    /* وسط‌چین افقی */
+  gap: 12px;              /* فاصله بین input و button */
+}
+
+.btn-ok {
+  width: 140px;
+  padding: 10px;
+  font-size: 18px;
+}
 
 
 </style>
@@ -996,15 +1008,18 @@ function initPlayer(onReady) {
           </div>
         </div>
 
-        <div id="stage-input" style="display:none;">
-          <h3>نام خود را وارد کنید</h3>
-          <div class="input-row">
-            <input id="nameInput" type="text" placeholder="نام شما">
-            <button class="btn-ok">تأیید</button>
-          </div>
-          <div class="error" id="nameError">نام معتبر وارد کنید (نمی‌تواند «ناشناس» باشد)</div>
-        </div>
-      </div>
+       <div id="stage-input" style="display:none; text-align:center;">
+  <h3>نام خود را وارد کنید</h3>
+
+  <div class="input-row" style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+    <input id="nameInput" type="text" placeholder="نام شما" style="width: 200px; padding: 8px; font-size:16px;">
+    <button class="btn-ok" style="width:120px; padding:8px; font-size:16px;">تأیید</button>
+  </div>
+
+  <div class="error" id="nameError" style="margin-top:10px; color:red; display:none;">
+    نام معتبر وارد کنید (نمی‌تواند «ناشناس» باشد)
+  </div>
+</div>
     `;
     document.body.appendChild(modal);
 
