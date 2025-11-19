@@ -3832,88 +3832,110 @@ startBtn.addEventListener('click', () => {
 });
 
 
-let scoreInterval = null; // نگهدارنده interval
 
+function updateScores(data) {
+  const scoreList = document.getElementById("scoreList");
+  const tbody = scoreList.querySelector('tbody');
+  const wrapper = scoreList.querySelector('.table-wrap');
+  const countLabel = scoreList.querySelector('.score-count');
+
+  if (!tbody || !wrapper || !countLabel) return;
+
+  // نرمالایز داده‌ها
+  const normalized = data.map(item => ({
+    name: item.name || "ناشناس",
+    score: Number(item.score || 0),
+    online: Number(item.online || 0),
+    status: item.status || ""
+  }));
+
+  // تعداد آنلاین
+  const onlineCount = normalized.filter(r => r.online === 1).length;
+  countLabel.innerText = `تعداد نفرات آنلاین: ${onlineCount}`;
+
+  // حفظ اسکرول قبل از آپدیت
+  const prevScrollTop = wrapper.scrollTop;
+
+  // ایجاد ردیف‌ها
+  let rowsHtml = '';
+  normalized.forEach((row, idx) => {
+    const color = idx === 0 ? "#FFD700" : idx === 1 ? "#C0C0C0" : idx === 2 ? "#CD7F32" : "#FFF";
+    const dotColor = row.online ? "#00c853" : "#111";
+    rowsHtml += `
+      <tr style="background:rgba(255,255,255,0.03);">
+        <td style="color:${color};font-weight:bold;">${idx+1}</td>
+        <td style="color:${color};">${escapeHtml(row.name)}</td>
+        <td style="color:${color};">${row.score}</td>
+        <td style="color:${color};">
+          <span class="score-dot" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${dotColor};margin-right:8px;"></span>
+          ${escapeHtml(row.status)}
+        </td>
+      </tr>`;
+  });
+
+  tbody.innerHTML = rowsHtml;
+
+  // بازگرداندن اسکرول
+  requestAnimationFrame(() => {
+    wrapper.scrollTop = prevScrollTop;
+  });
+}
+
+
+
+
+
+let scoreInterval = null; 
 function fetchScores(showLoading = false) {
   const scoreList = document.getElementById("scoreList");
+
   if (showLoading) {
     scoreList.innerHTML = "<div style='font-size:20px;color:#00FF00;'>در حال بارگذاری...</div>";
   }
 
   fetch("https://script.google.com/macros/s/AKfycbzeeDAjXodJRww4E5xT-JmavLDrpR4PFSIqIEeGgMi6Adm0ASjs3U3sPEiP156hf_GU/exec")
-    .then(res => {
-      if (!res.ok) throw new Error("network response not ok: " + res.status);
-      return res.json();
-    })
+    .then(res => res.json())
     .then(data => {
       if (!Array.isArray(data)) {
         if (data.players && Array.isArray(data.players)) data = data.players;
-        else {
-          scoreList.innerHTML = "<div style='color:red;'>⚠️ دادهٔ نامعتبر از سرور دریافت شد</div>";
-          return;
-        }
+        else return;
       }
 
-      const normalized = data.map(item => {
-        if (Array.isArray(item)) {
-          return {
-            name: item[1] || item[0] || "ناشناس",
-            score: Number(item[2] || item[1] || 0) || 0,
-            online: Number(item[4] || 0) || 0,
-            lastSeen: item[5] || "",
-            status: (item[6] || "").toString().trim()
-          };
-        } else {
-          return {
-            name: item.name || item[1] || "ناشناس",
-            score: Number(item.score || item[2] || 0) || 0,
-            online: (item.online !== undefined) ? Number(item.online) : (item[4] !== undefined ? Number(item[4]) : 0),
-            lastSeen: item.lastSeen || item[5] || "",
-            status: (item.status || item.st || item[6] || "").toString().trim()
-          };
-        }
-      });
+      // یک بار ایجاد اسکلت جدول اگر وجود ندارد
+ if (!scoreList.querySelector('table')) {
+  scoreList.innerHTML = `
+    <div class="score-count" style="color:#00FF00;font-weight:bold;margin-bottom:8px;text-align:center;">
+      تعداد نفرات آنلاین: 0
+    </div>
+    <div class="table-wrap" style="max-height:400px;overflow-y:auto;">
+      <table style="width:100%;border-collapse:collapse;table-layout:fixed;text-align:center;">
+        <thead style="background:#111;color:#00FF00;position:sticky;top:0;z-index:2;">
+          <tr>
+            <th style="width:15%;">رتبه</th>
+            <th style="width:40%;">نام</th>
+            <th style="width:20%;">امتیاز</th>
+            <th style="width:25%;">وضعیت</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  `;
+}
 
-      const onlineCount = normalized.filter(r => Number(r.online) === 1).length;
-      normalized.sort((a,b) => (Number(b.score)||0) - (Number(a.score)||0));
-      const top = normalized.slice(0,100);
+      // بروزرسانی tbody و تعداد آنلاین
+      updateScores(data);
 
-      let html = `<div style="color:#00FF00;font-weight:bold;margin-bottom:8px;">تعداد نفرات آنلاین: ${onlineCount}</div>`;
-      html += `<table style="width:100%;border-collapse:collapse;">`;
-      html += `<tr style="background:#111;">
-                <th style="padding:6px;border-bottom:1px solid #00FF00;color:#00FF00;">رتبه</th>
-                <th style="padding:6px;border-bottom:1px solid #00FF00;color:#00FF00;">نام</th>
-                <th style="padding:6px;border-bottom:1px solid #00FF00;color:#00FF00;">امتیاز</th>
-                <th style="padding:6px;border-bottom:1px solid #00FF00;color:#00FF00;">وضعیت</th>
-               </tr>`;
-
-      top.forEach((row, idx) => {
-        const color = idx === 0 ? "#FFD700" : idx === 1 ? "#C0C0C0" : idx === 2 ? "#CD7F32" : "#FFF";
-        const isOnline = Number(row.online) === 1;
-        const statusLabel = (row.status === "در حال بازی") ? "در حال بازی" : "";
-
-        const dot = `<span title="${escapeHtml(statusLabel)}"
-                          style="display:inline-block;width:12px;height:12px;border-radius:50%;
-                                 background:${isOnline ? '#00c853' : '#111'};
-                                 box-shadow:${isOnline ? '0 0 6px #00c853' : 'none'};
-                                 vertical-align:middle;margin-right:8px;"></span>`;
-
-        html += `<tr style="background:rgba(255,255,255,0.03);">
-                  <td style="padding:6px;color:${color};font-weight:bold;">${idx+1}</td>
-                  <td style="padding:6px;color:${color};">${escapeHtml(row.name)}</td>
-                  <td style="padding:6px;color:${color};">${Number(row.score)||0}</td>
-                  <td style="padding:6px;color:${color};">${dot}${escapeHtml(statusLabel)}</td>
-                 </tr>`;
-      });
-
-      html += "</table>";
-      scoreList.innerHTML = html;
     })
     .catch(err => {
       console.error(err);
       scoreList.innerHTML = "<div style='color:red;'>⚠️ خطا در دریافت اطلاعات</div>";
     });
 }
+
+
+
+
 
 // نمایش امتیازات
 document.getElementById("scoreBtn").addEventListener("click", () => {
@@ -3952,9 +3974,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
-
-
 
 
 
