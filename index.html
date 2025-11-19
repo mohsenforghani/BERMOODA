@@ -3827,11 +3827,13 @@ startBtn.addEventListener('click', () => {
 });
 
 
-document.getElementById("scoreBtn").addEventListener("click", () => {
-  const overlay = document.getElementById("scoreOverlay");
+let scoreInterval = null; // نگهدارنده interval
+
+function fetchScores(showLoading = false) {
   const scoreList = document.getElementById("scoreList");
-  overlay.style.display = "flex";
-  scoreList.innerHTML = "<div style='font-size:20px;color:#00FF00;'>در حال بارگذاری...</div>";
+  if (showLoading) {
+    scoreList.innerHTML = "<div style='font-size:20px;color:#00FF00;'>در حال بارگذاری...</div>";
+  }
 
   fetch("https://script.google.com/macros/s/AKfycbzeeDAjXodJRww4E5xT-JmavLDrpR4PFSIqIEeGgMi6Adm0ASjs3U3sPEiP156hf_GU/exec")
     .then(res => {
@@ -3847,7 +3849,6 @@ document.getElementById("scoreBtn").addEventListener("click", () => {
         }
       }
 
-      // Normalize: include status (from object or array position 6)
       const normalized = data.map(item => {
         if (Array.isArray(item)) {
           return {
@@ -3868,14 +3869,10 @@ document.getElementById("scoreBtn").addEventListener("click", () => {
         }
       });
 
-      // count online
       const onlineCount = normalized.filter(r => Number(r.online) === 1).length;
-
-      // sort by score desc and slice top 100
       normalized.sort((a,b) => (Number(b.score)||0) - (Number(a.score)||0));
       const top = normalized.slice(0,100);
 
-      // build html
       let html = `<div style="color:#00FF00;font-weight:bold;margin-bottom:8px;">تعداد نفرات آنلاین: ${onlineCount}</div>`;
       html += `<table style="width:100%;border-collapse:collapse;">`;
       html += `<tr style="background:#111;">
@@ -3888,10 +3885,7 @@ document.getElementById("scoreBtn").addEventListener("click", () => {
       top.forEach((row, idx) => {
         const color = idx === 0 ? "#FFD700" : idx === 1 ? "#C0C0C0" : idx === 2 ? "#CD7F32" : "#FFF";
         const isOnline = Number(row.online) === 1;
-        const statusText = (row.status || "").toString().trim();
-
-        // اگر status برابر "در حال بازی" بود، نمایش داده شود
-        const statusLabel = (statusText === "در حال بازی") ? "در حال بازی" : "";
+        const statusLabel = (row.status === "در حال بازی") ? "در حال بازی" : "";
 
         const dot = `<span title="${escapeHtml(statusLabel)}"
                           style="display:inline-block;width:12px;height:12px;border-radius:50%;
@@ -3903,7 +3897,7 @@ document.getElementById("scoreBtn").addEventListener("click", () => {
                   <td style="padding:6px;color:${color};font-weight:bold;">${idx+1}</td>
                   <td style="padding:6px;color:${color};">${escapeHtml(row.name)}</td>
                   <td style="padding:6px;color:${color};">${Number(row.score)||0}</td>
-                  <td style="padding:6px;color:${color};">${dot}<span style="vertical-align:middle;">${escapeHtml(statusLabel)}</span></td>
+                  <td style="padding:6px;color:${color};">${dot}${escapeHtml(statusLabel)}</td>
                  </tr>`;
       });
 
@@ -3914,16 +3908,29 @@ document.getElementById("scoreBtn").addEventListener("click", () => {
       console.error(err);
       scoreList.innerHTML = "<div style='color:red;'>⚠️ خطا در دریافت اطلاعات</div>";
     });
+}
+
+// نمایش امتیازات
+document.getElementById("scoreBtn").addEventListener("click", () => {
+  document.getElementById("scoreOverlay").style.display = "flex";
+  fetchScores(true); // نمایش پیام در حال بارگذاری فقط بار اول
+  scoreInterval = setInterval(() => fetchScores(false), 3000); // رفرش بدون پیام
 });
 
+// بستن پنجره
 document.getElementById("closeScoreBtn").addEventListener("click", () => {
   document.getElementById("scoreOverlay").style.display = "none";
+  if (scoreInterval) {
+    clearInterval(scoreInterval);
+    scoreInterval = null;
+  }
 });
 
-// simple escape 
+// escape helper
 function escapeHtml(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
 
 
 addTouchAndClick("shoot",shootBullets)
