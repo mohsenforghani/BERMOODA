@@ -1,0 +1,72 @@
+/* پنجرهٔ اصلی چت */
+.private-chat-box {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 50vw;           /* نصف عرض گوشی */
+  height: 50vh;          /* نصف ارتفاع گوشی */
+  background: rgba(0, 102, 255, 0.6); /* آبی با opacity 60% */
+  backdrop-filter: blur(4px);
+  border-radius: 16px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.4);
+  display: none;
+  flex-direction: column;
+  z-index: 99999;
+  padding: 10px;
+}
+
+/* عنوان بالای چت */
+.private-chat-header {
+  font-size: 18px;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 10px;
+}
+
+/* منطقه نمایش پیام‌ها */
+.private-chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 5px;
+  color: white;
+}
+
+/* پیام فرستنده */
+.private-chat-msg.me {
+  text-align: right;
+  background: rgba(255,255,255,0.2);
+  margin: 5px 0;
+  padding: 6px;
+  border-radius: 8px;
+}
+
+/* پیام دریافت‌شده */
+.private-chat-msg.other {
+  text-align: left;
+  background: rgba(0,0,0,0.2);
+  margin: 5px 0;
+  padding: 6px;
+  border-radius: 8px;
+}
+
+/* ورودی پیام */
+.private-chat-input-container {
+  display: flex;
+}
+
+.private-chat-input {
+  flex: 1;
+  padding: 6px;
+  border-radius: 8px;
+  border: none;
+}
+
+.private-chat-send {
+  margin-left: 6px;
+  padding: 8px 14px;
+  border: none;
+  background: #0047cc;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
