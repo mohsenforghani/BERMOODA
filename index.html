@@ -1228,7 +1228,7 @@ async function markMessagesAsRead(myId, otherId) {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
             action: "markread",
-            playerId: myId,   // مطابق با آنچه سرور می‌خواند
+            myId: myId,       // مطابق با سرور
             otherId: otherId
         })
     });
