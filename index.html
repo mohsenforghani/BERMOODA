@@ -1286,7 +1286,7 @@ function stopPlaying() {
 
 
 
-window.lastChatTimestamp = 0;
+
 
 // ارسال پیام (فرم-انکد)
 async function sendChatMessage(message) {
@@ -1316,26 +1316,9 @@ async function fetchChatMessages(callback) {
   body.append('playerId', window.chatSenderId);
   body.append('peerId', window.chatReceiverId);
 
-  try {
-    const res = await fetch(SHEET_WEBAPP, { method: 'POST', body });
-    const data = await res.json().catch(()=>null);
-    if (!Array.isArray(data)) {
-      callback([]);
-      return;
-    }
-
-    // مرتب‌سازی صعودی بر اساس timestamp (اگر ts موجود نباشد، سعی کن timestamp یا fallback)
-    data.sort((a,b) => {
-      const ta = new Date(a.ts || a.timestamp || a.date || 0).getTime();
-      const tb = new Date(b.ts || b.timestamp || b.date || 0).getTime();
-      return ta - tb;
-    });
-
-    callback(data);
-  } catch (err) {
-    console.error("خطا در fetchChatMessages:", err);
-    callback([]);
-  }
+  const res = await fetch(SHEET_WEBAPP, { method: 'POST', body });
+  const data = await res.json().catch(()=>null);
+  callback(Array.isArray(data) ? data : []);
 }
 
 
@@ -1351,7 +1334,7 @@ async function fetchChatMessages(callback) {
 
 
 
-
+// تابع باز کردن پنجره چت
 function openChatWindow() {
     const overlay = document.getElementById('chatOverlay');
     const title = document.getElementById('chatTitle');
@@ -1362,42 +1345,25 @@ function openChatWindow() {
         title.innerText = `Chat with ${window.chatReceiverName}`;
     }
 
-    // آماده‌سازی حافظه محلی پیام‌ها (برای جلوگیری از تکراری‌ها)
-    window.chatHistory = new Set(); // کلیدهای سرور: `${ts}|${fromId}`
-    // اگر خواستی پیام‌های قبلی هم نگه داشته شوند، این خط را حذف کن.
-    const chatMessagesDiv = document.getElementById('chatMessages');
-    if (chatMessagesDiv) chatMessagesDiv.innerHTML = '';
-
     document.getElementById('chatInput').focus();
 }
 
 // ارسال پیام
 
-document.getElementById('chatSendBtn').addEventListener('click', async () => {
+document.getElementById('chatSendBtn').addEventListener('click', () => {
     const input = document.getElementById('chatInput');
     const msg = input.value.trim();
     if (!msg) return;
 
+    // اضافه کردن پیام به پنجره چت در کلاینت
     const messages = document.getElementById('chatMessages');
-
-    // ساخت المان موقتی (pending) برای نمایش فوری
-    const pendingDiv = document.createElement('div');
-    pendingDiv.setAttribute('data-pending','1');
-    pendingDiv.dataset.msg = msg;
-    pendingDiv.dataset.sender = String(window.chatSenderId || '');
-    pendingDiv.innerHTML = `<b>${escapeHtml(window.chatSenderName)}:</b> ${escapeHtml(msg)} <span style="opacity:.6;font-size:12px;">(sending...)</span>`;
-    messages.appendChild(pendingDiv);
+    const div = document.createElement('div');
+    div.innerHTML = `<b>${escapeHtml(window.chatSenderName)}:</b> ${escapeHtml(msg)}`;
+    messages.appendChild(div);
     messages.scrollTop = messages.scrollHeight;
 
-    // ارسال پیام به سرور (بدون انتظار برای بازگشت)
-    try {
-      await sendChatMessage(msg);
-    } catch(err) {
-      console.error("خطا در ارسال پیام:", err);
-      // می‌توانیم المان pending را علامت خطا بزنیم:
-      pendingDiv.innerHTML = `<b>${escapeHtml(window.chatSenderName)}:</b> ${escapeHtml(msg)} <span style="color:red;font-size:12px;">(failed)</span>`;
-      // یا گزینهٔ retry اضافه کنیم — بنا بر خواست تو
-    }
+    // ارسال پیام به سرور
+    sendChatMessage(msg);
 
     console.log("Message sent:");
     console.log("Sender:", window.chatSenderName, window.chatSenderId);
@@ -1410,64 +1376,16 @@ document.getElementById('chatSendBtn').addEventListener('click', async () => {
 
 
 
-
-// helper داخلی: جستجوی المان pending با متن و فرستنده
-function findPendingElement(chatMessagesDiv, text, senderId) {
-  const pendingNodes = chatMessagesDiv.querySelectorAll('div[data-pending="1"]');
-  for (let n of pendingNodes) {
-    if ((n.dataset.msg === text) && (String(n.dataset.sender) === String(senderId))) return n;
-  }
-  return null;
-}
-
-const CHAT_POLL_INTERVAL_MS = 1000; // تغییر به 1000 میلی‌ثانیه (قابل تنظیم)
-
+// دریافت پیام‌ها هر 0.30 ثانیه
 setInterval(() => {
     fetchChatMessages(messages => {
         const chatMessagesDiv = document.getElementById('chatMessages');
-        if (!chatMessagesDiv) return;
-
-        // اطمینان از وجود مجموعه history
-        if (!window.chatHistory) window.chatHistory = new Set();
-
-        messages.forEach(m => {
-            // انتظار اینکه سرور فیلد ts را برگرداند؛ اگر نامش متفاوت است، سعی کن timestamp یا date را استفاده کنی
-            const ts = m.ts || m.timestamp || m.date || "";
-            const fromId = m.fromId || m.from || "";
-            const fromName = m.fromName || m.fromname || "";
-            const messageText = m.message || m.msg || m.text || "";
-
-            // کلید یکتا برای پیام‌های سرور
-            const key = `${ts}|${fromId}`;
-
-            // اگر قبلاً این پیام را اضافه کرده‌ایم نادیده بگیر
-            if (window.chatHistory.has(key)) return;
-
-            // اگر یک pending محلی داریم با همین متن و فرستنده — جایگزینش کن
-            const pending = findPendingElement(chatMessagesDiv, messageText, fromId);
-            if (pending) {
-              // جایگزینی محتوای pending با نسخهٔ رسمی سرور
-              pending.removeAttribute('data-pending');
-              delete pending.dataset.msg;
-              delete pending.dataset.sender;
-              pending.innerHTML = `<strong>${escapeHtml(fromName)}:</strong> ${escapeHtml(messageText)}`;
-              // اکنون این پیام را علامت‌گذاری کن تا دوباره اضافه نشود
-              window.chatHistory.add(key);
-              return;
-            }
-
-            // در غیر این صورت، المان جدید بساز و اضافه کن
-            const div = document.createElement('div');
-            div.innerHTML = `<strong>${escapeHtml(fromName)}:</strong> ${escapeHtml(messageText)}`;
-            chatMessagesDiv.appendChild(div);
-            window.chatHistory.add(key);
-        });
-
-        // اسکرول به انتها فقط اگر پایین صفحه بود یا جدید اضافه شده
+       chatMessagesDiv.innerHTML = messages.map(m => 
+    `<div><strong>${m.fromName}:</strong> ${escapeHtml(m.message)}</div>`
+).join('');
         chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
     });
-}, CHAT_POLL_INTERVAL_MS);
-
+}, 300);
 
 
 
@@ -4359,11 +4277,5 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
-
-
-
-
-
 
 
