@@ -831,6 +831,27 @@ canvas.height = window.innerHeight;
 
 
 
+// ===========================
+// مرحله ۲: متغیرهای سراسری چت
+// ===========================
+
+// فرستنده همیشه بازیکن فعلی است
+// این مقدار پس از اجرای initPlayer() آماده می‌شود
+window.chatSenderId = null;
+window.chatSenderName = null;
+
+// بازیکنی که روی نامش کلیک شده و قرار است به او پیام بدهیم
+window.chatReceiverId = null;
+window.chatReceiverName = null;
+
+// پرچم باز بودن پنجره چت
+window.chatWindowOpen = false;
+
+
+
+
+
+
 // 🎶 آهنگ پس‌زمینه بازی
 let gameMusic = new Audio("sounds/BermoodaSound.mp3"); // مسیر آهنگ را تغییر بده
 gameMusic.loop = true;     // آهنگ تکرارشونده
@@ -862,7 +883,7 @@ let lastOverheatTime = 0;
 const heatBar = document.getElementById("heatBar");
 
 
-const SHEET_WEBAPP = 'https://script.google.com/macros/s/AKfycbylMc1OGZaBFOIC4RhG1cSQePYn58-FOPyYrZ8L1PKwFlhhpcw42KYTtP3SlAxtH6Iv/exec';
+const SHEET_WEBAPP = 'https://script.google.com/macros/s/AKfycbzZZ2aTt94FpulEoNxbrVwyESt5ZvWtN_orUiH_fo42OGXS6-rlyqXd66JfJkoYyAjT/exec';
 
 
 let presenceIntervalId = null;
@@ -1207,12 +1228,13 @@ async function markMessagesAsRead(myId, otherId) {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
             action: "markread",
-            senderId: otherId,   // کسی که پیام فرستاده
-            receiverId: myId     // کسی که پیام‌ها را می‌خواند (کاربر فعلی)
+            playerId: myId,   // مطابق با آنچه سرور می‌خواند
+            otherId: otherId
         })
     });
 
     const data = await res.json();
+    console.log("markread response:", data);
     return data.ok === true;
 }
 
@@ -1381,23 +1403,22 @@ async function fetchChatMessages(callback) {
 
 
 // تابع باز کردن پنجره چت
-function openChatWindow() {
+async function openChatWindow() {
     document.getElementById('chatOverlay').style.display = 'flex';
     document.getElementById('chatComposer').style.display = 'flex'; 
     const title = document.getElementById('chatTitle');
-    overlay.style.display = 'flex';
 
-    // نمایش نام گیرنده
     if (window.chatReceiverName) {
         title.innerText = `Chat with ${window.chatReceiverName}`;
     }
 
     document.getElementById('chatInput').focus();
 
-// if (window.playerId && window.chatReceiverId) {
-      //  await markMessagesAsRead(window.playerId, window.chatReceiverId);
-  //  }
+    if (window.playerId && window.chatReceiverId) {
+        await markMessagesAsRead(window.playerId, window.chatReceiverId);
+    }
 }
+
 
 // ارسال پیام
 
@@ -2008,21 +2029,7 @@ let shootInterval = null;
 const shootBtn = document.getElementById("shoot");
 
 
-// ===========================
-// مرحله ۲: متغیرهای سراسری چت
-// ===========================
 
-// فرستنده همیشه بازیکن فعلی است
-// این مقدار پس از اجرای initPlayer() آماده می‌شود
-window.chatSenderId = null;
-window.chatSenderName = null;
-
-// بازیکنی که روی نامش کلیک شده و قرار است به او پیام بدهیم
-window.chatReceiverId = null;
-window.chatReceiverName = null;
-
-// پرچم باز بودن پنجره چت
-window.chatWindowOpen = false;
 
 
 
