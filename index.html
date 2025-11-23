@@ -1289,7 +1289,7 @@ function stopPlaying() {
 
 
 // ارسال پیام (فرم-انکد)
-async function sendChatMessage(message) {
+async function sendChatMessage(message, clientId) {
   if (!window.chatSenderId || !window.chatReceiverId) return;
   if (!message || !message.trim()) return;
 
@@ -1298,19 +1298,20 @@ async function sendChatMessage(message) {
   body.append('fromId', window.chatSenderId);
   body.append('fromName', window.chatSenderName || "");
   body.append('toId', window.chatReceiverId);
-  body.append('toName', window.chatReceiverName || "");  
+  body.append('toName', window.chatReceiverName || "");
   body.append('message', message.trim());
+  if (clientId) body.append('clientId', clientId);  // اضافه شد
 
   const res = await fetch(SHEET_WEBAPP, { method: 'POST', body });
   const json = await res.json().catch(()=>null);
-  return json;
+  return json; // json شامل {ok:true, clientId:clientId, ts:timestamp} خواهد بود
 }
 
 
 
-// دریافت پیام‌ها (فرم-انکد)
 async function fetchChatMessages(callback) {
   if (!window.chatSenderId || !window.chatReceiverId) return;
+  
   const body = new URLSearchParams();
   body.append('action','fetchchat');
   body.append('playerId', window.chatSenderId);
@@ -1318,8 +1319,12 @@ async function fetchChatMessages(callback) {
 
   const res = await fetch(SHEET_WEBAPP, { method: 'POST', body });
   const data = await res.json().catch(()=>null);
+
+  // اطمینان از آرایه بودن داده
   callback(Array.isArray(data) ? data : []);
 }
+
+
 
 
 
@@ -1350,42 +1355,63 @@ function openChatWindow() {
 
 // ارسال پیام
 
-document.getElementById('chatSendBtn').addEventListener('click', () => {
+document.getElementById('chatSendBtn').addEventListener('click', async () => {
     const input = document.getElementById('chatInput');
     const msg = input.value.trim();
     if (!msg) return;
 
-    // اضافه کردن پیام به پنجره چت در کلاینت
-    const messages = document.getElementById('chatMessages');
-    const div = document.createElement('div');
-    div.innerHTML = `<b>${escapeHtml(window.chatSenderName)}:</b> ${escapeHtml(msg)}`;
-    messages.appendChild(div);
-    messages.scrollTop = messages.scrollHeight;
+    const messagesDiv = document.getElementById('chatMessages');
 
-    // ارسال پیام به سرور
-    sendChatMessage(msg);
+    // ایجاد clientId یکتا برای پیام
+    const clientId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6);
 
-    console.log("Message sent:");
-    console.log("Sender:", window.chatSenderName, window.chatSenderId);
-    console.log("Receiver:", window.chatReceiverName, window.chatReceiverId);
-    console.log("Text:", msg);
+    // نمایش پیام موقت در کلاینت (localecho / pending)
+    const pendingDiv = document.createElement('div');
+    pendingDiv.dataset.pending = '1';
+    pendingDiv.dataset.clientId = clientId;
+    pendingDiv.dataset.sender = String(window.chatSenderId || '');
+    pendingDiv.innerHTML = `<b>${escapeHtml(window.chatSenderName || '')}:</b> ${escapeHtml(msg)} <span style="opacity:.6;font-size:12px;">(sending...)</span>`;
+    messagesDiv.appendChild(pendingDiv);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
 
     input.value = '';
+
+    // ارسال پیام به سرور
+    const json = await sendChatMessage(msg, clientId); 
+
+    if (json && json.ok) {
+        // پس از تایید سرور، پیام pending را به حالت عادی تبدیل کن
+        pendingDiv.dataset.pending = '0';
+        pendingDiv.innerHTML = `<b>${escapeHtml(window.chatSenderName || '')}:</b> ${escapeHtml(msg)}`;
+    } else {
+        // اگر ارسال با خطا مواجه شد، وضعیت را نشان بده
+        pendingDiv.innerHTML = `<b>${escapeHtml(window.chatSenderName || '')}:</b> ${escapeHtml(msg)} <span style="color:red;">(failed)</span>`;
+    }
 });
 
 
 
 
-// دریافت پیام‌ها هر 0.30 ثانیه
+
+// دریافت پیام‌ها هر 2 ثانیه
 setInterval(() => {
     fetchChatMessages(messages => {
         const chatMessagesDiv = document.getElementById('chatMessages');
-       chatMessagesDiv.innerHTML = messages.map(m => 
-    `<div><strong>${m.fromName}:</strong> ${escapeHtml(m.message)}</div>`
-).join('');
+
+        messages.forEach(m => {
+            // بررسی اینکه آیا پیام قبلاً نمایش داده شده یا نه
+            if (!chatMessagesDiv.querySelector(`[data-client-id="${m.clientId || ''}"]`)) {
+                const div = document.createElement('div');
+                div.dataset.clientId = m.clientId || '';
+                div.innerHTML = `<b>${escapeHtml(m.fromName)}:</b> ${escapeHtml(m.message)}`;
+                chatMessagesDiv.appendChild(div);
+            }
+        });
+
         chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
     });
-}, 300);
+}, 2000);
+
 
 
 
