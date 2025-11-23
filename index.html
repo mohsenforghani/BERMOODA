@@ -862,7 +862,7 @@ let lastOverheatTime = 0;
 const heatBar = document.getElementById("heatBar");
 
 
-const SHEET_WEBAPP = 'https://script.google.com/macros/s/AKfycbwvVG5hZMJZ5SIJ8WNXwzLNvTxbviXe39gRMHE-C1_qA1x9fLqC1AteAw_28LpOl9U6/exec';
+const SHEET_WEBAPP = 'https://script.google.com/macros/s/AKfycbylMc1OGZaBFOIC4RhG1cSQePYn58-FOPyYrZ8L1PKwFlhhpcw42KYTtP3SlAxtH6Iv/exec';
 
 
 let presenceIntervalId = null;
@@ -1185,6 +1185,38 @@ function initPlayer(onReady) {
 
 
 
+async function checkUnreadMessages(playerId) {
+    const res = await fetch(SHEET_WEBAPP, {
+        method: "POST",
+        body: new URLSearchParams({
+            action: "unreadcount",
+            playerId: playerId
+        })
+    });
+
+    const data = await res.json();
+    if (data.ok) {
+        return data.unread;
+    }
+    return 0;
+}
+
+async function markMessagesAsRead(myId, otherId) {
+    const res = await fetch(SHEET_WEBAPP, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+            action: "markread",
+            senderId: otherId,   // کسی که پیام فرستاده
+            receiverId: myId     // کسی که پیام‌ها را می‌خواند (کاربر فعلی)
+        })
+    });
+
+    const data = await res.json();
+    return data.ok === true;
+}
+
+
 
 //----------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1361,6 +1393,10 @@ function openChatWindow() {
     }
 
     document.getElementById('chatInput').focus();
+
+// if (window.playerId && window.chatReceiverId) {
+      //  await markMessagesAsRead(window.playerId, window.chatReceiverId);
+  //  }
 }
 
 // ارسال پیام
@@ -2053,16 +2089,26 @@ function preloadImages(callback) {
         // نمایش ادامه روند شروع بازی
         setTimeout(() => {
           getOrCreatePlayerId();
-        
-         initPlayer(() => {
-         startPresence(); // شروع وضعیت آنلاین بازیکن
-          window.chatSenderId = window.playerId;
-          window.chatSenderName = window.playerName;
-         callback();      // ادامه روند شروع بازی بعد از انتخاب نام
-           });
+       
 
-          document.getElementById("playernameDisplay").innerText = 'Player : ' + playerName;
-          
+
+ initPlayer(async () => {
+    startPresence(); // شروع وضعیت آنلاین بازیکن
+    window.chatSenderId = window.playerId;
+    window.chatSenderName = window.playerName;
+
+    // نمایش نام بازیکن
+    document.getElementById("playernameDisplay").innerText = 'Player : ' + window.playerName;
+
+    // بررسی پیام‌های خوانده‌نشده
+    const unread = await checkUnreadMessages(window.playerId);
+    if (unread > 0) {
+        alert("شما " + unread + " پیام خوانده‌نشده دارید!");
+    }
+
+    callback(); // ادامه روند شروع بازی
+});
+
         }, 400);
       }
     };
