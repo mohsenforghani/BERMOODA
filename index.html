@@ -2110,7 +2110,7 @@ function preloadImages(callback) {
     // بررسی پیام‌های خوانده‌نشده
     const unread = await checkUnreadMessages(window.playerId);
     if (unread > 0) {
-       // alert("شما " + unread + " پیام خوانده‌نشده دارید!");
+       alert("شما " + unread + " پیام خوانده‌نشده دارید!");
     }
 
     callback(); // ادامه روند شروع بازی
@@ -4346,5 +4346,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
