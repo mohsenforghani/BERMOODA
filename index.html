@@ -916,27 +916,11 @@ let lastOverheatTime = 0;
 const heatBar = document.getElementById("heatBar");
 
 
-const SHEET_WEBAPP = 'https://script.google.com/macros/s/AKfycbw1H6YdcKO2L55B3dgRKDLjmv8TJ4fd13CoDMceOXklGiXPPo9IFgPmGmW5Vqf17_RE/exec';
+const SHEET_WEBAPP = 'https://script.google.com/macros/s/AKfycbzPI5V8LCbQW1aSee0gBpwz-T8YdPXbKFmWeBgU5V_mWJQwqowJRU88yKfEfrJ9EUsg/exec';
 
 
 let presenceIntervalId = null;
 let alreadySentScore = false;
-
-
-function findRowById(playerId) {
-  const playersSheet = ss.getSheetByName("Players");
-  const dataRange = playersSheet.getDataRange();
-  const values = dataRange.getValues();
-  
-  for (let i = 1; i < values.length; i++) {
-    const row = values[i];
-    if (row[0] === playerId) {  // فرض بر این است که شناسه بازیکن در ستون اول (A) قرار دارد
-      return i + 1;  // ردیف را 1-based بر می‌گرداند
-    }
-  }
-  return -1;  // اگر شناسه پیدا نشد
-}
-
 
 
 
@@ -1695,22 +1679,37 @@ function stopPlaying() {
 
 
 // ارسال پیام (فرم-انکد)
-async function sendChatMessage(message) {
+// در بالای فایل یک helper برای uuid (اگر crypto.randomUUID در دسترس باشه ازش استفاده کن)
+function makeUUID() {
+  if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random()*16|0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
+// بروزرسانی sendChatMessage:
+async function sendChatMessage(message, opts = {}) {
   if (!window.chatSenderId || !window.chatReceiverId) return;
   if (!message || !message.trim()) return;
+
+  const msgId = opts.msgId || makeUUID();
 
   const body = new URLSearchParams();
   body.append('action','chat');
   body.append('fromId', window.chatSenderId);
   body.append('fromName', window.chatSenderName || "");
   body.append('toId', window.chatReceiverId);
-  body.append('toName', window.chatReceiverName || "");  
+  body.append('toName', window.chatReceiverName || "");
   body.append('message', message.trim());
+  body.append('msgId', msgId);
 
   const res = await fetch(SHEET_WEBAPP, { method: 'POST', body });
   const json = await res.json().catch(()=>null);
-  return json;
+  // سرور می‌تواند در پاسخ ts و msgId را برگرداند؛ اگر برگردوند می‌توانی آن را استفاده کنی
+  return Object.assign(json||{}, { msgId });
 }
+
 
 
 
@@ -1761,12 +1760,12 @@ async function fetchChatMessagesAndRender() {
       }
 
       // اضافه به کش داخلی
-      state.messages.push({
-        ts: tsNum,
-        fromId: m.fromId || '',
-        fromName: m.fromName || '',
-        toId: m.toId || '',
-        message: m.message || ''
+       state.messages.push({
+       ts: tsNum,
+       fromId: m.fromId || '',
+       fromName: m.fromName || '',
+       toId: m.toId || '',
+       message: m.message || ''
       });
 
       // append به DOM
@@ -1828,55 +1827,53 @@ async function openChatWindow() {
 // ارسال پیام
 
 document.getElementById('chatSendBtn').addEventListener('click', async () => {
-    const input = document.getElementById('chatInput');
-    const msg = input.value.trim();
-    if (!msg) return;
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg) return;
 
-    const chatKey = `${window.chatSenderId}_${window.chatReceiverId}`;
-    if (!window.chatState) window.chatState = {};
-    if (!window.chatState[chatKey]) {
-        window.chatState[chatKey] = { lastTs: 0, seen: new Set(), messages: [], fetching: false };
+  const chatKey = `${window.chatSenderId}_${window.chatReceiverId}`;
+  if (!window.chatState) window.chatState = {};
+  if (!window.chatState[chatKey]) window.chatState[chatKey] = { lastTs: 0, seen: new Set(), messages: [], fetching: false };
+  const state = window.chatState[chatKey];
+
+  const msgId = makeUUID();
+
+  // ساخت پیام محلی (با msgId) و اضافه به DOM
+  const nowTs = Date.now();
+  //const newMsg = { ts: nowTs, fromId: window.chatSenderId, fromName: window.chatSenderName, toId: window.chatReceiverId, message: msg, msgId };
+  //state.messages.push(newMsg);
+
+  const idKey = `id:${msgId}`;          // کلید یکتا براساس msgId
+  state.seen.add(idKey);                // از اضافه شدن دوباره جلوگیری کن
+
+  const chatMessagesDiv = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.dataset.msgId = idKey;
+  //div.innerHTML = `<strong>${escapeHtml(window.chatSenderName)}:</strong> ${escapeHtml(msg)}`;
+  chatMessagesDiv.appendChild(div);
+  chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+
+  input.value = '';
+
+  // ارسال با msgId و انتظار پاسخ (در صورت برگشت ts می‌توان lastTs را اصلاح کرد)
+  try {
+    const resp = await sendChatMessage(msg, { msgId });
+    if (resp && resp.ts) {
+      // اگر سرور ts معتبر برگرداند، آن را در state.lastTs قرار بده (ایمن)
+      state.lastTs = Math.max(state.lastTs || 0, Number(resp.ts) || 0);
     }
-    const state = window.chatState[chatKey];
-
-    // ایجاد object پیام
-    const nowTs = Date.now();
-    const newMsg = {
-        ts: nowTs,
-        fromId: window.chatSenderId,
-        fromName: window.chatSenderName,
-        toId: window.chatReceiverId,
-        message: msg
-    };
-
-    // اضافه کردن به cache و DOM
-    state.messages.push(newMsg);
-    const idKey = `${nowTs}|${window.chatSenderId}|${msg.slice(0,50)}`;
-    state.seen.add(idKey);
-
-    const chatMessagesDiv = document.getElementById('chatMessages');
-    const div = document.createElement('div');
-    div.dataset.msgId = idKey;
-    div.innerHTML = `<strong>${escapeHtml(window.chatSenderName)}:</strong> ${escapeHtml(msg)}`;
-    chatMessagesDiv.appendChild(div);
-    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-
-    input.value = '';
-
-    // ارسال پیام به سرور
-    try {
-        await sendChatMessage(msg);
-    } catch(e) {
-        console.error("sendChatMessage error:", e);
-    }
+  } catch(e) {
+    console.error("sendChatMessage error:", e);
+  }
 });
 
 
 
 
 
+
 // دریافت پیام‌ها هر 0.30 ثانیه
-setInterval(fetchChatMessagesAndRender, 1000);
+setInterval(fetchChatMessagesAndRender, 100);
 
 
 
