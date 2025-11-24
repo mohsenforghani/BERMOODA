@@ -578,6 +578,11 @@ position: absolute;
 }
 
 
+
+
+
+
+
 #stage-input {
   display: flex;
   flex-direction: column; /* همه عناصر زیر هم قرار می‌گیرند */
@@ -592,6 +597,28 @@ position: absolute;
 }
 
 
+#unreadPopup {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  width: 360px;
+  max-height: 60vh;
+  overflow:auto;
+  background:#fff;
+  border-radius:10px;
+  padding:12px;
+  box-shadow:0 8px 30px rgba(0,0,0,0.18);
+  z-index:9999;
+  text-align:right;
+  font-family:tahoma;
+}
+.unread-header { display:flex; justify-content:space-between; margin-bottom:10px; font-weight:bold; }
+.unread-row { background:#f4f7fc; padding:10px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
+.unread-row button { background:#2d87ff; color:#fff; border:0; padding:6px 10px; border-radius:6px; cursor:pointer; }
+
+
+
+
 </style>
 </head>
 <body>
@@ -600,6 +627,12 @@ position: absolute;
 <canvas id="gameCanvas"></canvas>
 <button id="startBtn">شروع بازی</button>
 <div id="bestPlayer">Best Player: ---</div>
+
+<div id="unreadPopup" style="display:none;" dir="rtl"></div>
+
+
+
+
 
 <button id="scoreBtn">نمایش امتیازات و نفرات آنلاین</button>
 <button id="continueBtn">ادامه بازی</button>
@@ -883,7 +916,7 @@ let lastOverheatTime = 0;
 const heatBar = document.getElementById("heatBar");
 
 
-const SHEET_WEBAPP = 'https://script.google.com/macros/s/AKfycbzZZ2aTt94FpulEoNxbrVwyESt5ZvWtN_orUiH_fo42OGXS6-rlyqXd66JfJkoYyAjT/exec';
+const SHEET_WEBAPP = 'https://script.google.com/macros/s/AKfycbxLXcNgDDVngBoV35wsdyuPKOVxP9riyy7brU_YtMlAstjL1YHk6teBTQexl2Vt7exV/exec';
 
 
 let presenceIntervalId = null;
@@ -966,50 +999,357 @@ function sendPresence(isOnline) {
 
 
 
+//=======================================توابع مربوط به پیامهای خوانده نشده===============================
+
+
+
+async function fetchFromServer(params) {
+  const res = await fetch(SHEET_WEBAPP, {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams(params)
+  });
+  return await res.json();
+}
+
+/* فراخوانی در شروع بازی */
+async function loadAndShowUnread(playerId) {
+  try {
+    console.log("Fetching unread for:", playerId);
+    const data = await fetchFromServer({
+      action: "getunreadsummary",
+      playerId: playerId
+    });
+    console.log("UNREAD_RESPONSE:", data);
+    if (!data || !data.ok) return;
+
+    renderUnreadPopup(data, playerId);
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+/* ساخت پنجره unread */
+function renderUnreadPopup(data, playerId) {
+  // حذف اگر قبلاً بود
+  const prevBackdrop = document.getElementById("unreadBackdrop");
+  if (prevBackdrop) prevBackdrop.remove();
+  let box = document.getElementById("unreadPopup");
+  if (box) box.remove(); // تا مطمئن شویم داخل body دوباره ساخته می‌شود
+
+  // 1) Backdrop - پوشش تمام صفحه برای جلوگیری از تداخل کلیک
+  const backdrop = document.createElement("div");
+  backdrop.id = "unreadBackdrop";
+  Object.assign(backdrop.style, {
+    position: "fixed",
+    inset: "0",                // top:0; right:0; bottom:0; left:0;
+    background: "rgba(0,0,0,0.12)",
+    zIndex: "9990",
+    pointerEvents: "auto"
+  });
+  // کلیک روی بک‌دراپ پنجره را می‌بندد
+  backdrop.addEventListener("click", () => {
+    backdrop.remove();
+    const p = document.getElementById("unreadPopup");
+    if (p) p.remove();
+  });
+  document.body.appendChild(backdrop);
+
+  // 2) Popup — حتماً به body append کن تا خارج از هر stacking-context والد قرار بگیرد
+  box = document.createElement("div");
+  box.id = "unreadPopup";
+  Object.assign(box.style, {
+    position: "fixed",
+    top: "20px",
+    left: "20px",
+    width: "360px",
+    maxHeight: "60vh",
+    overflow: "auto",
+    background: "#fff",
+    borderRadius: "10px",
+    padding: "12px",
+    boxShadow: "0 8px 30px rgba(0,0,0,0.18)",
+    zIndex: "10000",          // بالاتر از بک‌دراپ و سایر عناصر
+    textAlign: "right",
+    fontFamily: "Tahoma, Arial, sans-serif"
+  });
+  document.body.appendChild(box);
+
+  // header
+  const header = document.createElement("div");
+  header.className = "unread-header";
+  header.style.display = "flex";
+  header.style.justifyContent = "space-between";
+  header.style.alignItems = "center";
+  header.style.marginBottom = "10px";
+
+  const title = document.createElement("div");
+  title.innerText = `پیام‌های خوانده‌نشده: ${data.total || 0}`;
+  title.style.fontWeight = "700";
+
+  const closeBtn = document.createElement("button");
+  closeBtn.innerText = "بعداً می‌خوانم";
+  Object.assign(closeBtn.style, { background: "transparent", border: "0", cursor: "pointer" });
+  closeBtn.addEventListener("click", (ev) => {
+    ev.stopPropagation();
+    backdrop.remove();
+    box.remove();
+  });
+
+  header.appendChild(title);
+  header.appendChild(closeBtn);
+  box.appendChild(header);
+
+  // list
+  const list = document.createElement("div");
+  list.className = "unread-list";
+  list.style.display = "flex";
+  list.style.flexDirection = "column";
+  list.style.gap = "8px";
+
+  (data.bySender || []).forEach(item => {
+    const count = (item.count !== undefined) ? Number(item.count) : (item.unread !== undefined ? Number(item.unread) : 0);
+    const name = item.senderName || item.senderId || "ناشناس";
+    const senderId = item.senderId || "";
+
+    const row = document.createElement("div");
+    Object.assign(row.style, {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      padding: "8px",
+      borderRadius: "8px",
+      background: "#f5f7fb"
+    });
+
+    const label = document.createElement("div");
+    label.innerText = `${count} پیام خوانده‌نشده از ${name}`;
+    label.style.flex = "1";
+    label.style.marginRight = "8px";
+
+    const btn = document.createElement("button");
+    btn.innerText = "مشاهده";
+    Object.assign(btn.style, {
+      background: "#2d87ff",
+      color: "#fff",
+      border: "0",
+      padding: "6px 10px",
+      borderRadius: "6px",
+      cursor: "pointer",
+      pointerEvents: "auto"
+    });
+
+    // جلوگیری از عبور کلیک به عناصر زیرین و اطمینان از اجرای openChatWindow
+    btn.addEventListener("click", async (ev) => {
+
+      ev.stopPropagation();
+      ev.preventDefault();
+
+ // ست کردن متغیرهای سراسری
+  window.chatReceiverId = item.senderId;
+  window.chatReceiverName = item.senderName;
+
+
+    
+    // صدا زدن تابع پنجره چت
+  if (typeof openChatWindow === "function") {
+    openChatWindow();
+  }
+
+      // ۲. علامت‌گذاری پیام‌ها
+      try {
+        await fetchFromServer({ action: "markread", myId: playerId, otherId: senderId });
+      } catch (err) {
+        console.error("markread error:", err);
+      }
+
+      // ۳. بستن popup و بک‌دراپ و بروزرسانی
+      backdrop.remove();
+      box.remove();
+      // بارگذاری مجدد اگر خواستی
+      loadAndShowUnread(playerId);
+    });
+
+    row.appendChild(label);
+    row.appendChild(btn);
+    list.appendChild(row);
+  });
+
+  box.appendChild(list);
+}
+
+
+
+
+
+
+//=====================================توابع مربوط به پیامهای خوانده نشده=================================
+
+
 
 
 
 // === utility: secure uuid (modern) with fallback ===
+// === به‌روز شده: getOrCreatePlayerId (حفظ نام تابع) ===
 function getOrCreatePlayerId() {
-  try {
-    let id = localStorage.getItem('bermooda_playerId');
-    if (!id) {
-      // سعی کن از api امن مرورگر استفاده کنی
-      if (window.crypto && crypto.randomUUID) {
-        id = crypto.randomUUID();
-      } else {
-        // fallback استاندارد uuidv4 ساده
-        id = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c=>{
-          const r = Math.random()*16|0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-          return v.toString(16);
-        });
-      }
-      try { localStorage.setItem('bermooda_playerId', id); } catch(e){ console.warn("localStorage ذخیره نشد:", e); }
+
+  // --- helper: cookie ---
+  function setCookie(name, value, days = 3650) {
+    try {
+      const d = new Date();
+      d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+      // SameSite=Lax برای افزایش احتمال پذیرفته شدن در مرورگرهای مدرن
+      document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + d.toUTCString() + "; path=/; SameSite=Lax";
+    } catch (e) {
+      console.warn("setCookie failed:", e);
     }
-    window.playerId = id; // همیشه روی window ذخیره کن تا جای دیگر کد راحت دسترسی داشته باشه
-    return id;
-  } catch(err) {
-    console.warn("خطا در getOrCreatePlayerId — localStorage یا crypto دردسر دارند:", err);
-    const fallback = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2,8);
-    window.playerId = fallback;
-    return fallback;
+  }
+  function getCookie(name) {
+    try {
+      const m = document.cookie.match(new RegExp("(^|; )" + name + "=([^;]+)"));
+      return m ? decodeURIComponent(m[2]) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // --- helper: localStorage writable test ---
+  function isLocalStorageWritable() {
+    try {
+      const testKey = "__bermooda_test__";
+      localStorage.setItem(testKey, "1");
+      localStorage.removeItem(testKey);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // --- helper: generate uuid ---
+  function generateUuid() {
+    try {
+      if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
+    } catch (e) {}
+    // fallback uuidv4
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      const r = Math.random() * 16 | 0;
+      const v = c === 'x' ? r : (r & 0x3 | 0x8);
+      return v.toString(16);
+    });
+  }
+
+  // --- helper: write to IndexedDB (fire-and-forget) ---
+  function saveToIndexedDB(key, value) {
+    try {
+      // non-blocking attempt; browsers that don't support IDB will throw and we'll ignore
+      const req = indexedDB.open("bermooda_db_v1", 1);
+      req.onupgradeneeded = function(e) {
+        const db = req.result;
+        try { if (!db.objectStoreNames.contains("store")) db.createObjectStore("store"); } catch(e){}
+      };
+      req.onsuccess = function() {
+        try {
+          const db = req.result;
+          const tx = db.transaction("store", "readwrite");
+          tx.objectStore("store").put(value, key);
+          tx.oncomplete = function() { db.close(); };
+          tx.onerror = function(){ try{ db.close(); }catch(e){} };
+        } catch (e) {}
+      };
+      req.onerror = function(){ /* ignore */ };
+    } catch (e) {
+      // IndexedDB unavailable or blocked (e.g. some private modes) -> ignore
+    }
+  }
+
+  // ---------- main (synchronous return) ----------
+  try {
+    // 1) cached in memory?
+    if (window.playerId) return window.playerId;
+
+    // 2) try localStorage (fast, sync)
+    try {
+      const idLS = (function(){
+        try { return localStorage.getItem('bermooda_playerId'); } catch(e) { return null; }
+      })();
+      if (idLS) {
+        // ensure cookie + idb written asynchronously (migration)
+        try { setCookie('bermooda_playerId', idLS); } catch(e){}
+        try { saveToIndexedDB('playerId', idLS); } catch(e){}
+        window.playerId = idLS;
+        return idLS;
+      }
+    } catch (e) {
+      // continue to fallback
+    }
+
+    // 3) try cookie (sync)
+    try {
+      const idCookie = getCookie('bermooda_playerId');
+      if (idCookie) {
+        // try to write back to localStorage if writable (migration)
+        try {
+          if (isLocalStorageWritable()) {
+            try { localStorage.setItem('bermooda_playerId', idCookie); } catch(e) {}
+          }
+        } catch(e){}
+        try { saveToIndexedDB('playerId', idCookie); } catch(e){}
+        window.playerId = idCookie;
+        return idCookie;
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // 4) NOTHING found -> create new id
+    const newId = generateUuid();
+    window.playerId = newId;
+
+    // try write to localStorage (best effort)
+    try {
+      if (isLocalStorageWritable()) {
+        try { localStorage.setItem('bermooda_playerId', newId); }
+        catch(e) { console.warn("localStorage.setItem failed while storing playerId:", e); }
+      } else {
+        // localStorage not writable — still try set (some browsers may accept but not persist)
+        try { localStorage.setItem('bermooda_playerId', newId); } catch(e){}
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // always set cookie (high probability to persist on iOS Safari)
+    try { setCookie('bermooda_playerId', newId); } catch(e){}
+
+    // asynchronously save to IndexedDB (if possible)
+    try { saveToIndexedDB('playerId', newId); } catch(e){}
+
+    // return synchronously
+    return newId;
+
+  } catch (err) {
+    // ultimate fallback: generate a short fallback id and return
+    try {
+      const fallback = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : ('f-' + Date.now().toString(36) + Math.random().toString(36).slice(2,8));
+      window.playerId = fallback;
+      try { setCookie('bermooda_playerId', fallback); } catch(e){}
+      try { saveToIndexedDB('playerId', fallback); } catch(e){}
+      return fallback;
+    } catch (e) {
+      // last resort
+      const last = 'x' + Date.now().toString(36);
+      window.playerId = last;
+      return last;
+    }
   }
 }
+
 
 
 // === init player name and id ===
 
 
-/**
- * initPlayer(onReady)
- * - اگر localStorage نام داشته باشد: نشان می‌دهد "<name> عزیز، آیا با همین نام بازی می‌کنی؟"
- *   - اگر "با همین نام" زدن: همان نام استفاده می‌شود.
- *   - اگر "نام دیگر" زدن: پنجرهٔ ورودی باز می‌شود و نام جدید اجباری است (نمی‌تواند خالی یا 'ناشناس' باشد).
- * - اگر localStorage نام نداشته باشد: مستقیماً ورودی اجباری نمایش داده می‌شود.
- * - بعد از انتخاب نام: playerId ساخته/خوانده می‌شود، localStorage به‌روز می‌شود، نمایش روی صفحه انجام می‌شود،
- *   و در صورت وجود `sendPresence` یا `playerLogin` آن را صدا می‌زند.
- * - onReady (اختیاری): تابعی که پس از تکمیل init صدا زده می‌شود (مثلاً startGame).
- */
+
 function initPlayer(onReady) {
   // helper: getOrCreatePlayerId (استفاده از تابع موجود در پروژه در صورت وجود)
   function ensurePlayerId() {
@@ -2095,26 +2435,29 @@ function preloadImages(callback) {
 
         // نمایش ادامه روند شروع بازی
         setTimeout(() => {
-          getOrCreatePlayerId();
+         getOrCreatePlayerId();
        
 
 
- initPlayer(async () => {
+  initPlayer(async () => {
     startPresence(); // شروع وضعیت آنلاین بازیکن
     window.chatSenderId = window.playerId;
     window.chatSenderName = window.playerName;
 
+  console.log("LOAD UNREAD CALLED →", window.playerId);
+ await loadAndShowUnread(window.playerId);
+   
     // نمایش نام بازیکن
     document.getElementById("playernameDisplay").innerText = 'Player : ' + window.playerName;
+   
 
     // بررسی پیام‌های خوانده‌نشده
     const unread = await checkUnreadMessages(window.playerId);
     if (unread > 0) {
-       alert("شما " + unread + " پیام خوانده‌نشده دارید!");
+       //alert("شما " + unread + " پیام خوانده‌نشده دارید!");
     }
-
-    callback(); // ادامه روند شروع بازی
-});
+     callback(); // ادامه روند شروع بازی
+   });
 
         }, 400);
       }
@@ -2130,17 +2473,30 @@ function preloadImages(callback) {
             window.explosionFrames.push(loadedImages[`ex/ex${i}.png`]);
           }
         }
-
-        setTimeout(() => {
         getOrCreatePlayerId();
+        setTimeout(() => {
+        
          
-        initPlayer(() => {
-        startPresence();
-         window.chatSenderId = window.playerId;
-         window.chatSenderName = window.playerName; 
-        callback();
-           });
- 
+        initPlayer(async () => {
+    startPresence(); // شروع وضعیت آنلاین بازیکن
+    window.chatSenderId = window.playerId;
+    window.chatSenderName = window.playerName;
+
+  console.log("LOAD UNREAD CALLED →", window.playerId);
+  await loadAndShowUnread(window.playerId);
+   
+    // نمایش نام بازیکن
+    document.getElementById("playernameDisplay").innerText = 'Player : ' + window.playerName;
+   
+
+    // بررسی پیام‌های خوانده‌نشده
+    const unread = await checkUnreadMessages(window.playerId);
+    if (unread > 0) {
+       //alert("شما " + unread + " پیام خوانده‌نشده دارید!");
+    }
+     callback(); // ادامه روند شروع بازی
+});
+
         }, 400);
       }
     };
@@ -4346,6 +4702,5 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
 
 
