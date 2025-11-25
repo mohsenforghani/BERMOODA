@@ -148,7 +148,7 @@ display: none;
   font-family: 'Arial', sans-serif;
   text-shadow: 0 0 3px #00ffcc, 0 0 5px #00ffff;
   margin-bottom: 30px; /* فاصله از BERMOODA */
- // animation: glow 1.5s ease-in-out infinite alternate;
+
 }
 
 @keyframes glow {
@@ -583,40 +583,6 @@ position: absolute;
 
 
 
-#stage-input {
-  display: flex;
-  flex-direction: column; /* همه عناصر زیر هم قرار می‌گیرند */
-  align-items: center;    /* وسط‌چین افقی */
-  gap: 12px;              /* فاصله بین input و button */
-}
-
-.btn-ok {
-  width: 140px;
-  padding: 10px;
-  font-size: 18px;
-}
-
-
-#unreadPopup {
-  position: fixed;
-  top: 20px;
-  left: 20px;
-  width: 360px;
-  max-height: 60vh;
-  overflow:auto;
-  background:#fff;
-  border-radius:10px;
-  padding:12px;
-  box-shadow:0 8px 30px rgba(0,0,0,0.18);
-  z-index:9999;
-  text-align:right;
-  font-family:tahoma;
-}
-.unread-header { display:flex; justify-content:space-between; margin-bottom:10px; font-weight:bold; }
-.unread-row { background:#f4f7fc; padding:10px; border-radius:8px; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center; }
-.unread-row button { background:#2d87ff; color:#fff; border:0; padding:6px 10px; border-radius:6px; cursor:pointer; }
-
-
 
 
 
@@ -728,7 +694,7 @@ position: absolute;
 <button id="startBtn">شروع بازی</button>
 <div id="bestPlayer">Best Player: ---</div>
 
-<div id="unreadPopup" style="display:none;" dir="rtl"></div>
+
 
 
 
@@ -1053,6 +1019,8 @@ function sendPresence(isOnline) {
     if (navigator.sendBeacon) {
       
       const blob = new Blob([params.toString()], { type: 'application/x-www-form-urlencoded' });
+console.log("SHEET_WEBAPP =", SHEET_WEBAPP);
+
       const ok = navigator.sendBeacon(SHEET_WEBAPP, blob);
       if (ok) return;
     }
@@ -1078,8 +1046,6 @@ function sendPresence(isOnline) {
 
 
 //=======================================توابع مربوط به پیامهای خوانده نشده===============================
-
-
 
 async function fetchFromServer(params) {
   const res = await fetch(SHEET_WEBAPP, {
@@ -1107,203 +1073,256 @@ async function loadAndShowUnread(playerId) {
   }
 }
 
-/* ساخت پنجره unread */
 function renderUnreadPopup(data, playerId) {
-  // حذف اگر قبلاً بود
-  const prevBackdrop = document.getElementById("unreadBackdrop");
-  if (prevBackdrop) prevBackdrop.remove();
-  let box = document.getElementById("unreadPopup");
-  if (box) box.remove(); // تا مطمئن شویم داخل body دوباره ساخته می‌شود
+  // اضافه‌کردن استایل‌ها یک‌بار
+  if (!document.getElementById('unread-styles')) {
+    const css = `
+      #unreadPopup { position: fixed; top: 10px; left: 50% ; transform: translateX(-50%); width: 70%; max-height: 65vh; overflow:auto;
+                     z-index:10000; direction: rtl; font-family: Tahoma, Arial, sans-serif; }
+      .unread-panel { background: linear-gradient(180deg, rgba(18,18,20,0.98), rgba(28,28,30,0.95));
+                      border-radius:14px; overflow: visible !important; padding:12px; box-shadow: 0 14px 40px rgba(0,0,0,0.6); color:#fff; }
+      .unread-header { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; }
+      .unread-total { font-weight:800; font-size:14px; color:#ffd6a5; text-shadow:0 0 10px rgba(255,180,80,0.28); }
+      .unread-close { background:transparent; border:0; color:#ddd; cursor:pointer; font-size:13px; }
 
-  // 1) Backdrop - پوشش تمام صفحه برای جلوگیری از تداخل کلیک
-  const backdrop = document.createElement("div");
-  backdrop.id = "unreadBackdrop";
-  Object.assign(backdrop.style, {
-    position: "fixed",
-    inset: "0",                // top:0; right:0; bottom:0; left:0;
-    background: "rgba(0,0,0,0.12)",
-    zIndex: "9990",
-    pointerEvents: "auto"
-  });
-  // کلیک روی بک‌دراپ پنجره را می‌بندد
-  backdrop.addEventListener("click", () => {
-    backdrop.remove();
-    const p = document.getElementById("unreadPopup");
-    if (p) p.remove();
-  });
+      .unread-list { display:flex; flex-direction:column; gap:10px; }
+
+      .unread-item {
+        --btn-h: clamp(52px, 7vh, 72px);
+        display:flex; align-items:center; justify-content:space-between;
+        padding:10px 14px; height:var(--btn-h); box-sizing:border-box;
+        border-radius:14px;
+        background: linear-gradient(135deg, #ff8a00 0%, #ffb457 100%);
+        color:#2b0a00; font-weight:800; cursor:pointer;
+        box-shadow:
+          0 6px 18px rgba(255,122,0,0.18),
+          0 0 28px rgba(255,160,60,0.14),
+          0 0 12px rgba(255,190,110,0.06) inset;
+        transition: transform 260ms cubic-bezier(.2,.9,.2,1), opacity 220ms ease, box-shadow 260ms ease;
+        user-select:none;
+        position: relative;
+        z-index: 10;
+        overflow: hidden;
+      }
+
+      .unread-item .meta { display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
+      .unread-item .meta .name { font-size:15px; color:#2b0a00; }
+      .unread-item .meta .sub { font-size:12px; color: rgba(43,10,0,0.8); font-weight:700; }
+
+      .unread-item .badge {
+        background: rgba(255,255,255,0.16);
+        padding:6px 10px; border-radius:999px;
+        font-size:13px; color:#fff; font-weight:900;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.25);
+      }
+
+      .unread-item:hover { transform: translateX(6px) scale(1.02); box-shadow: 0 14px 36px rgba(255,140,0,0.28), 0 0 40px rgba(255,165,0,0.16); }
+      .unread-item:active { transform: translateX(2px) scale(0.99); }
+
+      /* افکت glow نئون اطراف دکمه */
+      .unread-item::after {
+        content: ''; position:absolute; inset:0; border-radius:14px;
+        box-shadow: 0 0 28px rgba(255,140,0,0.25);
+        pointer-events:none; opacity:0.9;
+      }
+
+      /* انیمیشن خروج سریع به سمت چپ */
+      .unread-item.sliding {
+        transform: translateX(-120vw) rotate(-3deg) !important;
+        opacity: 0 !important;
+        transition: transform 300ms cubic-bezier(.08,.9,.2,1), opacity 240ms ease;
+      }
+
+      /* collapse برای بلند شدن نرم آیتم‌های زیر */
+      .unread-item.collapsing {
+        height: 0 !important;
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+        margin: 0 !important;
+        transition: height 320ms ease, padding 320ms ease, margin 320ms ease;
+      }
+
+      @media (max-width:420px) {
+        #unreadPopup { left: 8px; width: calc(100% - 16px); top: 12px; }
+        .unread-item { border-radius:12px; --btn-h: 56px; }
+      }
+    `;
+    const st = document.createElement('style');
+    st.id = 'unread-styles';
+    st.textContent = css;
+    document.head.appendChild(st);
+  }
+
+  // حذف بک‌دراپ/پاپ‌آپ قبلی اگر بود
+  const prevBackdrop = document.getElementById('unreadBackdrop');
+  if (prevBackdrop) prevBackdrop.remove();
+  const prevBox = document.getElementById('unreadPopup');
+  if (prevBox) prevBox.remove();
+
+  // بک‌دراپ
+  const backdrop = document.createElement('div');
+  backdrop.id = 'unreadBackdrop';
+  Object.assign(backdrop.style, { position: 'fixed', inset: '0', background: 'rgba(0,0,0,0.12)', zIndex: 9990, pointerEvents: 'auto' });
+  backdrop.addEventListener('click', () => { backdrop.remove(); const p = document.getElementById('unreadPopup'); if (p) p.remove(); });
   document.body.appendChild(backdrop);
 
-  // 2) Popup — حتماً به body append کن تا خارج از هر stacking-context والد قرار بگیرد
-  box = document.createElement("div");
-  box.id = "unreadPopup";
-  Object.assign(box.style, {
-    position: "fixed",
-    top: "20px",
-    left: "20px",
-    width: "360px",
-    maxHeight: "60vh",
-    overflow: "auto",
-    background: "#fff",
-    borderRadius: "10px",
-    padding: "12px",
-    boxShadow: "0 8px 30px rgba(0,0,0,0.18)",
-    zIndex: "10000",          // بالاتر از بک‌دراپ و سایر عناصر
-    textAlign: "right",
-    fontFamily: "Tahoma, Arial, sans-serif"
-  });
-  document.body.appendChild(box);
+  // پنجره
+  const box = document.createElement('div');
+  box.id = 'unreadPopup';
+  box.className = 'unread-panel-wrapper';
+  const panel = document.createElement('div');
+  panel.className = 'unread-panel';
 
-  // header
-  const header = document.createElement("div");
-  header.className = "unread-header";
-  header.style.display = "flex";
-  header.style.justifyContent = "space-between";
-  header.style.alignItems = "center";
-  header.style.marginBottom = "10px";
+  // header با شمارش کل
+  const header = document.createElement('div');
+  header.className = 'unread-header';
+  const totalCount = Number(data.total || 0);
+  const totalEl = document.createElement('div');
+  totalEl.className = 'unread-total';
+  totalEl.id = 'unreadTotalDisplay';
+  totalEl.innerText = `پیام‌های خوانده‌نشده: ${totalCount}`;
 
-  const title = document.createElement("div");
-  title.innerText = `پیام‌های خوانده‌نشده: ${data.total || 0}`;
-  title.style.fontWeight = "700";
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'unread-close';
+  closeBtn.innerText = 'بستن';
+  closeBtn.addEventListener('click', (ev) => { ev.stopPropagation(); backdrop.remove(); box.remove(); });
 
-  const closeBtn = document.createElement("button");
-  closeBtn.innerText = "بعداً می‌خوانم";
-  Object.assign(closeBtn.style, { background: "transparent", border: "0", cursor: "pointer" });
-  closeBtn.addEventListener("click", (ev) => {
-    ev.stopPropagation();
-    backdrop.remove();
-    box.remove();
-  });
-
-  header.appendChild(title);
+  header.appendChild(totalEl);
   header.appendChild(closeBtn);
-  box.appendChild(header);
+  panel.appendChild(header);
 
-  // list
-  const list = document.createElement("div");
-  list.className = "unread-list";
-  list.style.display = "flex";
-  list.style.flexDirection = "column";
-  list.style.gap = "8px";
+  // لیست
+  const list = document.createElement('div');
+  list.className = 'unread-list';
 
+  // helper برای بروزرسانی عدد کل
+  function updateTotal() {
+    const rem = Array.from(list.querySelectorAll('.unread-item')).reduce((s, el) => {
+      const c = Number(el.getAttribute('data-count') || 0);
+      return s + (isNaN(c) ? 0 : c);
+    }, 0);
+    const totalDisplay = document.getElementById('unreadTotalDisplay');
+    if (totalDisplay) totalDisplay.innerText = `پیام‌های خوانده‌نشده: ${rem}`;
+  }
+
+  // ساخت آیتم‌ها (حفظ ترتیب داده‌شده در data.bySender)
   (data.bySender || []).forEach(item => {
     const count = (item.count !== undefined) ? Number(item.count) : (item.unread !== undefined ? Number(item.unread) : 0);
-    const name = item.senderName || item.senderId || "ناشناس";
-    const senderId = item.senderId || "";
+    const name = item.senderName || item.senderId || 'ناشناس';
+    const senderId = item.senderId || '';
 
-    const row = document.createElement("div");
-    Object.assign(row.style, {
-      display: "flex",
-      justifyContent: "space-between",
-      alignItems: "center",
-      padding: "8px",
-      borderRadius: "8px",
-      background: "#f5f7fb"
+    const row = document.createElement('div');
+    row.className = 'unread-item';
+    row.setAttribute('data-sender', senderId);
+    row.setAttribute('data-count', String(count));
+
+    // متا (نام و توضیح کوچک)
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    const nameEl = document.createElement('div'); nameEl.className = 'name'; nameEl.innerText = name;
+    const subEl = document.createElement('div'); subEl.className = 'sub'; subEl.innerText = `${count} پیام`;
+    meta.appendChild(nameEl); meta.appendChild(subEl);
+
+    // badge (شماره)
+    const badge = document.createElement('div'); badge.className = 'badge'; badge.innerText = String(count);
+
+    // label-cta کوچک سمت چپ
+    const cta = document.createElement('div'); cta.style.fontSize = '13px'; cta.style.fontWeight = '800'; cta.innerText = 'مشاهده →';
+
+    row.appendChild(meta);
+    row.appendChild(badge);
+    row.appendChild(cta);
+
+    // handler کلیک — استفاده از playerId تابع برای عدم ایجاد تغییرات
+    row.addEventListener('click', async (ev) => {
+      ev.stopPropagation();
+      ev.preventDefault();
+
+      // تنظیم متغیرهای چت (از همان اسامی موجود در کد خودت استفاده کن)
+      window.chatReceiverId = senderId;
+      window.chatReceiverName = name;
+
+      // اگر بازی قبلاً window.playerId را ست کرده، از همان استفاده کن؛ در غیر اینصورت از playerId پارامتر
+      window.chatSenderId = window.chatSenderId || window.playerId || playerId || '';
+      window.chatSenderName = window.chatSenderName || window.playerName || (localStorage.getItem('bermooda_playerName') || '');
+
+      // باز کردن سریع UI چت (اگر تو پروژه‌ش هست)
+      try {
+        const chatOverlay = document.getElementById('chatOverlay');
+        const chatComposer = document.getElementById('chatComposer');
+        if (chatOverlay) chatOverlay.style.display = 'flex';
+        if (chatComposer) chatComposer.style.display = 'flex';
+        const chatListEl = document.getElementById('chatList') || document.getElementById('chatMessages');
+        if (chatListEl) chatListEl.innerHTML = '';
+      } catch(e){ /* بی‌سر و صدا */ }
+
+      // ارسال درخواست markread به سرور (از playerId پارامتر استفاده می‌کنیم)
+      try { fetchFromServer({ action: "markread", myId: playerId, otherId: senderId }).catch(()=>{}); } catch(e){}
+
+      // انیمیشن: سریع به چپ خارج شود
+      row.classList.add('sliding');
+
+      // بعد از حرکت خارج، ارتفاع collapse شود تا آیتم‌های زیر نرم بالا بیایند
+      const slideMs = 320;
+      setTimeout(() => {
+        // تعیین ارتفاع فعلی برای transition درست
+        const h = row.getBoundingClientRect().height;
+        row.style.height = h + 'px';
+        row.style.transition = 'height 340ms ease, padding 340ms ease, margin 340ms ease';
+        requestAnimationFrame(() => {
+          row.classList.add('collapsing');
+        });
+
+        // حذف نهایی و آپدیت شمارش
+        const onEnd = () => {
+          try { row.removeEventListener('transitionend', onEnd); } catch(e){}
+          try { row.remove(); updateTotal(); } catch(e){}
+        };
+        row.addEventListener('transitionend', onEnd);
+      }, slideMs);
+
+      // تلاش برای گرفتن و رندر پیام‌ها (اگر تابع موجود باشد)
+      try { if (typeof fetchChatMessagesAndRender === 'function') await fetchChatMessagesAndRender(); } catch(e){ console.warn(e); }
+
+      // بستن پنجره و بک‌دراپ (دلخواه)
+      try { backdrop.remove(); } catch(e){}
+      try { const p = document.getElementById('unreadPopup'); if (p) p.remove(); } catch(e){}
+
+      // اگر می‌خواهی دوباره لیست را از سرور بگیری
+      try { if (typeof loadAndShowUnread === 'function') loadAndShowUnread(playerId); } catch(e){}
     });
 
-    const label = document.createElement("div");
-    label.innerText = `${count} پیام خوانده‌نشده از ${name}`;
-    label.style.flex = "1";
-    label.style.marginRight = "8px";
-
-    const btn = document.createElement("button");
-    btn.innerText = "مشاهده";
-    Object.assign(btn.style, {
-      background: "#2d87ff",
-      color: "#fff",
-      border: "0",
-      padding: "6px 10px",
-      borderRadius: "6px",
-      cursor: "pointer",
-      pointerEvents: "auto"
-    });
-
-    // جلوگیری از عبور کلیک به عناصر زیرین و اطمینان از اجرای openChatWindow
-
-
-
-
-
-
-btn.addEventListener("click", async (ev) => {
-  ev.stopPropagation();
-  ev.preventDefault();
-
-  // ۱) مقداردهی صحیح گیرنده و اطمینان از sender
-  const receiverId = senderId; // همان متغیر موجود در حلقه
-  const receiverName = item.senderName || senderId || "ناشناس";
-
-  window.chatReceiverId = receiverId;
-  window.chatReceiverName = receiverName;
-
-  // اطمینان از اینکه chatSenderId/Name مقدار دارند
-  window.chatSenderId = window.chatSenderId || window.playerId || getOrCreatePlayerId();
-  window.chatSenderName = window.chatSenderName || window.playerName || (localStorage.getItem('bermooda_playerName') || '');
-
-  // ۲) آماده‌سازی UI (بدون ساخت پنجره جدید)
-  const chatOverlay = document.getElementById('chatOverlay');
-  const chatComposer = document.getElementById('chatComposer');
-  const chatListEl = document.getElementById('chatList') || document.getElementById('chatMessages');
-
-  if (chatOverlay) chatOverlay.style.display = 'flex';
-  if (chatComposer) chatComposer.style.display = 'flex';
-  if (chatListEl) chatListEl.innerHTML = ''; // پاکسازی پیام‌های قبلی
-
-  // ۳) آماده‌سازی state سازگار با fetchChatMessagesAndRender
-  window.chatState = window.chatState || {};
-  const chatKey = `${window.chatSenderId}_${window.chatReceiverId}`;
-  if (!window.chatState[chatKey]) {
-    window.chatState[chatKey] = { lastTs: 0, seenIds: new Set(), messages: [], fetching: false };
-  }
-  // برای گرفتن تاریخچه کامل در اولین بار
-  window.chatState[chatKey].lastTs = 0;
-
-  // ۴) فراخوانی تابع موجود برای لود پیام‌ها (همان تابعی که قبلاً استفاده می‌کردی)
-  try {
-    await fetchChatMessagesAndRender();
-  } catch (e) {
-    console.error("fetchChatMessagesAndRender error:", e);
-  }
-
-  // ۵) علامت‌گذاری خوانده‌شده (بعد از باز شدن و لود پیام‌ها)
-  try {
-    await fetchFromServer({ action: "markread", myId: playerId, otherId: senderId });
-  } catch (err) {
-    console.error("markread error:", err);
-  }
-
-  // ۶) بستن popup و بروزرسانی لیست unread
-  try { backdrop.remove(); } catch(e){}
-  try { box.remove(); } catch(e){}
-
-  // در صورت نیاز، مجدداً لیست خوانده‌نشده را بروزرسانی کن
-  try { loadAndShowUnread(playerId); } catch(e){}
-
-});
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    row.appendChild(label);
-    row.appendChild(btn);
     list.appendChild(row);
   });
 
-  box.appendChild(list);
+  panel.appendChild(list);
+  box.appendChild(panel);
+  document.body.appendChild(box);
+
+  // مقداردهی اولیه شمارش کل
+  // اگر در data.total اشتباه باشد، از جمع آیتم‌ها استفاده کن
+ let totalElDisplay = document.getElementById('unreadTotalDisplay');
+
+  if (totalElDisplay ) {
+    const calc = Array.from(list.querySelectorAll('.unread-item')).reduce((s, el) => s + Number(el.getAttribute('data-count')||0), 0);
+    totalElDisplay .innerText = `پیام‌های خوانده‌نشده: ${data.total !== undefined ? data.total : calc}`;
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2680,7 +2699,7 @@ function preloadImages(callback) {
     window.chatSenderName = window.playerName;
 
   console.log("LOAD UNREAD CALLED →", window.playerId);
- await loadAndShowUnread(window.playerId);
+ await loadAndShowUnread(playerId);
    
     // نمایش نام بازیکن
     document.getElementById("playernameDisplay").innerText = 'Player : ' + window.playerName;
@@ -2718,7 +2737,7 @@ function preloadImages(callback) {
     window.chatSenderName = window.playerName;
 
   console.log("LOAD UNREAD CALLED →", window.playerId);
-  await loadAndShowUnread(window.playerId);
+  await loadAndShowUnread(playerId);
    
     // نمایش نام بازیکن
     document.getElementById("playernameDisplay").innerText = 'Player : ' + window.playerName;
@@ -4998,6 +5017,5 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
 
 
