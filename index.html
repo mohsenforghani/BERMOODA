@@ -1074,6 +1074,15 @@ async function loadAndShowUnread(playerId) {
 }
 
 function renderUnreadPopup(data, playerId) {
+// اگر پیام خوانده‌نشده نداریم، اصلاً پنل نمایش داده نشود
+  const totalUnread = Number(data.total || 0);
+  const listArr = data.bySender || [];
+
+  if (totalUnread === 0 || listArr.length === 0) {
+    return; // هیچ چیز نساز، خارج شو
+  }
+
+
   // اضافه‌کردن استایل‌ها یک‌بار
   if (!document.getElementById('unread-styles')) {
     const css = `
