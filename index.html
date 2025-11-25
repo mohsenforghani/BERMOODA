@@ -719,14 +719,46 @@ position: absolute;
 <div id="chatMessages" class="chat-messages" dir="rtl" aria-live="polite"></div>
 
 <!-- پنجره‌ی چت (overlay) -->
-<div id="chatOverlay" style="display:none; position:fixed; inset:0; z-index:12000; justify-content:flex-end; align-items:flex-end; pointer-events:auto;">
+<div id="chatOverlay" style="display:none; position:fixed; inset:0; z-index:12000; justify-content:center;; align-items:flex-end; pointer-events:auto;">
   <!-- زمینه نیمه‌شفاف برای پوشش -->
   <div id="chatBackdrop" style="position:absolute; inset:0; background:rgba(0,0,0,0.25);"></div>
 
   <!-- پنجره پیام‌ها و composer -->
-  <div id="chatComposer" style="position:relative; width:360px; max-width:92%; height:60vh; background:linear-gradient(#061018, #07121a); border-radius:12px; margin:16px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.6);">
-    <div id="chatHeader" style="padding:10px 12px; background:linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0)); display:flex; align-items:center; justify-content:space-between;">
-      <div id="chatTitle" style="color:#fff; font-weight:700; font-size:14px;">چت</div>
+<div id="chatComposer" 
+     style="
+     position:relative; 
+
+     /* --- عرض و ارتفاع نسبت به صفحه نمایش --- */
+     width:80vw;
+     max-width:80vw;
+     height:90vh;
+     max-height:80vh;
+
+     /* ---- بک‌گراند جدید تصویری با opacity 70% ---- */
+     background: rgba(255,255,255,0.7) url('chatBackground1.png');
+     background-size: cover;
+     background-position: center;
+
+     border:1px solid rgba(0,0,0,0.06);
+     color:#17212b;
+     border-radius:12px;
+     margin:16px;
+     display:flex; 
+     flex-direction:column; 
+     overflow:hidden;
+     box-shadow:0 10px 30px rgba(0,0,0,0.12);
+">
+
+
+
+
+
+   <div id="chatHeader" 
+     style="padding:10px 12px; background:transparent; 
+     display:flex; align-items:center; justify-content:space-between;">
+    <div id="chatTitle" 
+     style="color:#17212b; font-weight:700; font-size:14px;">چت</div>
+
       <button id="closeChatBtn" aria-label="بستن چت" style="background:transparent;border:0;color:#fff;font-size:18px;cursor:pointer;">✕</button>
     </div>
 
@@ -735,7 +767,16 @@ position: absolute;
 
     <!-- composer پایین -->
     <div style="padding:8px; border-top:1px solid rgba(255,255,255,0.03); display:flex; gap:8px; align-items:center;">
-      <input id="chatInput" type="text" placeholder="پیام..." aria-label="پیام" style="flex:1; padding:8px 10px; border-radius:20px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.03); color:#fff; outline:none;">
+    <input id="chatInput" type="text" placeholder="پیام..." aria-label="پیام"
+       style="
+         flex:1; 
+         padding:8px 12px; 
+         border-radius:20px; 
+         border:1px solid rgba(0,0,0,0.25); 
+         background:rgba(0,0,0,0.25);   /* 🔥 تیره‌تر از پنجره چت */
+         color:#fff; 
+         outline:none;
+       ">
       <button id="chatSendBtn" style="min-width:44px; height:40px; border-radius:50%; border:0; background:#00c853; color:#001; font-weight:700; cursor:pointer;">→</button>
     </div>
   </div>
@@ -5021,11 +5062,23 @@ window.addEventListener("resize",()=>{
 });
 
 
+// بستن پنجره چت با کلیک روی بک‌دراپ
+(function(){
+  try {
+    const bd = document.getElementById('chatBackdrop');
+    if (bd) {
+      bd.addEventListener('click', function(){ 
+        const ov = document.getElementById('chatOverlay');
+        if (ov) ov.style.display = 'none';
+      }, {passive:true});
+    }
+  } catch(e){}
+})();
+
 
 
 </script>
 </body>
 </html>
-
 
 
