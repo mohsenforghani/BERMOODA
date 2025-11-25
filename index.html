@@ -915,43 +915,65 @@ display: none;
 <div id="scoreOverlay" style="
   display:none;
   position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.7);
+  inset:0;
+  background:rgba(0,0,0,0.45);
+  backdrop-filter:blur(3px);
   z-index:9999;
   justify-content:center;
   align-items:center;
-  flex-direction:column;
+  padding:20px;
   overflow:auto;
 ">
   <div id="scoreBox" style="
-    background:rgba(0,0,0,0.85);
-    border:2px solid #00FF00;
-    border-radius:12px;
-    padding:20px;
     width:90%;
     max-width:600px;
-    color:white;
-    font-family:Arial,sans-serif;
-    box-shadow:0 0 20px #00FF00;
+
+    /* بک‌گراند مینیمال + شیشه‌ای */
+    background:rgba(255,255,255,0.10);
+    backdrop-filter:blur(6px);
+
+    border-radius:14px;
+    padding:22px;
+    border:1px solid rgba(255,255,255,0.18);
+
+    color:#ffffff;
+    font-family:Arial, sans-serif;
+    box-shadow:0 4px 18px rgba(0,0,0,0.25);
     text-align:center;
   ">
-    <h2 style="color:#00FF00;margin-bottom:10px;">🏆 لیست امتیازات</h2>
-    <div id="scoreList" style="max-height:70vh; overflow-y:auto; font-size:14px;"></div>
+    <h2 style="
+      margin-bottom:16px;
+      font-size:20px;
+      font-weight:700;
+      color:#d2ffd2;
+    ">
+      🏆 لیست امتیازات
+    </h2>
+
+    <!-- لیست امتیازات -->
+    <div id="scoreList" style="
+      max-height:70vh; 
+      overflow-y:auto; 
+      border-radius:10px;
+      font-size:15px;
+      direction:rtl;
+    "></div>
+
+    <!-- دکمه بستن -->
     <button id="closeScoreBtn" style="
-      margin-top:15px;
-      background:#00FF00;
-      color:black;
+      margin-top:18px;
+      background:rgba(255,255,255,0.25);
+      color:#fff;
       border:none;
-      padding:8px 16px;
-      border-radius:8px;
+      padding:10px 22px;
+      border-radius:10px;
       cursor:pointer;
       font-weight:bold;
       font-size:14px;
       transition:0.3s;
-    ">بستن</button>
+    ">
+      بستن
+    </button>
   </div>
 </div>
 
