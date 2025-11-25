@@ -619,6 +619,106 @@ position: absolute;
 
 
 
+
+/* ---- استایل‌های چت مدل واتساپ - حبابی ---- */
+.chat-messages, #chatList {
+  box-sizing: border-box;
+  font-family: Tahoma, "Segoe UI", sans-serif;
+  color: #fff;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* یک سطر پیام */
+.chat-row {
+  display: flex;
+  width: 100%;
+  align-items: flex-end;
+}
+
+/* پیام‌های من (local sender) => سمت راست، حباب سبز */
+.chat-row.me {
+  justify-content: flex-end;
+}
+.chat-row.me .bubble {
+  background: linear-gradient(180deg,#22c55e,#16a34a); /* سبز */
+  color: #002200;
+  align-self: flex-end;
+  border-radius: 16px 16px 4px 16px;
+  max-width: 78%;
+  padding: 8px 12px;
+  word-wrap: break-word;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
+
+/* پیام‌های دیگر => سمت چپ، حباب صورتی */
+.chat-row.other {
+  justify-content: flex-start;
+}
+.chat-row.other .bubble {
+  background: linear-gradient(180deg,#ffb6c1,#ff8da6); /* صورتی */
+  color: #180018;
+  align-self: flex-start;
+  border-radius: 16px 16px 16px 4px;
+  max-width: 78%;
+  padding: 8px 12px;
+  word-wrap: break-word;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+}
+
+/* متن و زمان داخل حباب */
+.bubble .text {
+  display:block;
+  white-space:pre-wrap;
+  line-height:1.35;
+  font-size:14px;
+}
+.bubble .time {
+  display:block;
+  font-size:11px;
+  opacity:0.8;
+  margin-top:6px;
+  text-align: right;
+  direction: ltr; /* زمان معمولاً LTR */
+}
+
+/* استایل برای avatar یا نام (اختیاری) */
+.chat-row .meta {
+  font-size:12px;
+  color:rgba(255,255,255,0.6);
+  margin: 0 8px;
+  align-self:flex-end;
+}
+
+/* اسکرول بار کوچک‌تر */
+.chat-messages::-webkit-scrollbar, #chatList::-webkit-scrollbar {
+  width:8px;
+}
+.chat-messages::-webkit-scrollbar-thumb, #chatList::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.06);
+  border-radius: 8px;
+}
+
+/* استایل composer ورودی */
+#chatInput { caret-color: #fff; }
+#chatSendBtn { display:inline-flex; align-items:center; justify-content:center; }
+
+/* وقتی حباب طولانی است، نوشتار خط‌خور باشد */
+.bubble { word-break: break-word; }
+
+/* در حالت موبایل کوچک‌تر */
+@media (max-width:420px) {
+  .chat-row.me .bubble, .chat-row.other .bubble { font-size:13px; padding:8px 10px; }
+}
+
+
+
+
+
 </style>
 </head>
 <body>
@@ -649,38 +749,32 @@ position: absolute;
 
 
 
-<div id="chatOverlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:11000; justify-content:center; align-items:center;">
-  <div id="chatBox" style="width:92%; max-width:520px; height:68vh; background:#071014; border-radius:10px; display:flex; flex-direction:column; overflow:hidden; border:2px solid #00FF99;">
-    <div id="chatHeader" style="padding:10px; display:flex; justify-content:space-between; align-items:center; color:#00ff99;">
-      <div id="chatTitle">Chat</div>
-      <button id="closeChatBtn" style="background:transparent;border:none;color:#00ff99;font-size:18px;cursor:pointer;">✖</button>
+<!-- جای جدید برای پیام‌ها + overlay و composer -->
+<div id="chatMessages" class="chat-messages" dir="rtl" aria-live="polite"></div>
+
+<!-- پنجره‌ی چت (overlay) -->
+<div id="chatOverlay" style="display:none; position:fixed; inset:0; z-index:12000; justify-content:flex-end; align-items:flex-end; pointer-events:auto;">
+  <!-- زمینه نیمه‌شفاف برای پوشش -->
+  <div id="chatBackdrop" style="position:absolute; inset:0; background:rgba(0,0,0,0.25);"></div>
+
+  <!-- پنجره پیام‌ها و composer -->
+  <div id="chatComposer" style="position:relative; width:360px; max-width:92%; height:60vh; background:linear-gradient(#061018, #07121a); border-radius:12px; margin:16px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,0.6);">
+    <div id="chatHeader" style="padding:10px 12px; background:linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0)); display:flex; align-items:center; justify-content:space-between;">
+      <div id="chatTitle" style="color:#fff; font-weight:700; font-size:14px;">چت</div>
+      <button id="closeChatBtn" aria-label="بستن چت" style="background:transparent;border:0;color:#fff;font-size:18px;cursor:pointer;">✕</button>
     </div>
 
-    <!-- پیام‌ها -->
-    <div id="chatMessages"
-         style="flex:1; padding:12px 12px 92px 12px; overflow-y:auto; color:#fff; font-size:14px;
-                background:linear-gradient(180deg,#041017,#021015);">
-    </div>
+    <!-- لیست پیام‌ها (اسکرول پذیر) -->
+    <div id="chatList" style="flex:1; overflow-y:auto; padding:10px; box-sizing:border-box; display:flex; flex-direction:column; gap:8px;" ></div>
 
-    <div style="height:8px"></div>
+    <!-- composer پایین -->
+    <div style="padding:8px; border-top:1px solid rgba(255,255,255,0.03); display:flex; gap:8px; align-items:center;">
+      <input id="chatInput" type="text" placeholder="پیام..." aria-label="پیام" style="flex:1; padding:8px 10px; border-radius:20px; border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.03); color:#fff; outline:none;">
+      <button id="chatSendBtn" style="min-width:44px; height:40px; border-radius:50%; border:0; background:#00c853; color:#001; font-weight:700; cursor:pointer;">→</button>
+    </div>
   </div>
 </div>
 
-<!-- Composer (ابتدا مخفی است) -->
-<div id="chatComposer"
-     style="display:none; position:fixed; bottom:20px; left:50%; transform:translateX(-50%);
-            z-index:12001; width:92%; max-width:520px; gap:8px; padding:10px;
-            background:#071015; border-radius:10px; border:2px solid #00FF99; align-items:center;">
-
-  <input id="chatInput" type="text" placeholder="پیام..." autocomplete="off"
-         style="flex:1;padding:8px;border-radius:6px;border:1px solid #123;background:#02131a;color:#fff;">
-  <button id="chatSendBtn"
-          style="padding:8px 12px;border-radius:6px;background:#00c853;border:none;cursor:pointer;">
-      ارسال
-  </button>
-</div>
-
-<div id="chatToastContainer" style="position:fixed; right:16px; top:80px; z-index:12000;"></div>
 
 <!-- 🎮 کنترل‌ها -->
 <div id="joystick">
@@ -1124,35 +1218,84 @@ function renderUnreadPopup(data, playerId) {
     });
 
     // جلوگیری از عبور کلیک به عناصر زیرین و اطمینان از اجرای openChatWindow
-    btn.addEventListener("click", async (ev) => {
-
-      ev.stopPropagation();
-      ev.preventDefault();
-
- // ست کردن متغیرهای سراسری
-  window.chatReceiverId = item.senderId;
-  window.chatReceiverName = item.senderName;
 
 
-    
-    // صدا زدن تابع پنجره چت
-  if (typeof openChatWindow === "function") {
-    openChatWindow();
+
+
+
+
+btn.addEventListener("click", async (ev) => {
+  ev.stopPropagation();
+  ev.preventDefault();
+
+  // ۱) مقداردهی صحیح گیرنده و اطمینان از sender
+  const receiverId = senderId; // همان متغیر موجود در حلقه
+  const receiverName = item.senderName || senderId || "ناشناس";
+
+  window.chatReceiverId = receiverId;
+  window.chatReceiverName = receiverName;
+
+  // اطمینان از اینکه chatSenderId/Name مقدار دارند
+  window.chatSenderId = window.chatSenderId || window.playerId || getOrCreatePlayerId();
+  window.chatSenderName = window.chatSenderName || window.playerName || (localStorage.getItem('bermooda_playerName') || '');
+
+  // ۲) آماده‌سازی UI (بدون ساخت پنجره جدید)
+  const chatOverlay = document.getElementById('chatOverlay');
+  const chatComposer = document.getElementById('chatComposer');
+  const chatListEl = document.getElementById('chatList') || document.getElementById('chatMessages');
+
+  if (chatOverlay) chatOverlay.style.display = 'flex';
+  if (chatComposer) chatComposer.style.display = 'flex';
+  if (chatListEl) chatListEl.innerHTML = ''; // پاکسازی پیام‌های قبلی
+
+  // ۳) آماده‌سازی state سازگار با fetchChatMessagesAndRender
+  window.chatState = window.chatState || {};
+  const chatKey = `${window.chatSenderId}_${window.chatReceiverId}`;
+  if (!window.chatState[chatKey]) {
+    window.chatState[chatKey] = { lastTs: 0, seenIds: new Set(), messages: [], fetching: false };
+  }
+  // برای گرفتن تاریخچه کامل در اولین بار
+  window.chatState[chatKey].lastTs = 0;
+
+  // ۴) فراخوانی تابع موجود برای لود پیام‌ها (همان تابعی که قبلاً استفاده می‌کردی)
+  try {
+    await fetchChatMessagesAndRender();
+  } catch (e) {
+    console.error("fetchChatMessagesAndRender error:", e);
   }
 
-      // ۲. علامت‌گذاری پیام‌ها
-      try {
-        await fetchFromServer({ action: "markread", myId: playerId, otherId: senderId });
-      } catch (err) {
-        console.error("markread error:", err);
-      }
+  // ۵) علامت‌گذاری خوانده‌شده (بعد از باز شدن و لود پیام‌ها)
+  try {
+    await fetchFromServer({ action: "markread", myId: playerId, otherId: senderId });
+  } catch (err) {
+    console.error("markread error:", err);
+  }
 
-      // ۳. بستن popup و بک‌دراپ و بروزرسانی
-      backdrop.remove();
-      box.remove();
-      // بارگذاری مجدد اگر خواستی
-      loadAndShowUnread(playerId);
-    });
+  // ۶) بستن popup و بروزرسانی لیست unread
+  try { backdrop.remove(); } catch(e){}
+  try { box.remove(); } catch(e){}
+
+  // در صورت نیاز، مجدداً لیست خوانده‌نشده را بروزرسانی کن
+  try { loadAndShowUnread(playerId); } catch(e){}
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     row.appendChild(label);
     row.appendChild(btn);
@@ -1720,18 +1863,63 @@ async function sendChatMessage(message, opts = {}) {
 // حذف یا غیرفعال کن هر setInterval قدیمی که innerHTML کامل می‌ساخت.
 // از این تابع استفاده کن:
 
+/* ----------------- Chat rendering (replacement) ----------------- */
+
+/** کمک: ساخت DOM برای یک پیام و append کردن به chatList */
+function renderChatMessage(msgObj) {
+  // msgObj: { fromId, fromName, message, ts }
+  const meId = window.chatSenderId || window.playerId;
+  const isMe = String(msgObj.fromId || '') === String(meId);
+
+  const row = document.createElement('div');
+  row.className = 'chat-row ' + (isMe ? 'me' : 'other');
+
+  // meta (optional) - برای نمایش نام برای پیام‌های دیگر
+  if (!isMe) {
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    meta.textContent = msgObj.fromName || 'ناشناس';
+    // می‌تونی این رو فعال یا غیرفعال کنی:
+    // row.appendChild(meta);
+  }
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+
+  const text = document.createElement('div');
+  text.className = 'text';
+  text.innerHTML = escapeHtml(String(msgObj.message || ''));
+
+  const time = document.createElement('div');
+  time.className = 'time';
+  try {
+    const t = msgObj.ts ? new Date(Number(msgObj.ts)) : new Date();
+    time.textContent = formatTime(t);
+  } catch(e) {
+    time.textContent = '';
+  }
+
+  bubble.appendChild(text);
+  bubble.appendChild(time);
+  row.appendChild(bubble);
+
+  const chatList = document.getElementById('chatList');
+  if (!chatList) return;
+
+  chatList.appendChild(row);
+  // اتوماتیک اسکرول به پایین
+  chatList.scrollTop = chatList.scrollHeight;
+}
+
+/** اصلاح‌شده: fetch ساده و افزودن پیام‌ها (با caching ساده) */
 async function fetchChatMessagesAndRender() {
   if (!window.chatSenderId || !window.chatReceiverId) return;
-
-  const chatKey = `${window.chatSenderId}_${window.chatReceiverId}`;
   window.chatState = window.chatState || {};
-  if (!window.chatState[chatKey]) {
-    // initial state
-    window.chatState[chatKey] = { lastTs: 0, seen: new Set(), messages: [], fetching: false };
+  const key = `${window.chatSenderId}_${window.chatReceiverId}`;
+  if (!window.chatState[key]) {
+    window.chatState[key] = { lastTs: 0, seenIds: new Set(), messages: [], fetching: false };
   }
-  const state = window.chatState[chatKey];
-
-  // جلوگیری از دوبار اجرای همزمان
+  const state = window.chatState[key];
   if (state.fetching) return;
   state.fetching = true;
 
@@ -1743,61 +1931,83 @@ async function fetchChatMessagesAndRender() {
     body.append('lastTs', String(state.lastTs || 0));
 
     const res = await fetch(SHEET_WEBAPP, { method: 'POST', body });
-    const data = await res.json().catch(() => null);
-    const msgs = Array.isArray(data) ? data : [];
+    const data = await res.json().catch(()=>null);
+    const msgs = Array.isArray(data) ? data : (data.messages || []);
 
-    const chatMessagesDiv = document.getElementById('chatMessages');
-    if (!chatMessagesDiv) { state.fetching = false; return; }
+    if (!Array.isArray(msgs) || msgs.length === 0) {
+      state.fetching = false;
+      // ادامه polling سبک
+      setTimeout(fetchChatMessagesAndRender, 500);
+      return;
+    }
 
     let added = 0;
     for (const m of msgs) {
-      const tsNum = Number(m.ts) || 0;
-      const idKey = `${tsNum}|${String(m.fromId||'')}|${String((m.message||'').slice(0,50))}`;
+      const tsNum = Number(m.ts) || Date.now();
+      // یک id یکتا برای هر پیام (سرور ممکن است msgId یا ts داشته باشد)
+      const idKey = (m.msgId ? m.msgId : `${m.fromId}_${tsNum}_${String(m.message||'').slice(0,30)}`);
 
-      if (state.seen.has(idKey)) {
-        // قبلا اضافه شده
-        continue;
-      }
+      if (state.seenIds.has(idKey)) continue;
+      state.seenIds.add(idKey);
+      state.messages.push(m);
 
-      // اضافه به کش داخلی
-       state.messages.push({
-       ts: tsNum,
-       fromId: m.fromId || '',
-       fromName: m.fromName || '',
-       toId: m.toId || '',
-       message: m.message || ''
+      // render
+      renderChatMessage({
+        fromId: m.fromId,
+        fromName: m.fromName || m.from || '',
+        message: m.message || '',
+        ts: tsNum
       });
 
-      // append به DOM
-      const div = document.createElement('div');
-      div.dataset.msgId = idKey;
-      div.innerHTML = `<strong>${escapeHtml(m.fromName || '')}:</strong> ${escapeHtml(m.message || '')}`;
-      chatMessagesDiv.appendChild(div);
-
-      state.seen.add(idKey);
       state.lastTs = Math.max(state.lastTs || 0, tsNum);
       added++;
     }
 
-    if (added > 0) {
-      chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-    }
-
+    // اگر پیام جدید داشتیم، اسکرول کن (renderChatMessage خودش اسکرول میکنه)
     state.fetching = false;
-    // ادامه polling — اگر خواستی بازه را طولانی‌تر کن
-    setTimeout(fetchChatMessagesAndRender, 300);
-
+    setTimeout(fetchChatMessagesAndRender, 600);
   } catch (err) {
     console.error('fetchChatMessagesAndRender error', err);
     state.fetching = false;
-    setTimeout(fetchChatMessagesAndRender, 800);
+    setTimeout(fetchChatMessagesAndRender, 1200);
   }
 }
 
+/* Send button handler (با استفاده از sendChatMessage موجود) */
+const chatSendBtn = document.getElementById('chatSendBtn');
+const chatInput = document.getElementById('chatInput');
+if (chatSendBtn && chatInput) {
+  chatSendBtn.addEventListener('click', async () => {
+    const txt = (chatInput.value || '').trim();
+    if (!txt) return;
+    // نمایش فوری پیام خودی (optimistic)
+    renderChatMessage({ fromId: window.chatSenderId || window.playerId, fromName: window.chatSenderName || window.playerName, message: txt, ts: Date.now() });
+    chatInput.value = '';
+    // ارسال به سرور
+    try {
+      await sendChatMessage(txt, { msgId: makeUUID() });
+      // در صورت نیاز می‌توانیم lastTs را بروزرسانی کنیم بر اساس پاسخ سرور
+    } catch (e) {
+      console.error('sendChatMessage failed', e);
+    }
+  });
 
+  // ارسال با Enter
+  chatInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      chatSendBtn.click();
+    }
+  });
+}
 
-
-
+/* باز/بستن پنجره چت */
+const closeChatBtn = document.getElementById('closeChatBtn');
+if (closeChatBtn) {
+  closeChatBtn.addEventListener('click', () => {
+    document.getElementById('chatOverlay').style.display = 'none';
+  });
+}
 
 
 
@@ -1824,56 +2034,9 @@ async function openChatWindow() {
 }
 
 
-// ارسال پیام
-
-document.getElementById('chatSendBtn').addEventListener('click', async () => {
-  const input = document.getElementById('chatInput');
-  const msg = input.value.trim();
-  if (!msg) return;
-
-  const chatKey = `${window.chatSenderId}_${window.chatReceiverId}`;
-  if (!window.chatState) window.chatState = {};
-  if (!window.chatState[chatKey]) window.chatState[chatKey] = { lastTs: 0, seen: new Set(), messages: [], fetching: false };
-  const state = window.chatState[chatKey];
-
-  const msgId = makeUUID();
-
-  // ساخت پیام محلی (با msgId) و اضافه به DOM
-  const nowTs = Date.now();
-  //const newMsg = { ts: nowTs, fromId: window.chatSenderId, fromName: window.chatSenderName, toId: window.chatReceiverId, message: msg, msgId };
-  //state.messages.push(newMsg);
-
-  const idKey = `id:${msgId}`;          // کلید یکتا براساس msgId
-  state.seen.add(idKey);                // از اضافه شدن دوباره جلوگیری کن
-
-  const chatMessagesDiv = document.getElementById('chatMessages');
-  const div = document.createElement('div');
-  div.dataset.msgId = idKey;
-  //div.innerHTML = `<strong>${escapeHtml(window.chatSenderName)}:</strong> ${escapeHtml(msg)}`;
-  chatMessagesDiv.appendChild(div);
-  chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-
-  input.value = '';
-
-  // ارسال با msgId و انتظار پاسخ (در صورت برگشت ts می‌توان lastTs را اصلاح کرد)
-  try {
-    const resp = await sendChatMessage(msg, { msgId });
-    if (resp && resp.ts) {
-      // اگر سرور ts معتبر برگرداند، آن را در state.lastTs قرار بده (ایمن)
-      state.lastTs = Math.max(state.lastTs || 0, Number(resp.ts) || 0);
-    }
-  } catch(e) {
-    console.error("sendChatMessage error:", e);
-  }
-});
 
 
 
-
-
-
-// دریافت پیام‌ها هر 0.30 ثانیه
-setInterval(fetchChatMessagesAndRender, 100);
 
 
 
@@ -1886,11 +2049,7 @@ document.getElementById('chatInput').addEventListener('keydown', (e) => {
 });
 
 
-// بستن پنجره چت
-document.getElementById('closeChatBtn').addEventListener('click', () => {
-    document.getElementById('chatOverlay').style.display = 'none';
-    document.getElementById('chatComposer').style.display = 'none';
-});
+
 
 function escapeHtml(text) {
     const div = document.createElement('div');
@@ -4423,18 +4582,21 @@ if (typeof bulletGrade !== "undefined") {
 
 function renderCachedMessages(chatKey) {
     const state = window.chatState && window.chatState[chatKey];
-    const chatMessagesDiv = document.getElementById('chatMessages');
-    if (!chatMessagesDiv) return;
-    chatMessagesDiv.innerHTML = '';
+    const chatList = document.getElementById('chatList');
+    if (!chatList) return;
+    chatList.innerHTML = '';
     if (!state || !Array.isArray(state.messages)) return;
     for (const m of state.messages) {
-        const div = document.createElement('div');
-        div.dataset.msgId = `${m.ts}|${m.fromId}|${String(m.message||'').slice(0,50)}`;
-        div.innerHTML = `<strong>${escapeHtml(m.fromName||'')}:</strong> ${escapeHtml(m.message||'')}`;
-        chatMessagesDiv.appendChild(div);
+        renderChatMessage({
+           fromId: m.fromId,
+           fromName: m.fromName || m.from || '',
+           message: m.message || '',
+           ts: m.ts || Date.now()
+        });
     }
-    chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+    chatList.scrollTop = chatList.scrollHeight;
 }
+
 
 
 
@@ -4656,28 +4818,37 @@ nameCells.forEach(cell => {
         if (!window.chatState) window.chatState = {};
         if (!window.chatState[chatKey]) {
             // ایجاد state خالی برای این چت (در پوچی اولیه)
-            window.chatState[chatKey] = { lastTs: 0, seen: new Set(), messages: [], fetching: false };
+           window.chatState[chatKey] = { lastTs: 0, seenIds: new Set(), messages: [], fetching: false };
+
         }
 
         // پاک کردن DOM قبل از رندر کش (تا پیام‌های نفر قبلی نشان داده نشود)
-        const chatMessagesDiv = document.getElementById('chatMessages');
-        if (chatMessagesDiv) chatMessagesDiv.innerHTML = '';
+       // پاک کردن DOM قبل از رندر کش (تا پیام‌های نفر قبلی نشان داده نشود)
+const chatListEl = document.getElementById('chatList');
+if (chatListEl) chatListEl.innerHTML = '';
 
-        // اگر cache داشتیم، آن را رندر کن (نمایش فوری)
-        if (window.chatState[chatKey].messages.length > 0) {
-            renderCachedMessages(chatKey);
-        } else {
-            // برای بار اول lastTs = 0 تا تاریخچه برگردد
-            window.chatState[chatKey].lastTs = 0;
-        }
+// اگر cache داشتیم، آن را رندر کن (نمایش فوری)
+if (window.chatState && window.chatState[chatKey] && Array.isArray(window.chatState[chatKey].messages) && window.chatState[chatKey].messages.length > 0) {
+    renderCachedMessages(chatKey);
+} else {
+    window.chatState = window.chatState || {};
+    window.chatState[chatKey] = window.chatState[chatKey] || { lastTs: 0, seenIds: new Set(), messages: [], fetching: false };
+    window.chatState[chatKey].lastTs = 0;
+}
 
-        // باز کردن پنجره چت
-        if (typeof openChatWindow === "function") {
-            openChatWindow();
-        }
+// باز کردن پنجره چت و آماده‌سازی لیست
+document.getElementById('chatOverlay').style.display = 'flex';
+document.getElementById('chatComposer').style.display = 'flex';
 
-        // شروع یا ادامه polling برای این چت
-        fetchChatMessagesAndRender();
+// ===== مهم: شناسه گیرنده را از سلول بگیر، **هرگز** آن را با playerId بازنویسی نکن
+window.chatReceiverId = cell.getAttribute('data-playerid');
+window.chatReceiverName = cell.getAttribute('data-playername');
+
+// شروع دریافت پیام‌ها از سرور (polling امن)
+fetchChatMessagesAndRender();
+
+
+
     });
 
     cell.dataset.listenerAdded = "true";
