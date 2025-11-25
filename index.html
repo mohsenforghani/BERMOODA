@@ -3944,7 +3944,7 @@ function shootBullets() {
     lastOverheatTime = Date.now();
     setTimeout(() => {
       overheated = false;
-      heat = 60;
+      heat = 0;
       updateHeatBar();
     }, overheatDuration);
     return; // جلوگیری از شلیک
@@ -5026,5 +5026,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
