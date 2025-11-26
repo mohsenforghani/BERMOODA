@@ -3448,6 +3448,315 @@ if (fuel <= 20) {
 
 
 
+
+
+
+
+
+
+
+
+
+/* ===========================================================
+   سیستم مستقل دشمن هوشمند (بدون وابستگی به کد اصلی)
+   تمام نام‌ها شامل hoosh هستند
+   =========================================================== */
+
+/* ------- تنظیمات کلی ------- */
+const hooshSettings = {
+    spawnInterval: 35000,   // هر 30 ثانیه
+    lifeTime: 10000,        // عمر هر دشمن
+    shotRate: 4,            // 8 تیر در ثانیه
+    evadeLookAhead: 600,    // پیش‌بینی 600 میلی‌ثانیه‌ای
+    evadeRadius: 130,       // شعاع شناسایی تیر
+    maxSpeedX: 2,
+    evadeForce: 0.10,
+    imgList: [ "hooshmandP.png", "hooshmandP2.png" ],
+    scoreOnKill: 500
+};
+
+/* ------- ساخت کانتینر مستقل ------- */
+const hooshEnemies = [];
+const hooshBullets = [];
+
+/* ------- کشیدن تصویر ------- */
+function hooshCreateImg(src){
+    let im = new Image();
+    im.src = src;
+    return im;
+}
+
+/* ------- ابزار فاصله ------- */
+function hooshDist(a,b){
+    let dx = a.x - b.x;
+    let dy = a.y - b.y;
+    return Math.sqrt(dx*dx + dy*dy);
+}
+
+/* ===========================================================
+   1) ساخت دشمن هوشمند
+   =========================================================== */
+// helper: چرخاندن نقطه (px,py) حول مبدا با زاویه angle
+function hooshRotatePoint(px, py, angle){
+    const c = Math.cos(angle);
+    const s = Math.sin(angle);
+    return {
+        x: px * c - py * s,
+        y: px * s + py * c
+    };
+}
+
+/* ---- در هنگام اسپاون: اضافه کردن gunOffsets و gunIndex و gunRotationOffset ---- */
+function hooshSpawnEnemy(canvas){
+    let imgSrc = hooshSettings.imgList[
+        Math.floor(Math.random()*hooshSettings.imgList.length)
+    ];
+    let im = hooshCreateImg(imgSrc);
+
+    let now = performance.now();
+    let w = 64, h = 48;
+
+    let e = {
+        x: Math.random()*(canvas.width - w) + w/2,
+        y: -h - 20,
+        w, h,
+        img: im,
+        vx: 0,
+        vy: 1 + Math.random()*0.6,
+        spawnTime: now,
+        state: "active",
+        lastShot: now,
+        shotDelay: 1000/hooshSettings.shotRate,
+        evadeBias: (Math.random() - 0.5)*0.2,
+        angle: 0,
+        targetAngle: 0,
+        // نقاط خروج گلوله به صورت مختصات محلی نسبت به مرکز اسپریت
+       
+       gunOffsets: [{x: w/2, y: 0}],             
+        // {x: w*0.25, y: -h*0.3}, {x: w*0.25, y: h*0.3}
+        gunIndex: 0,
+        gunRotationOffset: 0
+    };
+
+    hooshEnemies.push(e);
+}
+
+/* ---- شلیک: تولید گلوله از نقطهٔ چرخیده شده روی هواپیما ---- */
+function hooshEnemyShoot(e, player){
+    let now = performance.now();
+    if(now - e.lastShot < e.shotDelay) return;
+    e.lastShot = now;
+
+    // انتخاب gun offset (مثال: گردشی)
+    const g = e.gunOffsets[e.gunIndex % e.gunOffsets.length];
+    e.gunIndex++;
+
+    // زاویه‌ای که باید برای چرخشِ نقطه استفاده شود
+    const totalAngle = (e.angle || 0) + (e.gunRotationOffset || 0);
+
+    // مختصات محلیِ نقطه را بچرخان و به مختصات جهانی اضافه کن
+    const rp = hooshRotatePoint(g.x, g.y, totalAngle);
+    const spawnX = e.x + rp.x;
+    const spawnY = e.y + rp.y;
+
+    // هدف: مرکز بازیکن (همانند قبل)
+    let tx = player.x + player.w/2;
+    let ty = player.y + player.h/2;
+
+    let dx = tx - spawnX;
+    let dy = ty - spawnY;
+    let len = Math.sqrt(dx*dx + dy*dy) || 1;
+
+    const speed = 2; // یا hooshSettings.bulletSpeed اگر خواستی اضافه کنی
+    hooshBullets.push({
+        x: spawnX,
+        y: spawnY,
+        vx: (dx/len)*speed,
+        vy: (dy/len)*speed,
+        angle: Math.atan2(dy, dx) // برای رسمِ گلوله جهت‌دار (اختیاری)
+    });
+
+    // اگر می‌خواهی زاویهٔ هدف هواپیما نیز بر اساس این شلیک تنظیم شود:
+    e.targetAngle = Math.atan2(dy, dx) + (e.gunRotationOffset || 0);
+}
+
+
+
+/* ===========================================================
+   3) سیستم فرار دشمن هوشمند
+   =========================================================== */
+function hooshEvade(e, playerBullets, delta){
+    let threat = null;
+    let bestScore = -99999;
+
+    for(let b of playerBullets){
+        let predX = b.x + (b.vx||0)*(hooshSettings.evadeLookAhead/16);
+        let predY = b.y + (b.vy||-6)*(hooshSettings.evadeLookAhead/16);
+
+        let d = hooshDist({x:predX, y:predY}, e);
+        if(d < hooshSettings.evadeRadius){
+            let score = (1000/(1+d))*(Math.abs(b.x - e.x) < 40 ? 1.5 : 1);
+            if(score > bestScore){
+                bestScore = score;
+                threat = {predX, predY};
+            }
+        }
+    }
+
+    if(threat){
+        let dir = threat.predX >= e.x ? -1 : 1;
+        e.vx += dir * hooshSettings.evadeForce * delta + e.evadeBias*0.04;
+        if(e.vx > hooshSettings.maxSpeedX) e.vx = hooshSettings.maxSpeedX;
+        if(e.vx < -hooshSettings.maxSpeedX) e.vx = -hooshSettings.maxSpeedX;
+    } else {
+        e.vx *= 0.98;
+    }
+}
+
+/* ===========================================================
+   4) بروزرسانی دشمن‌ها
+   =========================================================== */
+/* ---- در آپدیت، زاویه را به سمت targetAngle نرم حرکت بده ---- */
+function hooshUpdateEnemies(delta, canvas, player, playerBullets, onKill){
+    let now = performance.now();
+
+    for(let i = hooshEnemies.length - 1; i >= 0; i--){
+        let e = hooshEnemies[i];
+
+        // عمر تمام شد → خروج
+        if(now - e.spawnTime > hooshSettings.lifeTime){
+            e.state = "exiting";
+        }
+
+        // خروج از صحنه
+        if(e.state === "exiting"){
+            e.y -= 3*delta;
+            if(e.y < -100){ hooshEnemies.splice(i,1); }
+            continue;
+        }
+
+        // هوش فرار
+        hooshEvade(e, playerBullets, delta);
+
+        // به‌روزرسانی حرکت پایه
+        e.x += e.vx*delta*2;
+        e.y += e.vy*delta*2;
+
+        // نرمال‌سازی و هموارسازی زاویه (lerp ساده)
+        // برای جلوگیری از پرش‌های ناگهانی، اختلاف زاویه را در بازه‌ی -PI..PI نرمال کن
+        let a = e.angle;
+        let ta = e.targetAngle || a;
+        // نرمال‌سازی اختلاف
+        let diff = ta - a;
+        while(diff > Math.PI) diff -= 2*Math.PI;
+        while(diff < -Math.PI) diff += 2*Math.PI;
+        // هموارسازی: ضریب 0.12 قابل تنظیم است (بزرگ‌تر -> سریع‌تر می‌چرخد)
+        e.angle = a + diff * 0.10;
+
+        // تیراندازی
+        hooshEnemyShoot(e, player);
+
+        // برخورد با تیرهای بازیکن
+        for(let j = playerBullets.length - 1; j >= 0; j--){
+            let b = playerBullets[j];
+            if(
+                b.x > e.x - e.w/2 &&
+                b.x < e.x + e.w/2 &&
+                b.y > e.y - e.h/2 &&
+                b.y < e.y + e.h/2
+            ){
+                playerBullets.splice(j,1);
+                hooshEnemies.splice(i,1);
+
+
+            if (typeof createExplosion === "function") {
+              createExplosion(e.x, e.y); 
+             }
+
+                if(onKill) onKill(hooshSettings.scoreOnKill);
+                break;
+            }
+        }
+    }
+}
+
+/* ===========================================================
+   5) بروزرسانی گلوله‌های دشمن هوشمند
+   =========================================================== */
+function hooshUpdateBullets(delta, canvas, player, onHit){
+    for(let i = hooshBullets.length - 1; i >= 0; i--){
+        let b = hooshBullets[i];
+
+        b.x += b.vx*delta*3;
+        b.y += b.vy*delta*3;
+
+        // برخورد با بازی‌کن
+        if(
+            player.x < b.x &&
+            player.x + player.w > b.x &&
+            player.y < b.y &&
+            player.y + player.h > b.y
+        ){
+            hooshBullets.splice(i,1);
+            if(onHit) onHit();
+            continue;
+        }
+
+        // خروج از صحنه
+        if(
+            b.x < -50 || b.x > canvas.width+50 ||
+            b.y < -50 || b.y > canvas.height+50
+        ){
+            hooshBullets.splice(i,1);
+        }
+    }
+}
+
+/* ===========================================================
+   6) اسپاون خودکار
+   =========================================================== */
+let hooshLastSpawn = performance.now() - hooshSettings.spawnInterval;
+
+function hooshTickSpawner(canvas){
+    let now = performance.now();
+    if(now - hooshLastSpawn >= hooshSettings.spawnInterval){
+        hooshLastSpawn = now;
+        hooshSpawnEnemy(canvas);
+    }
+}
+
+/* ===========================================================
+   7) رسم دشمن‌ها و گلوله‌ها (اختیاری)
+   =========================================================== */
+/* ---- رسم با توجه به زاویه (دور مرکز می‌چرخد) ---- */
+function hooshRender(ctx){
+    hooshEnemies.forEach(e=>{
+        ctx.save();
+        // translate به مرکز تصویر
+        ctx.translate(e.x, e.y);
+        // rotate توسط e.angle
+        ctx.rotate(e.angle);
+        // تصویر را طوری بکش که مرکز تصویر در مبدأ قرار گیرد
+        ctx.drawImage(e.img, -e.w/2, -e.h/2, e.w, e.h);
+        ctx.restore();
+    });
+
+  hooshBullets.forEach(b => {
+    ctx.save();
+    ctx.translate(b.x, b.y);
+    ctx.rotate(b.angle);
+    ctx.fillStyle = "orange";
+    ctx.fillRect(-2, -4, 7, 3); // طول 8، عرض 4، حول مرکز
+    ctx.restore();
+});
+}
+
+
+
+
+
+
+
   
 // === حلقه بازی ===
 function gameLoop() {
@@ -3460,6 +3769,27 @@ function gameLoop() {
 applyScreenShake();      // قبل از هر رسم
 drawBackground();
 updateExplosionFlashes(); // نور انفجار
+
+
+
+
+
+hooshTickSpawner(canvas);
+hooshUpdateEnemies(delta, canvas, airplane, bullets, (score)=>addScore(score));
+hooshUpdateBullets(delta, canvas, airplane, ()=>explodeAirplane());
+hooshRender(ctx);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 fuels.forEach((f, i) => {
@@ -5104,6 +5434,5 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
 
 
