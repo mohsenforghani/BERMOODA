@@ -1086,7 +1086,7 @@ function sendPresence(isOnline) {
     if (navigator.sendBeacon) {
       
       const blob = new Blob([params.toString()], { type: 'application/x-www-form-urlencoded' });
-console.log("SHEET_WEBAPP =", SHEET_WEBAPP);
+
 
       const ok = navigator.sendBeacon(SHEET_WEBAPP, blob);
       if (ok) return;
@@ -1126,12 +1126,12 @@ async function fetchFromServer(params) {
 /* فراخوانی در شروع بازی */
 async function loadAndShowUnread(playerId) {
   try {
-    console.log("Fetching unread for:", playerId);
+    
     const data = await fetchFromServer({
       action: "getunreadsummary",
       playerId: playerId
     });
-    console.log("UNREAD_RESPONSE:", data);
+    
     if (!data || !data.ok) return;
 
     renderUnreadPopup(data, playerId);
@@ -1796,7 +1796,7 @@ async function markMessagesAsRead(myId, otherId) {
     });
 
     const data = await res.json();
-    console.log("markread response:", data);
+    
     return data.ok === true;
 }
 
@@ -2197,7 +2197,7 @@ document.querySelectorAll('.plane').forEach(plane => {
     plane.classList.add('selected');
     selectedPlane = plane.dataset.plane;
 
-    //console.log("هواپیمای انتخابی:", selectedPlane);
+   
 
     // بعد از انتخاب، دکمه شروع بازی را نمایش بده
     startBtn.style.display = "block";
@@ -2781,7 +2781,7 @@ function preloadImages(callback) {
     window.chatSenderId = window.playerId;
     window.chatSenderName = window.playerName;
 
-  console.log("LOAD UNREAD CALLED →", window.playerId);
+  
  await loadAndShowUnread(playerId);
    
     // نمایش نام بازیکن
@@ -2819,7 +2819,7 @@ function preloadImages(callback) {
     window.chatSenderId = window.playerId;
     window.chatSenderName = window.playerName;
 
-  console.log("LOAD UNREAD CALLED →", window.playerId);
+  
   await loadAndShowUnread(playerId);
    
     // نمایش نام بازیکن
@@ -5445,6 +5445,5 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
 
 
