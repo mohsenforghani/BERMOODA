@@ -2858,15 +2858,7 @@ preloadImages(() => {
     document.getElementById("gameTitle").style.display = "block";
     
   // نمایش صفحه انتخاب هواپیما
-  function computeAxes() {
-    // طول بیضی در محور X: دو برابر عرض صفحه
-    const a = window.innerWidth * 2;
-
-    // ارتفاع بیضی در محور Y: یک چهارم ارتفاع صفحه
-    const b = window.innerHeight / 4;
-
-    return { a, b };
-}
+ 
 
 (function setupArc() {
   const arcContainer = document.getElementById('airplaneArcContainer');
@@ -2880,7 +2872,7 @@ preloadImages(() => {
 
   const planeWidth = 80; // عرض هر هواپیما
   let scrollOffset = 0;
-
+  let currentCenterIndex = -1;
   // محاسبه طول و ارتفاع بیضی
   function computeAxes() {
     const a = window.innerWidth * 2;     // طول بیضی: دو برابر عرض صفحه
@@ -2919,14 +2911,36 @@ preloadImages(() => {
       el.style.display = 'block';
     });
 
-    const centerPlane = planes.find(p => p.classList.contains('center'));
+       const centerPlane = planes.find(p => p.classList.contains('center'));
     if (centerPlane) {
-      planes.forEach(x => x.classList.remove('selected'));
-      centerPlane.classList.add('selected');
-      const alt = centerPlane.querySelector('img')?.alt || '';
-      document.getElementById('planeName').innerText = alt;
-      document.getElementById('startBtn').style.display = 'block';
+      const idx = planes.indexOf(centerPlane);
+
+      // فقط وقتی وسط تغییر کرد اقدام کن — تا انتخاب‌های تکراری رخ ندهد
+      if (idx !== currentCenterIndex) {
+        currentCenterIndex = idx;
+
+        // همان کاری که قبلاً با کلیک انجام می‌شد: انتخاب ظاهری
+        planes.forEach(x => x.classList.remove('selected'));
+        centerPlane.classList.add('selected');
+
+        // به متغیرهای موجود مقدار بده (بدون ایجاد نام جدید)
+        selectedPlane = centerPlane.dataset.plane;
+        const imgEl = centerPlane.querySelector('img');
+        if (typeof selectedPlaneImg !== 'undefined') {
+          selectedPlaneImg = imgEl ? (imgEl.src || selectedPlaneImg) : selectedPlaneImg;
+        }
+
+        // نمایش نام (ایمن‌سازی: اگر المان وجود نداشت خطا نده)
+        const alt = imgEl?.alt || '';
+        const nameEl = document.getElementById('planeName') || document.getElementById('planeSelectTitle');
+        if (nameEl) nameEl.innerText = alt;
+
+        // نمایش startBtn (همان رفتار قبلی)
+        const sb = document.getElementById('startBtn');
+        if (sb) sb.style.display = 'block';
+      }
     }
+
   }
 
   // لمسی / ماوس برای حرکت پیکسل به پیکسل
