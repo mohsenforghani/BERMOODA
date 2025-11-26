@@ -989,6 +989,8 @@ canvas.height = window.innerHeight;
 
 
 
+
+
 // ===========================
 // مرحله ۲: متغیرهای سراسری چت
 // ===========================
@@ -2368,7 +2370,8 @@ function createMeteorExplosion(x, y, power = 1) {
   }
 
   meteorExplosions.push({ particles, created: performance.now() });
-  if (navigator.vibrate) navigator.vibrate(15);
+  if (navigator.vibrate) navigator.vibrate(50);
+window.AppInventor.setWebViewString("vibrate:50");
 }
 
 
@@ -2732,6 +2735,12 @@ for (let i = 0; i < 6; i++) {
 
 
 function preloadImages(callback) {
+
+
+
+
+
+
   document.getElementById("scoreContainer").style.display = "none";
 
   // 🧩 افزودن فریم‌های انفجار به لیست تصاویر اصلی
@@ -4774,7 +4783,8 @@ explosions.push({
 
 
 
-  if (navigator.vibrate) navigator.vibrate(45);
+  if (navigator.vibrate) navigator.vibrate(50);
+window.AppInventor.setWebViewString("vibrate:50");
 }
 
 
@@ -4926,6 +4936,7 @@ function explodeAirplane() {
   explosionRunning = true;
 
   if (navigator.vibrate) navigator.vibrate(200);
+window.AppInventor.setWebViewString("vibrate:200");
 
   const x = airplane.x + airplane.w / 2;
   const y = airplane.y + airplane.h / 2;
