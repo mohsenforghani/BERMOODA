@@ -2969,8 +2969,7 @@ preloadImages(() => {
   // کلیک برای انتخاب هواپیما
   planes.forEach(p => {
   p.addEventListener('click', () => {
-  planes.forEach(x => x.classList.remove('selected'));
-  p.classList.add('selected');
+ 
   
   const idx = planes.indexOf(p);
   
@@ -2982,7 +2981,7 @@ preloadImages(() => {
 
   function animate(time) {
     const t = Math.min(1, (time - startTime)/duration);
-    scrollOffset = startOffset + (endOffset - startOffset) * t;
+    //scrollOffset = startOffset + (endOffset - startOffset) * t;
     updateArc();
     if (t < 1) requestAnimationFrame(animate);
   }
@@ -5459,5 +5458,4 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
 
