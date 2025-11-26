@@ -2371,7 +2371,7 @@ function createMeteorExplosion(x, y, power = 1) {
 
   meteorExplosions.push({ particles, created: performance.now() });
   if (navigator.vibrate) navigator.vibrate(50);
-window.AppInventor.setWebViewString("vibrate:50");
+
 }
 
 
@@ -4784,7 +4784,7 @@ explosions.push({
 
 
   if (navigator.vibrate) navigator.vibrate(50);
-window.AppInventor.setWebViewString("vibrate:50");
+
 }
 
 
@@ -4936,7 +4936,7 @@ function explodeAirplane() {
   explosionRunning = true;
 
   if (navigator.vibrate) navigator.vibrate(200);
-window.AppInventor.setWebViewString("vibrate:200");
+
 
   const x = airplane.x + airplane.w / 2;
   const y = airplane.y + airplane.h / 2;
