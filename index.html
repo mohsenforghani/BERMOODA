@@ -18,6 +18,7 @@
   }
 
   canvas {
+  z-index: -1;
     display: block;
     background: black;
   }
@@ -681,6 +682,19 @@ position: absolute;
   .chat-row.me .bubble, .chat-row.other .bubble { font-size:13px; padding:8px 10px; }
 }
 
+#gameBackground {
+  position: fixed;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  z-index: 0;   /* ← این باید 0 باشد */
+}
+
+#gameBackground.fadeOutBg {
+  opacity: 0 !important;
+}
 
 
 
@@ -711,7 +725,7 @@ position: absolute;
 <div id="playernameDisplay"></div>
 
 <button id="pauseBtn" style="display:none;">⏸</button>
-
+<div id="gameBackground"></div>
 
 
 
@@ -2856,6 +2870,30 @@ preloadImages(() => {
     scoreBtn.style.display = "block";
     exitBtn.style.display = "block";
     document.getElementById("gameTitle").style.display = "block";
+(function(){
+    const bgPaths = [
+        "Startbackground/a.png",
+        "Startbackground/b.png",
+        "Startbackground/c.png",
+        "Startbackground/d.png",
+       "Startbackground/e.png"
+    ];
+
+    const chosen = bgPaths[Math.floor(Math.random() * bgPaths.length)];
+
+    const bgEl = document.getElementById('gameBackground');
+    bgEl.style.backgroundImage = `url("${chosen}")`;
+
+    // ظاهر شدن با fade
+    requestAnimationFrame(() => {
+        bgEl.style.opacity = "1";
+    });
+
+    // محو شدن هنگام زدن Start
+    startBtn.addEventListener('click', () => {
+        bgEl.classList.add('fadeOutBg');
+    });
+})();
     
   // نمایش صفحه انتخاب هواپیما
  
