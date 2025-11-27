@@ -3288,8 +3288,7 @@ async function sendScore() {
 
     const scoreDiv = document.getElementById('finalScore');
     if (scoreDiv) {
-     // scoreDiv.style.display = "block";
-     // scoreDiv.innerHTML = `امتیاز نهایی: ${finalScore}<br>رتبه: ${(json && json.rank) ? json.rank : '—'}`;
+    
     }
 
 
@@ -5055,12 +5054,12 @@ function renderCachedMessages(chatKey) {
 
 
 
-function showFinalScore(){
-    document.getElementById('finalScore').innerHTML =
-        'امتیاز نهایی<br>' + score ;
-    document.getElementById('finalScore').style.display = 'block';
+//function showFinalScore(){
+   // document.getElementById('finalScore').innerHTML =
+       // 'امتیاز نهایی<br>' + score ;
+   // document.getElementById('finalScore').style.display = 'block';
     
-}
+//}
 
 
 
@@ -5458,4 +5457,3 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
