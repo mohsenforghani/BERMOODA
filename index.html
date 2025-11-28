@@ -380,14 +380,14 @@ position: absolute;
 
   #shoot {
     position: fixed;
-    bottom: 20px;
+    bottom: 30px;
     left: 20px;
-    width: 70px;
-    height: 70px;
+    width: 80px;
+    height: 80px;
     background: rgba(0,0,0,0.9);
     border-radius: 50%;
     color: black;
-    font-size: 25px;
+    font-size: 45px;
     text-align: center;
     line-height: 50px;
     user-select: none;
@@ -511,20 +511,27 @@ position: absolute;
 
 #missileBtn {
   position: fixed;
-  bottom: 75px;        /* فاصله از پایین صفحه */
-  left: 15px;         /* فاصله از چپ صفحه */
-  width: 60px;         /* عرض دکمه */
+  bottom: 85px;        /* فاصله از پایین صفحه */
+  left: 110px;      /* فاصله از چپ صفحه */
+  width: 40px;         /* عرض دکمه */
   height: 40px;        /* ارتفاع دکمه */
-  background: gray;    /* رنگ پس‌زمینه */
-  color: white;        /* رنگ متن */
-  border-radius: 20px; /* گوشه‌های گرد */
-  font-weight: bold;   /* ضخامت متن */
-  border: none;        /* بدون حاشیه */
-  cursor: pointer;     /* نشانگر موس */
-  z-index: 1000;       /* روی عناصر دیگر */
+  background: radial-gradient(circle at center, #0ff, #00f);    /* رنگ پس‌زمینه */
+  color: #001122;        /* رنگ متن */
+  border: 3px solid rgba(255,255,255,0.4);
+  z-index: 2000;
+  border-radius: 50%;
+  font-weight: bold;
+  font-size: 16px;
+  display: flex; /* برای وسط‌چین کردن */
+  justify-content: center; /* افقی در مرکز */
+  align-items: center; /* عمودی در مرکز */
+  cursor: pointer;
+  box-shadow: 0 0 15px #0ff, 0 0 30px #0ff inset;
+  transition: all 0.2s ease;
+  text-shadow: 0 0 8px #0ff, 0 0 15px #0ff; /* جلوه نئونی نوشته */
 }
 
-/* وضعیت غیر فعال */
+
 #missileBtn:disabled {
   opacity: 1;       /* شفافیت کمتر */
   cursor: not-allowed; /* نشانگر غیر فعال */
@@ -562,14 +569,6 @@ position: absolute;
 .help-img {
   animation: blinkHelp 1.5s infinite;
 }
-
-
-
-
-
-
-
-
 
 
 /* ---- استایل‌های چت مدل واتساپ - حبابی ---- */
@@ -5480,6 +5479,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
 
