@@ -1385,29 +1385,7 @@ function renderUnreadPopup(data, playerId) {
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 //=====================================توابع مربوط به پیامهای خوانده نشده=================================
-
-
-
 
 
 // === utility: secure uuid (modern) with fallback ===
@@ -1910,11 +1888,6 @@ function stopPlaying() {
   });
 }
 
-
-
-
-
-
 // ارسال پیام (فرم-انکد)
 // در بالای فایل یک helper برای uuid (اگر crypto.randomUUID در دسترس باشه ازش استفاده کن)
 function makeUUID() {
@@ -2104,12 +2077,6 @@ if (closeChatBtn) {
 }
 
 
-
-
-
-
-
-
 // تابع باز کردن پنجره چت
 async function openChatWindow() {
     document.getElementById('chatOverlay').style.display = 'flex';
@@ -2128,12 +2095,6 @@ async function openChatWindow() {
 }
 
 
-
-
-
-
-
-
 // ارسال با Enter
 document.getElementById('chatInput').addEventListener('keydown', (e) => {
  if (e.key === 'Enter') {
@@ -2150,14 +2111,6 @@ function escapeHtml(text) {
     div.textContent = text;
     return div.innerHTML;
 }
-
-
-
-
-
-
-
-
 
 
 
@@ -4549,8 +4502,7 @@ function launchMissile() {
 
 
 function startGame() {
- if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفجار
- getOrCreatePlayerId();
+ if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفج
   startPresence();
   alreadySentScore = false;
   showTopPlayerName();
@@ -4575,7 +4527,7 @@ function startGame() {
   document.getElementById("bestPlayer").style.display = "block";
 
 
-document.getElementById("heatBarContainer").style.display = "block";
+  document.getElementById("heatBarContainer").style.display = "block";
 
 
   document.getElementById("airplaneArcContainer").style.display = "none";
@@ -4616,7 +4568,7 @@ updateHeatBar();
   gameRunning = true;
   document.getElementById("startBtn").style.display = "none";
   document.getElementById("continueBtn").style.display = "none";
- document.getElementById("exitBtn").style.display = "none";
+  document.getElementById("exitBtn").style.display = "none";
   document.getElementById("scoreBtn").style.display = "none";
   document.getElementById("joystick").style.display = "block";
   document.getElementById("shoot").style.display = "block";
@@ -4678,9 +4630,6 @@ try {
 }
 
 
-
-
-
   function endGame() {
     gameRunning = false;
     document.getElementById("playernameDisplay").style.display = "none";
@@ -4693,7 +4642,7 @@ try {
     explosions = [];
     gameOverBackground = true;
     animateGameOverBackground();
-    
+    stopPlaying();
   
   // پاک کردن صفحه قبل از نمایش متن
   //ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -4711,11 +4660,10 @@ try {
   document.getElementById("joystick").style.display = "none";
   document.getElementById("shoot").style.display = "none";
   document.getElementById("missileBtn").style.display = "none";
-  document.getElementById("heatBarContainer").style.display = "block";
-  animateGameOverBackground(); 
+  document.getElementById("heatBarContainer").style.display = "none";
   showFinalScore();
   sendScore();
-  stopPlaying();
+  
 
 
   fuelAlarmActive = false;
@@ -4758,8 +4706,6 @@ try {
 
 
 }
-
-
 
 
 // ===== جایگزین createExplosion =====
@@ -4891,8 +4837,6 @@ if (
   if (ex.imgAlpha < 0) ex.imgAlpha = 0;
 }
 
-
-
     // ----- پردازش و رسم ذرات به همان شکل قبلی -----
     for (let j = ex.particles.length - 1; j >= 0; j--) {
       const p = ex.particles[j];
@@ -4952,10 +4896,6 @@ if (
 
   ctx.globalAlpha = 1;
 }
-
-
-
-
 
 
 function resizeCanvas() {
@@ -5040,15 +4980,6 @@ if (typeof bulletGrade !== "undefined") {
 
 
 
-
-
-
-
-
-
-
-
-
 function renderCachedMessages(chatKey) {
     const state = window.chatState && window.chatState[chatKey];
     const chatList = document.getElementById('chatList');
@@ -5065,36 +4996,6 @@ function renderCachedMessages(chatKey) {
     }
     chatList.scrollTop = chatList.scrollHeight;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-//function showFinalScore(){
-   // document.getElementById('finalScore').innerHTML =
-       // 'امتیاز نهایی<br>' + score ;
-   // document.getElementById('finalScore').style.display = 'block';
-    
-//}
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -5326,13 +5227,6 @@ fetchChatMessagesAndRender();
 }
 
 
-
-
-
-
-
-
-
 //---------------------------------------------------------------------------------------------------------------------------------------
 
 
@@ -5480,6 +5374,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
 
