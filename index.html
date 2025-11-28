@@ -18,15 +18,15 @@
   }
 
   canvas {
-  z-index: -1;
+    z-index: -1;
     display: block;
     background: black;
   }
 
 #controlPanel {
   position: fixed;
- bottom: 0;
- width: 101%;
+  bottom: 0;
+  width: 101%;
   height: 140px; /* فاصله از بالا تا پایین صفحه */
   border-radius: 30px;
   pointer-events: none;
@@ -35,7 +35,7 @@
   box-sizing: border-box;
   border: 3px solid transparent;
   background-clip: padding-box; /* تا حاشیه از پس‌زمینه جدا باشد */
-display: none;
+  display: none;
 }
 
 #controlPanel::before {
@@ -49,10 +49,8 @@ display: none;
   pointer-events: none;
 }
 
-
-
 #playernameDisplay {
- position: fixed;
+  position: fixed;
   font-size: 12px;
   z-index: 10;
   -webkit-user-select: none;
@@ -64,19 +62,6 @@ display: none;
   left: 10px;
   color: black;
 
-}
-
-#finalScore {
-  
-    position: fixed;
-    top: 10%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 35px;
-    display: none;
-    color: yellow;
-    text-align: center;
-    line-height: 1.2;
 }
 
 #gameTitle {
@@ -136,10 +121,10 @@ display: none;
   margin-bottom: 40px;
   font-family: 'Arial Black', sans-serif;
   text-shadow:
-    0 0 5px #00ffcc,
-    0 0 10px #00ffcc,
-    0 0 20px #00ffff,
-    0 0 30px #00ffff;
+    0 0 2px #00ffcc,
+    0 0 4px #00ffcc,
+    0 0 6px #00ffff,
+    0 0 10px #00ffff;
   animation: glow 1.5s ease-in-out infinite alternate;
 }
 
@@ -159,7 +144,7 @@ display: none;
       0 0 10px #00ffcc,
       0 0 20px #00ffff,
       0 0 30px #00ffff;
-    transform: scale(1);
+    transform: scale(0.7);
   }
   100% {
     text-shadow:
@@ -167,7 +152,7 @@ display: none;
       0 0 20px #00ffcc,
       0 0 40px #00ffff,
       0 0 60px #00ffff;
-    transform: scale(1.2);
+    transform: scale(1.9);
   }
 }
 
@@ -5495,4 +5480,5 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
