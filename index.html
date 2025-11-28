@@ -116,7 +116,7 @@
 
 #logoText {
   font-size: 50px;
-  font-weight: bold;
+  font-weight: normal;
   color: #00ffcc;
   margin-bottom: 40px;
   font-family: 'Arial Black', sans-serif;
@@ -144,15 +144,15 @@
       0 0 10px #00ffcc,
       0 0 20px #00ffff,
       0 0 30px #00ffff;
-    transform: scale(0.7);
+    transform: scale(1);
   }
   100% {
     text-shadow:
+      0 0 5px #00ffcc,
       0 0 10px #00ffcc,
-      0 0 20px #00ffcc,
-      0 0 40px #00ffff,
-      0 0 60px #00ffff;
-    transform: scale(1.9);
+      0 0 20px #00ffff,
+      0 0 30px #00ffff;
+    transform: scale(1.1);
   }
 }
 
@@ -380,13 +380,13 @@ position: absolute;
 
   #shoot {
     position: fixed;
-    bottom: 20px;
-    left: 20px;
+    bottom: 30px;
+    left: 30px;
     width: 50px;
-    height: 50px;
+    height: 70px;
     background: rgba(255,0,0,0.9);
     border-radius: 50%;
-    color: white;
+    color: black;
     font-size: 25px;
     text-align: center;
     line-height: 50px;
@@ -5480,5 +5480,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
