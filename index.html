@@ -1309,7 +1309,8 @@ function renderUnreadPopup(data, playerId) {
   // اضافه‌کردن استایل‌ها یک‌بار
   if (!document.getElementById('unread-styles')) {
     const css = `
-      #unreadPopup { position: fixed; top: 10px; left: 50% ; transform: translateX(-50%); width: 70%; max-height: 65vh; overflow:auto;
+      #unreadPopup { position: fixed; display: flex; justify-content: center;  align-items: flex-start;
+     flex-direction: column;  top: 20px; left: 50% ; transform: translateX(-50%); width: 70%; max-height: 65vh; overflow:auto;
                      z-index:10000; direction: rtl; font-family: Tahoma, Arial, sans-serif; }
       .unread-panel { background: linear-gradient(180deg, rgba(18,18,20,0.98), rgba(28,28,30,0.95));
                       border-radius:14px; overflow: visible !important; padding:12px; box-shadow: 0 14px 40px rgba(0,0,0,0.6); color:#fff; }
@@ -3248,10 +3249,18 @@ if (airplaneContainer) {
 
 
   
-exitBtn.onclick = () => {
+ exitBtn.onclick = () => {
     stopPlaying();
     stopPresence();
-    alert("برای خروج از اپ، دکمه برگشت یا Home را فشار دهید.");
+    startBtn.style.display = "none";
+    exitBtn.style.display = "none";
+    
+  
+    if (typeof Android !== "undefined" && Android.finish) {
+        Android.finish();  // این خط باعث بسته شدن اپ می‌شود
+    } else {
+        alert("اپلیکیشن شما در محیط مرورگر است و نمی‌تواند بسته شود.");
+    }
 };
 
 
@@ -5586,8 +5595,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
-
 
 
 
