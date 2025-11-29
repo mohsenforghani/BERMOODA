@@ -3248,18 +3248,12 @@ if (airplaneContainer) {
 
 
   
- exitBtn.onclick = () => {
+exitBtn.onclick = () => {
     stopPlaying();
     stopPresence();
     startBtn.style.display = "none";
     exitBtn.style.display = "none";
-    
-  
-    if (typeof Android !== "undefined" && Android.finish) {
-        Android.finish();  // این خط باعث بسته شدن اپ می‌شود
-    } else {
-        alert("اپلیکیشن شما در محیط مرورگر است و نمی‌تواند بسته شود.");
-    }
+    alert("برای خروج از اپ، دکمه برگشت یا Home را فشار دهید.");
 };
 
 
@@ -5594,6 +5588,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
 
