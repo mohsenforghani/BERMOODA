@@ -425,6 +425,20 @@ position: absolute;
   text-shadow: 0 0 8px #0ff, 0 0 15px #0ff; /* جلوه نئونی نوشته */
 }
 
+
+#chatOverlay, 
+#chatComposer, 
+#chatList, 
+#chatInputRow, 
+#chatInput, 
+#chatSendBtn {
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+
+
 #pauseBtn:hover {
   box-shadow: 0 0 25px #0ff, 0 0 50px #0ff inset;
   text-shadow: 0 0 10px #0ff, 0 0 25px #0ff, 0 0 40px #00f;
@@ -638,22 +652,6 @@ position: absolute;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #missileBtn {
   position: fixed;
   display : none;
@@ -717,7 +715,7 @@ position: absolute;
 
 
 /* ---- استایل‌های چت مدل واتساپ - حبابی ---- */
-.chat-messages, #chatList {
+.chat-messages, {
   box-sizing: border-box;
   font-family: Tahoma, "Segoe UI", sans-serif;
   color: #fff;
@@ -799,9 +797,10 @@ position: absolute;
   border-radius: 8px;
 }
 
-/* استایل composer ورودی */
-#chatInput { caret-color: #fff; }
-#chatSendBtn { display:inline-flex; align-items:center; justify-content:center; }
+
+
+
+
 
 /* وقتی حباب طولانی است، نوشتار خط‌خور باشد */
 .bubble { word-break: break-word; }
@@ -823,6 +822,69 @@ position: absolute;
 
 #gameBackground.fadeOutBg {
   opacity: 0 !important;
+}
+
+
+
+
+
+/* پنجره‌ی اصلی چت - تمام صفحه واقعی */
+#chatOverlay {
+  position: fixed;
+  inset: 0;                 /* جایگزین width/height و top/left */
+  background: rgba(0,0,0,0.8);
+  z-index: 20000;
+
+  display: none;            /* در شروع مخفی */
+  flex-direction: column;
+  overflow: hidden;         /* جلوگیری از خروج از صفحه */
+  box-sizing: border-box;
+}
+
+#chatComposer {
+  position: absolute;
+  inset: 0;                 /* کل صفحه را بگیرد */
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+#chatSendBtn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: none;
+  background: #ffb700;
+  color: #000;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+
+
+#chatInput {
+  flex: 1;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+
+/* لیست پیام‌ها */
+#chatList {
+  flex: 1;
+  overflow-y: auto;
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+  margin: 0;
 }
 
 
@@ -862,7 +924,7 @@ position: absolute;
 <div id="chatMessages" class="chat-messages" dir="rtl" aria-live="polite"></div>
 
 <!-- پنجره‌ی چت (overlay) -->
-<div id="chatOverlay" style="display:none; position:fixed; inset:0; z-index:12000; justify-content:center;; align-items:flex-end; pointer-events:auto;">
+<div id="chatOverlay">
   <!-- زمینه نیمه‌شفاف برای پوشش -->
   <div id="chatBackdrop" style="position:absolute; inset:0; background:rgba(0,0,0,0.25);"></div>
 
@@ -872,10 +934,10 @@ position: absolute;
      position:relative; 
 
      /* --- عرض و ارتفاع نسبت به صفحه نمایش --- */
-     width:80vw;
-     max-width:80vw;
-     height:90vh;
-     max-height:80vh;
+     width:100vw;
+     max-width:100vw;
+     height:100vh;
+     max-height:100vh;
 
      /* ---- بک‌گراند جدید تصویری با opacity 70% ---- */
      background: rgba(255,255,255,0.7) url('chatBackground1.png');
@@ -2120,7 +2182,7 @@ async function sendChatMessage(message, opts = {}) {
 
 /* ----------------- Chat rendering (replacement) ----------------- */
 
-/** کمک: ساخت DOM برای یک پیام و append کردن به chatList */
+
 function renderChatMessage(msgObj) {
   // msgObj: { fromId, fromName, message, ts }
   const meId = window.chatSenderId || window.playerId;
