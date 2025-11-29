@@ -371,7 +371,7 @@ position: absolute;
     top: 25px;
     left: 25px;
     transition: 0.05s;
-    display = "none"
+    display : none;
     z-index: 1200;
     pointer-events: none;
 }
@@ -417,7 +417,6 @@ position: absolute;
   color: #001122; /* تیره‌تر برای خوانایی بهتر */
   font-weight: bold;
   font-size: 16px;
-  display: flex; /* برای وسط‌چین کردن */
   justify-content: center; /* افقی در مرکز */
   align-items: center; /* عمودی در مرکز */
   cursor: pointer;
@@ -502,13 +501,13 @@ position: absolute;
 
 #shoot {
     position: fixed;
-    bottom: 20px;
+    bottom: 30px;
     left: 20px;
     width: 80px;
     height: 80px;
     display: none;
     z-index: 20000;
-
+   transition: transform 0.08s ease;
     border-radius: 50%;
     overflow: hidden;
     cursor: pointer;
@@ -602,10 +601,6 @@ position: absolute;
 
 
 
-/* حالت عادی دکمه */
-#shoot {
-    transition: transform 0.08s ease;
-}
 
 /* لرزش شدید اسلحه */
 #shoot.recoil {
@@ -947,7 +942,7 @@ position: absolute;
 
 <!-- نمونه‌ی HTML (اگر نداریش) -->
 <div id="shoot" role="button" aria-label="shoot">
-  <img class="shoot-img" src="path/to/your-image.jpg" alt="shoot">
+  <img class="shoot-img" src="path/to/your-image.jpg" alt="">
   <span class="shoot-icon">●</span>
 </div>
 
@@ -1068,7 +1063,7 @@ display: none;
 </div>
 
 
-<button id="pauseBtn" style="display:none;">⏸</button>
+
 
 
 <!-- لایه‌ی نمایش امتیازات -->
@@ -1177,7 +1172,7 @@ let gameMusic = new Audio("sounds/BermoodaSound.mp3"); // مسیر آهنگ را
 gameMusic.loop = true;     // آهنگ تکرارشونده
 gameMusic.volume = 0.0;    // شروع بی‌صدا (برای fade in)
 let fadeGameMusic = null;
-gameMusic.volume = 0.7;
+
 
 
 let gameOverMusic = new Audio("sounds/gameOverSound.mp3"); // آهنگ شکست
@@ -1201,7 +1196,7 @@ let heatCoolRate = 0.2; // سرعت خنک شدن در هر فریم (قابل �
 let overheatDuration = 3000; // زمان قفل شلیک بعد از داغ شدن (میلی‌ثانیه)
 let lastOverheatTime = 0;
 const heatBar = document.getElementById("heatBar");
-
+if (!heatBar) console.warn('heatBar not found');
 
 const SHEET_WEBAPP = 'https://script.google.com/macros/s/AKfycbzPI5V8LCbQW1aSee0gBpwz-T8YdPXbKFmWeBgU5V_mWJQwqowJRU88yKfEfrJ9EUsg/exec';
 
@@ -1245,13 +1240,14 @@ function sendPresence(isOnline) {
   try {
     if (navigator.sendBeacon) {
       
-      const blob = new Blob([params.toString()], { type: 'application/x-www-form-urlencoded' });
+      const blob = new Blob([params.toString()], { type: 'application/x-www-form-urlencoded;charset=UTF-8' });
 
 
       const ok = navigator.sendBeacon(SHEET_WEBAPP, blob);
       if (ok) return;
     }
   } catch (e) {
+  console.warn("sendBeacon failed:", e);
   }
 
   try {
@@ -2027,26 +2023,58 @@ window.addEventListener('freeze', () => {
 
 
 
+let __isPlayingFlag = false; // جلوگیری از ارسال‌های تکراری
+
+
 function markPlaying() {
-  const body = new URLSearchParams();
-  body.append('action','playing');
-  body.append('playerId', window.playerId || getOrCreatePlayerId());
-  body.append('name', window.playerName || '');
-  fetch(SHEET_WEBAPP, { method: 'POST', body });
+const pid = window.playerId || getOrCreatePlayerId();
+const name = window.playerName || "";
+
+
+// جلوگیری از ارسال مکرر زمانی که وضعیت تغییر نکرده
+if (__isPlayingFlag) return;
+__isPlayingFlag = true;
+
+
+const params = new URLSearchParams();
+params.append('action', 'playing');
+params.append('playerId', pid);
+params.append('name', name);
+params.append('t', Date.now()); // جلوگیری از کش شدن
+
+
+fetch(SHEET_WEBAPP, {
+method: 'POST',
+headers: { "Content-Type": "application/x-www-form-urlencoded" },
+body: params.toString(),
+keepalive: true
+}).catch(() => {});
 }
 
 
-
 function stopPlaying() {
-  const body = new URLSearchParams();
-  body.append('action', 'stopPlaying');
-  body.append('playerId', window.playerId || getOrCreatePlayerId());
-  body.append('name', window.playerName || '');
-  
-  fetch(SHEET_WEBAPP, {
-    method: 'POST',
-    body
-  });
+const pid = window.playerId || getOrCreatePlayerId();
+const name = window.playerName || "";
+
+
+// فقط وقتی ارسال شود که قبلاً playing فعال بوده
+if (!__isPlayingFlag) return;
+__isPlayingFlag = false;
+
+
+const params = new URLSearchParams();
+params.append('action', 'stopPlaying');
+params.append('playerId', pid);
+params.append('name', name);
+params.append('t', Date.now());
+
+
+fetch(SHEET_WEBAPP, {
+method: 'POST',
+headers: { "Content-Type": "application/x-www-form-urlencoded" },
+body: params.toString(),
+keepalive: true
+}).catch(() => {});
 }
 
 // ارسال پیام (فرم-انکد)
@@ -3220,12 +3248,18 @@ if (airplaneContainer) {
 
 
   
-  exitBtn.onclick = () => {
-  stopPlaying();
-  stopPresence();
-  startBtn.style.display = "none";
-  exitBtn.style.display = "none";
-  window.close();
+ exitBtn.onclick = () => {
+    stopPlaying();
+    stopPresence();
+    startBtn.style.display = "none";
+    exitBtn.style.display = "none";
+    
+  
+    if (typeof Android !== "undefined" && Android.finish) {
+        Android.finish();  // این خط باعث بسته شدن اپ می‌شود
+    } else {
+        alert("اپلیکیشن شما در محیط مرورگر است و نمی‌تواند بسته شود.");
+    }
 };
 
 
@@ -5560,12 +5594,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
-
-
-
-
-
-
 
 
 
