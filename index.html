@@ -1312,14 +1312,12 @@ function renderUnreadPopup(data, playerId) {
       #unreadPopup { position: fixed; display: flex; justify-content: center;  align-items: flex-start;
      flex-direction: column;  top: 20px; left: 50% ; transform: translateX(-50%); width: 70%; max-height: 65vh; overflow:auto;
                      z-index:10000; direction: rtl; font-family: Tahoma, Arial, sans-serif; }
-      .unread-panel { background: linear-gradient(180deg, rgba(18,18,20,0.98), rgba(28,28,30,0.95));
+      .unread-panel { width: 100%; max-width: 480px; background: linear-gradient(180deg, rgba(18,18,20,0.98), rgba(28,28,30,0.95));
                       border-radius:14px; overflow: visible !important; padding:12px; box-shadow: 0 14px 40px rgba(0,0,0,0.6); color:#fff; }
       .unread-header { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:10px; }
       .unread-total { font-weight:800; font-size:14px; color:#ffd6a5; text-shadow:0 0 10px rgba(255,180,80,0.28); }
       .unread-close { background:transparent; border:0; color:#ddd; cursor:pointer; font-size:13px; }
-
       .unread-list { display:flex; flex-direction:column; gap:10px; }
-
       .unread-item {
         --btn-h: clamp(52px, 7vh, 72px);
         display:flex; align-items:center; justify-content:space-between;
