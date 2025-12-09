@@ -3736,6 +3736,13 @@ if (fuel <= 20) {
 
 
 
+
+
+
+
+
+
+
 /* ===========================================================
    سیستم مستقل دشمن هوشمند (بدون وابستگی به کد اصلی)
    تمام نام‌ها شامل hoosh هستند
@@ -3743,13 +3750,13 @@ if (fuel <= 20) {
 
 /* ------- تنظیمات کلی ------- */
 const hooshSettings = {
-    spawnInterval: 30000,   // هر 80 ثانیه
-    lifeTime: 10000,        // عمر هر دشمن
+    spawnInterval: 20000,   // هر 80 ثانیه
+    lifeTime: 50000,        // عمر هر دشمن
     shotRate: 1,            // یک تیر در ثانیه
-    evadeLookAhead: 800,    // پیش‌بینی 600 میلی‌ثانیه‌ای
+    evadeLookAhead: 1000,    // پیش‌بینی 600 میلی‌ثانیه‌ای
     evadeRadius: 100,       // شعاع شناسایی تیر
     maxSpeedX: 1,
-    evadeForce: 0.08+++,
+    evadeForce: 0.10,
     imgList: [ "hooshmandP.png", "hooshmandP2.png" ],
     scoreOnKill: 500
 };
@@ -5640,20 +5647,6 @@ window.addEventListener("resize",()=>{
 })();
 
 
-
-
-
-
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
