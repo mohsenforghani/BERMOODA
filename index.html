@@ -1264,7 +1264,7 @@ const SHEET_WEBAPP = 'https://script.google.com/macros/s/AKfycbzPI5V8LCbQW1aSee0
 
 
 let presenceIntervalId = null;
-let alreadySentScore = false;
+window.alreadySentScore = false;
 
 
 
@@ -1607,7 +1607,7 @@ function renderUnreadPopup(data, playerId) {
 
 
 // === utility: secure uuid (modern) with fallback ===
-// === به‌روز شده: getOrCreatePlayerId (حفظ نام تابع) ===
+
 function getOrCreatePlayerId() {
 
   // --- helper: cookie ---
@@ -2510,6 +2510,7 @@ function showHelpImages() {
 function addScore(points, enemyCount = 1) {
   // افزایش امتیاز بر اساس تعداد دشمن
   score += points * enemyCount;
+   window.score = score;
 
   // بررسی سطح جدید برای پاداش موشک
   let newLevel = Math.floor(score / 50);
@@ -3531,7 +3532,19 @@ document.addEventListener("keyup", (e) => {
 
 async function sendScore() {
   try {
-    if (alreadySentScore) return;
+
+console.log('sendScore called', {
+  alreadySentScore: window.alreadySentScore,
+  windowPlayerId: window.playerId,
+  localPlayerId: localStorage.getItem('bermooda_playerId'),
+  windowPlayerName: window.playerName,
+  localPlayerName: localStorage.getItem('bermooda_playerName'),
+  windowScore: window.score,
+  scoreValueEl: document.getElementById('scoreValue')?.innerText
+});
+
+
+    if (window.alreadySentScore) return;
 
     const finalScore = Number(window.score || document.getElementById('scoreValue').innerText) || 0;
     if (finalScore <= 0) return;
@@ -3549,7 +3562,7 @@ async function sendScore() {
     const res = await fetch(SHEET_WEBAPP, { method: 'POST', body });
     const json = await res.json().catch(()=>null);
 
-    alreadySentScore = true;
+    window.alreadySentScore = true;
 
     const scoreDiv = document.getElementById('finalScore');
     if (scoreDiv) {
@@ -4793,7 +4806,7 @@ function launchMissile() {
 function startGame() {
  if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفج
   startPresence();
-  alreadySentScore = false;
+  window.alreadySentScore = false;
   showTopPlayerName();
   showHelpImages();
   markPlaying(); 
@@ -4920,6 +4933,7 @@ try {
 
 
   function endGame() {
+   sendScore();
     gameRunning = false;
     document.getElementById("playernameDisplay").style.display = "none";
     document.getElementById("bestPlayer").style.display = "none";
@@ -4951,7 +4965,7 @@ try {
   document.getElementById("missileBtn").style.display = "none";
   document.getElementById("heatBarContainer").style.display = "none";
   showFinalScore();
-  sendScore();
+  
   
 
 
