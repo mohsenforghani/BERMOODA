@@ -1292,23 +1292,24 @@ const HEART_SIZE = 18;
 
   
   function drawHeartDrops(ctx) {
-  ctx.fillStyle = "red";
-
   for (const heart of heartDrops) {
-    ctx.beginPath();
-    ctx.arc(heart.x, heart.y, heart.size / 2, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.font = "24px Arial";
+ctx.textAlign = "center";
+ctx.textBaseline = "middle";
+ctx.fillText("❤️", heart.x, heart.y);
+
   }
 }
 
   function checkHeartCollisionWithPlayer(heart) {
   return (
+    heart.x > airplane.x &&
     heart.x < airplane.x + airplane.width &&
-    heart.x + heart.size > airplane.x &&
-    heart.y < airplane.y + airplane.height &&
-    heart.y + heart.size > airplane.y
+    heart.y > airplane.y &&
+    heart.y < airplane.y + airplane.height
   );
 }
+
 
 
 function increasePlayerLife() {
@@ -5740,5 +5741,6 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
