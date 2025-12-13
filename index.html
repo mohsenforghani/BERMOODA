@@ -1263,6 +1263,13 @@ const HEART_SIZE = 18;
       y: y,
       size: HEART_SIZE,
       speed: HEART_FALL_SPEED,
+
+      // انیمیشن
+      scale: 1,
+      scaleDir: 1,
+      floatOffset: Math.random() * Math.PI * 2,
+      rotation: Math.random() * 0.5,
+
       active: true
     });
   }
@@ -1271,17 +1278,23 @@ const HEART_SIZE = 18;
   function updateHeartDrops() {
   for (let i = heartDrops.length - 1; i >= 0; i--) {
     const heart = heartDrops[i];
-    if (!heart.active) continue;
 
     heart.y += heart.speed;
+    heart.floatOffset += 0.05;
+    heart.x += Math.sin(heart.floatOffset) * 0.5;
 
-    // حذف اگر از صفحه خارج شد
+    heart.scale += 0.01 * heart.scaleDir;
+    if (heart.scale > 1.2 || heart.scale < 0.9) {
+      heart.scaleDir *= -1;
+    }
+
+    heart.rotation += 0.01;
+
     if (heart.y > canvas.height + heart.size) {
       heartDrops.splice(i, 1);
       continue;
     }
 
-    // برخورد با هواپیمای بازیکن
     if (checkHeartCollisionWithPlayer(heart)) {
       increasePlayerLife();
       heartDrops.splice(i, 1);
@@ -1290,25 +1303,35 @@ const HEART_SIZE = 18;
 }
 
 
+
   
   function drawHeartDrops(ctx) {
   for (const heart of heartDrops) {
-    ctx.font = "24px Arial";
-ctx.textAlign = "center";
-ctx.textBaseline = "middle";
-ctx.fillText("❤️", heart.x, heart.y);
+    ctx.save();
 
+    ctx.translate(heart.x, heart.y);
+    ctx.rotate(heart.rotation);
+    ctx.scale(heart.scale, heart.scale);
+
+    ctx.font = "24px Arial";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("❤️", 0, 0);
+
+    ctx.restore();
   }
 }
 
+
   function checkHeartCollisionWithPlayer(heart) {
   return (
-    heart.x > airplane.x &&
-    heart.x < airplane.x + airplane.width &&
-    heart.y > airplane.y &&
-    heart.y < airplane.y + airplane.height
+    heart.x + heart.size/2 > airplane.x &&
+    heart.x - heart.size/2 < airplane.x + airplane.width &&
+    heart.y + heart.size/2 > airplane.y &&
+    heart.y - heart.size/2 < airplane.y + airplane.height
   );
 }
+
 
 
 
@@ -5741,6 +5764,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
 
