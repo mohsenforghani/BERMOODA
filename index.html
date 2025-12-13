@@ -1249,6 +1249,79 @@ gameOverMusic.volume = 0.7;
 
 
 
+  
+
+const heartDrops = [];
+const HEART_DROP_CHANCE = 0.005; // 0.5 درصد
+const HEART_FALL_SPEED = 2;
+const HEART_SIZE = 18;
+
+  function trySpawnHeartDrop(x, y) {
+  if (Math.random() <= HEART_DROP_CHANCE) {
+    heartDrops.push({
+      x: x,
+      y: y,
+      size: HEART_SIZE,
+      speed: HEART_FALL_SPEED,
+      active: true
+    });
+  }
+}
+
+  function updateHeartDrops() {
+  for (let i = heartDrops.length - 1; i >= 0; i--) {
+    const heart = heartDrops[i];
+    if (!heart.active) continue;
+
+    heart.y += heart.speed;
+
+    // حذف اگر از صفحه خارج شد
+    if (heart.y > canvas.height + heart.size) {
+      heartDrops.splice(i, 1);
+      continue;
+    }
+
+    // برخورد با هواپیمای بازیکن
+    if (checkHeartCollisionWithPlayer(heart)) {
+      increasePlayerLife();
+      heartDrops.splice(i, 1);
+    }
+  }
+}
+
+
+  
+  function drawHeartDrops(ctx) {
+  ctx.fillStyle = "red";
+
+  for (const heart of heartDrops) {
+    ctx.beginPath();
+    ctx.arc(heart.x, heart.y, heart.size / 2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+  function checkHeartCollisionWithPlayer(heart) {
+  return (
+    heart.x < airplane.x + airplane.width &&
+    heart.x + heart.size > airplane.x &&
+    heart.y < airplane.y + airplane.height &&
+    heart.y + heart.size > airplane.y
+  );
+}
+
+
+function increasePlayerLife() {
+  lives++;
+}
+
+
+
+
+
+  
+
+  
 
 // 🎯 متغیرهای نوار محدودیت شلیک
 let heat = 0; // میزان گرمای فعلی (۰ تا ۱۰۰)
@@ -4079,7 +4152,8 @@ hooshUpdateBullets(delta, canvas, airplane, ()=>explodeAirplane());
 hooshRender(ctx);
 
 
-
+updateHeartDrops();
+drawHeartDrops(ctx);
 
 
 
@@ -4471,6 +4545,8 @@ for (let i = enemyBullets.length - 1; i >= 0; i--) {
       b.y < e.y + e.h/2
     ) {
       createExplosion(e.x, e.y, e.w, e.h); // انفجار ترکیبی
+      trySpawnHeartDrop(e.x, e.y);
+
       enemies.splice(i, 1);
       bullets.splice(j, 1);
    addScore(10, enemies.length);
@@ -4660,30 +4736,30 @@ function shootBullets() {
   if (bulletGrade === 1) {
     bullets.push({
       x: airplane.x + airplane.w / 2,
-      y: airplane.y,
+      y: airplane.y - airplane.h / 2,
       w: 2,
       h: 6,
       color: "#FFFF00", // زرد طلایی
       vx: 0,
       vy: -bulletSpeed,
-      glow: 6
+      glow: 10
     });
   }
   else if (bulletGrade === 2) {
     // دو تیر از دو بال
     bullets.push({
       x: airplane.x + 5,
-      y: airplane.y,
+      y: airplane.y -3,
       w: 2,
       h: 6,
       color: "#00FFFF", // آبی روشن
       vx: 0,
       vy: -bulletSpeed,
-      glow: 6
+      glow: 10
     });
     bullets.push({
       x: airplane.x + airplane.w - 5,
-      y: airplane.y,
+      y: airplane.y -3,
       w: 2,
       h: 6,
       color: "#00FFFF",
@@ -5664,3 +5740,4 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
