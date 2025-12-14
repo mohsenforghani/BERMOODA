@@ -1252,49 +1252,40 @@ gameOverMusic.volume = 0.7;
   
 
 const heartDrops = [];
-const HEART_DROP_CHANCE = 0.3; // 0.5 درصد
+const HEART_DROP_CHANCE = 0.005; // 0.5 درصد
 const HEART_FALL_SPEED = 2;
-const HEART_SIZE = 18;
+const HEART_SIZE = 24;
 
-  function trySpawnHeartDrop(x, y) {
+function trySpawnHeartDrop(x, y) {
   if (Math.random() <= HEART_DROP_CHANCE) {
     heartDrops.push({
       x: x,
       y: y,
       size: HEART_SIZE,
       speed: HEART_FALL_SPEED,
-
-      // انیمیشن
-      scale: 1,
-      scaleDir: 1,
-      floatOffset: Math.random() * Math.PI * 2,
-      rotation: Math.random() * 0.5,
-
-      active: true
+      active: true,
+      angle: 0,             // زاویه فعلی
+      rotationSpeed: Math.PI * 2 // یک دور کامل در هر ثانیه (radians/s)
     });
   }
 }
 
-  function updateHeartDrops() {
+function updateHeartDrops(deltaTime) {
+  // deltaTime بر حسب ثانیه است
   for (let i = heartDrops.length - 1; i >= 0; i--) {
     const heart = heartDrops[i];
+    if (!heart.active) continue;
 
     heart.y += heart.speed;
-    heart.floatOffset += 0.05;
-    heart.x += Math.sin(heart.floatOffset) * 0.5;
+    heart.angle += heart.rotationSpeed * deltaTime; // بروزرسانی زاویه
 
-    heart.scale += 0.01 * heart.scaleDir;
-    if (heart.scale > 1.2 || heart.scale < 0.9) {
-      heart.scaleDir *= -1;
-    }
-
-    heart.rotation += 0.01;
-
+    // حذف اگر از صفحه خارج شد
     if (heart.y > canvas.height + heart.size) {
       heartDrops.splice(i, 1);
       continue;
     }
 
+    // برخورد با هواپیمای بازیکن
     if (checkHeartCollisionWithPlayer(heart)) {
       increasePlayerLife();
       heartDrops.splice(i, 1);
@@ -1302,28 +1293,20 @@ const HEART_SIZE = 18;
   }
 }
 
-
-
-  
-  function drawHeartDrops(ctx) {
+function drawHeartDrops(ctx) {
   for (const heart of heartDrops) {
     ctx.save();
-
     ctx.translate(heart.x, heart.y);
-    ctx.rotate(heart.rotation);
-    ctx.scale(heart.scale, heart.scale);
-
-    ctx.font = "24px Arial";
+    ctx.rotate(heart.angle);
+    ctx.font = `${heart.size}px Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.fillText("❤️", 0, 0);
-
     ctx.restore();
   }
 }
 
-
-  function checkHeartCollisionWithPlayer(heart) {
+function checkHeartCollisionWithPlayer(heart) {
   return (
     heart.x + heart.size/2 > airplane.x &&
     heart.x - heart.size/2 < airplane.x + airplane.width &&
@@ -1331,6 +1314,7 @@ const HEART_SIZE = 18;
     heart.y - heart.size/2 < airplane.y + airplane.height
   );
 }
+
 
 
 
@@ -5764,6 +5748,7 @@ window.addEventListener("resize",()=>{
 </script>
 </body>
 </html>
+
 
 
 
