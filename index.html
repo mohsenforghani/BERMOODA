@@ -5317,21 +5317,20 @@ joystick.addEventListener("touchend", e=>{
 
 // === شلیک نگه داشتن ===
 shootBtn.addEventListener("touchstart", e => {
-  e.preventDefault();
-  if (!gameRunning) return;
- shootBtn.classList.add("recoil");
- setTimeout(() => {
-        shootBtn.classList.remove("recoil");
-    }, 150);
-  clearInterval(shootInterval);
-  updateBulletGrade(score);
-  shootBullets(); // شلیک فوری
+    e.preventDefault();
+    if (!gameRunning) return;
 
-  //شلیک مداوم
-  shootInterval = setInterval(() => {
-  updateBulletGrade(score); 
-  shootBullets();
-  }, 110);
+    clearInterval(shootInterval);
+    updateBulletGrade(score);
+    shootBullets();              // شلیک فوری
+    triggerRecoilAnimation();    // انیمیشن فوری
+
+    // شلیک مداوم
+    shootInterval = setInterval(() => {
+        updateBulletGrade(score);
+        shootBullets();
+        triggerRecoilAnimation(); // اجرای مکرر انیمیشن
+    }, 110);
 });
 
 shootBtn.addEventListener("touchend", e => {
@@ -5344,16 +5343,19 @@ shootBtn.addEventListener("touchcancel", e => {
 
 // --- کلیک (کامپیوتر)
 shootBtn.addEventListener("mousedown", e => {
-  if (!gameRunning) return;
+    if (!gameRunning) return;
 
- clearInterval(shootInterval);
- updateBulletGrade(score);
-  shootBullets(); // شلیک فوری
- 
-  shootInterval = setInterval(() => {
-  updateBulletGrade(score);
-    shootBullets();
-  }, 110);
+    clearInterval(shootInterval);
+    updateBulletGrade(score);
+    shootBullets();              // شلیک فوری
+    triggerRecoilAnimation();    // انیمیشن فوری
+
+    // شلیک مداوم
+    shootInterval = setInterval(() => {
+        updateBulletGrade(score);
+        shootBullets();
+        triggerRecoilAnimation(); // اجرای مکرر انیمیشن
+    }, 110);
 });
 
 shootBtn.addEventListener("mouseup", e => {
@@ -5768,7 +5770,19 @@ function drawHeartParticles(ctx) {
 }
 
 
+
+// === تابع اجرای انیمیشن recoil ===
+function triggerRecoilAnimation() {
+    shootBtn.classList.remove("recoil"); // پاک کردن کلاس
+    void shootBtn.offsetWidth;           // trigger reflow برای reset
+    shootBtn.classList.add("recoil");    // دوباره اضافه کردن
+}
+
+
+
   </script>
 </body>
 </html>
+
+
 
