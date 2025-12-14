@@ -1252,7 +1252,7 @@ gameOverMusic.volume = 0.7;
   
 
 const heartDrops = [];
-const HEART_DROP_CHANCE = 0.90; // 0.5 درصد
+const HEART_DROP_CHANCE = 0.01; // یک در صد احتمال وجود جان
 const HEART_FALL_SPEED = 2;
 const HEART_SIZE = 24;
 
@@ -5715,10 +5715,13 @@ function updateHeartDrops() {
 
     // برخورد با هواپیما
     if (checkHeartCollisionWithPlayer(heart)) {
-      increasePlayerLife();
-      spawnHeartPickupEffect(heart.x, heart.y); 
-      heartDrops.splice(i, 1);
-    }
+  if (score >= 1500 && lives < 3) {
+    increasePlayerLife();
+    spawnHeartPickupEffect(heart.x, heart.y); 
+  }
+  heartDrops.splice(i, 1); // قلب همیشه حذف شود
+}
+
   }
 }
 
@@ -5745,8 +5748,11 @@ function checkHeartCollisionWithPlayer(heart) {
 }
 
 function increasePlayerLife() {
-  lives++;
+  if (lives < 3) {
+    lives++;
+  }
 }
+
 
 
 const heartParticles = [];
@@ -5801,6 +5807,7 @@ function drawHeartParticles(ctx) {
   </script>
 </body>
 </html>
+
 
 
 
