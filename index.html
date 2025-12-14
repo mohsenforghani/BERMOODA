@@ -4527,7 +4527,12 @@ updateAndDrawBullets();
   
 
 updateHeartDrops();
+updateHeartParticles();
 drawHeartDrops(ctx);
+drawHeartParticles(ctx);
+
+
+  
   updateExplosions(delta);
   drawFuelGaugeAnimated();
   drawLives();
@@ -5685,20 +5690,24 @@ function trySpawnHeartDrop(x, y) {
       size: HEART_SIZE,
       speed: HEART_FALL_SPEED,
       active: true,
-      angle: 0,             // زاویه فعلی
-      rotationSpeed: Math.PI * 2 // یک دور کامل در هر ثانیه (radians/s)
+      scale: 1,           // برای ضربان
+      scaleDir: 1         // جهت بزرگ شدن/کوچک شدن ضربان
     });
   }
 }
 
-function updateHeartDrops(deltaTime) {
-  // deltaTime بر حسب ثانیه است
+function updateHeartDrops() {
   for (let i = heartDrops.length - 1; i >= 0; i--) {
     const heart = heartDrops[i];
     if (!heart.active) continue;
 
+    // حرکت به سمت پایین
     heart.y += heart.speed;
-    heart.angle += heart.rotationSpeed * deltaTime; // بروزرسانی زاویه
+
+    // ضربان قلب: تغییر سایز کوتاه
+    heart.scale += 0.02 * heart.scaleDir;
+    if (heart.scale > 1.2) heart.scaleDir = -1;
+    if (heart.scale < 0.8) heart.scaleDir = 1;
 
     // حذف اگر از صفحه خارج شد
     if (heart.y > canvas.height + heart.size) {
@@ -5706,7 +5715,7 @@ function updateHeartDrops(deltaTime) {
       continue;
     }
 
-    // برخورد با هواپیمای بازیکن
+    // برخورد با هواپیما
     if (checkHeartCollisionWithPlayer(heart)) {
       increasePlayerLife();
       heartDrops.splice(i, 1);
@@ -5718,7 +5727,7 @@ function drawHeartDrops(ctx) {
   for (const heart of heartDrops) {
     ctx.save();
     ctx.translate(heart.x, heart.y);
-    ctx.rotate(heart.angle);
+    ctx.scale(heart.scale, heart.scale); // ضربان
     ctx.font = `${heart.size}px Arial`;
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
@@ -5729,24 +5738,63 @@ function drawHeartDrops(ctx) {
 
 function checkHeartCollisionWithPlayer(heart) {
   return (
-    heart.x + heart.size > airplane.x &&
-    heart.x < airplane.x + airplane.w &&
-    heart.y + heart.size > airplane.y &&
-    heart.y < airplane.y + airplane.h
+    heart.x + heart.size/2 > airplane.x &&
+    heart.x - heart.size/2 < airplane.x + airplane.w &&
+    heart.y + heart.size/2 > airplane.y &&
+    heart.y - heart.size/2 < airplane.y + airplane.h
   );
 }
-
-
 
 function increasePlayerLife() {
   lives++;
 }
 
 
+function spawnHeartParticles(x, y) {
+  for (let i = 0; i < 10; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 3 + 1;
+    heartParticles.push({
+      x, y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      alpha: 1,
+      radius: Math.random() * 3 + 2
+    });
+  }
+}
+
+function updateHeartParticles() {
+  for (let i = heartParticles.length - 1; i >= 0; i--) {
+    const p = heartParticles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.alpha -= 0.05;
+    if (p.alpha <= 0) heartParticles.splice(i, 1);
+  }
+}
+
+function drawHeartParticles(ctx) {
+  for (const p of heartParticles) {
+    ctx.save();
+    ctx.globalAlpha = p.alpha;
+    ctx.fillStyle = "pink";
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
+    ctx.fill();
+    ctx.restore();
+  }
+  }
+
+
+
+
   
-</script>
+
+  </script>
 </body>
 </html>
+
 
 
 
