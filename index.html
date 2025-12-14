@@ -4528,6 +4528,9 @@ updateAndDrawBullets();
 
   updateHeartDrops();
   drawHeartDrops(ctx);  
+  updateHeartParticles();
+  drawHeartParticles(ctx);
+
   updateExplosions(delta);
   drawFuelGaugeAnimated();
   drawLives();
@@ -5713,6 +5716,7 @@ function updateHeartDrops() {
     // برخورد با هواپیما
     if (checkHeartCollisionWithPlayer(heart)) {
       increasePlayerLife();
+      spawnHeartPickupEffect(heart.x, heart.y); 
       heartDrops.splice(i, 1);
     }
   }
@@ -5745,11 +5749,52 @@ function increasePlayerLife() {
 }
 
 
+const heartParticles = [];
+
+// ایجاد افکت قلب
+function spawnHeartPickupEffect(x, y) {
+  for (let i = 0; i < 12; i++) {
+    heartParticles.push({
+      x: x,
+      y: y,
+      vx: (Math.random() - 0.5) * 2, // افقی تصادفی
+      vy: -Math.random() * 2 - 1,    // حرکت به بالا
+      size: 8 + Math.random() * 4,    // سایز تصادفی
+      alpha: 1,
+    });
+  }
+}
+
+// بروزرسانی افکت
+function updateHeartParticles() {
+  for (let i = heartParticles.length - 1; i >= 0; i--) {
+    const p = heartParticles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.alpha -= 0.05; // کم شدن شفافیت
+    if (p.alpha <= 0) heartParticles.splice(i, 1);
+  }
+}
+
+// رسم افکت
+function drawHeartParticles(ctx) {
+  for (const p of heartParticles) {
+    ctx.save();
+    ctx.globalAlpha = p.alpha;
+    ctx.fillStyle = "red";
+    ctx.font = `${p.size}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("❤️", p.x, p.y);
+    ctx.restore();
+  }
+}
 
 
   </script>
 </body>
 </html>
+
 
 
 
