@@ -896,6 +896,9 @@ position: absolute;
 
 
 <canvas id="gameCanvas"></canvas>
+<script src="setting.js"></script>
+
+
 <button id="startBtn">شروع بازی</button>
 <div id="bestPlayer">Best Player: ---</div>
 
@@ -1227,17 +1230,13 @@ window.chatWindowOpen = false;
 
 
 
-
-
-// 🎶 آهنگ پس‌زمینه بازی
-let gameMusic = new Audio("sounds/BermoodaSound.mp3"); // مسیر آهنگ را تغییر بده
 gameMusic.loop = true;     // آهنگ تکرارشونده
 gameMusic.volume = 0.0;    // شروع بی‌صدا (برای fade in)
 let fadeGameMusic = null;
 
 
 
-let gameOverMusic = new Audio("sounds/gameOverSound.mp3"); // آهنگ شکست
+
 gameOverMusic.loop = true;
 gameOverMusic.volume = 0.0;
 let fadeGameOverMusic = null;
@@ -1252,9 +1251,6 @@ gameOverMusic.volume = 0.7;
   
 
 const heartDrops = [];
-const HEART_DROP_CHANCE = 0.01; // یک در صد احتمال وجود جان
-const HEART_FALL_SPEED = 2;
-const HEART_SIZE = 24;
 
 
 
@@ -1264,17 +1260,12 @@ const HEART_SIZE = 24;
 
   
 
-// 🎯 متغیرهای نوار محدودیت شلیک
-let heat = 0; // میزان گرمای فعلی (۰ تا ۱۰۰)
-let overheated = false; // آیا تفنگ داغ شده؟
-let heatFillRate = 1.2;   // سرعت افزایش گرما در هر شلیک (قابل تنظیم)
-let heatCoolRate = 0.2; // سرعت خنک شدن در هر فریم (قابل تنظیم)
-let overheatDuration = 3000; // زمان قفل شلیک بعد از داغ شدن (میلی‌ثانیه)
+
 let lastOverheatTime = 0;
 const heatBar = document.getElementById("heatBar");
 if (!heatBar) console.warn('heatBar not found');
 
-const SHEET_WEBAPP = 'https://script.google.com/macros/s/AKfycbzPI5V8LCbQW1aSee0gBpwz-T8YdPXbKFmWeBgU5V_mWJQwqowJRU88yKfEfrJ9EUsg/exec';
+
 
 
 let presenceIntervalId = null;
@@ -2386,7 +2377,7 @@ function escapeHtml(text) {
 
 
 
-let fuelAlarm = new Audio("sounds/gasAlert.mp3");
+
 fuelAlarm.loop = true;     // صدای هشدار تکرار شود تا وقتی سوخت پایین است
 fuelAlarm.volume = 0.50;    // شدت صدا
 let fuelAlarmActive = false; // برای جلوگیری از پخش دوباره
@@ -2447,7 +2438,7 @@ function spawnMeteor() {
   lastMeteorSpawn = performance.now();
 
   const img = meteorImages[Math.floor(Math.random() * meteorImages.length)];
-  const size = Math.random() * 60 + 50; // سایز بین 70 تا 120
+  const size = Math.random() * 60 + 50; 
   const direction = Math.random() < 0.5 ? "right" : "left";
   const rotationSpeed = (Math.random() * 5 + 1) * (Math.random() < 0.5 ? -1 : 1); // سرعت چرخش تصادفی
 
@@ -2724,7 +2715,7 @@ let bullets = [];
 let invincible = false; // مصون بودن موقت
 let respawnTime = 0;    // زمان شروع مصونیت  
 let lastBulletTime = 0;
-const bulletInterval = 200; // فاصله شلیک بر حسب میلی‌ثانیه
+
 
 
 let backgroundAnimation=null;
@@ -2810,19 +2801,18 @@ animationId = requestAnimationFrame(gameLoop);
 
 let fuelLabels = []; // آرایه نگهداری لیبل‌ها
 let gameOverBackground = false;
-let lives = 3;
+
 let dx = 0, dy = 0; 
 let explosionRunning = false;
-let fuel = 100; 
+
 let lastFuelSpawn = performance.now();
 let fuels = [];
 let lastShotTime = 0;
-const shootDelay = 70; // هر 80 میلی‌ثانیه یک گلوله
 let explosions = []; // انفجارها
 let lastTime = performance.now();
 // در ابتدای فایل
 let refueling = false; // آیا سوختگیری در حال انجام است؟
-let refuelRate = 0.4; // میزان سوخت در هر فریم هنگام سوختگیری
+
 
 
 // ===== لود 9 فریم انفجار =====
@@ -2839,21 +2829,20 @@ fuelImg.src = "fuel.png"; // مسیر تصویر پمپ بنزینت
   
 let enemyBullets = [];
 
+
+
+
+
 // تعیین گرید گلوله‌ها بر اساس امتیاز
-let bulletGrade = 1; // پیشفرض
-let bulletSpeed = 10; // مقدار اولیه
+
 function updateBulletGrade(score) {
-  if (score >= 2000) bulletGrade = 3;
-  else if (score >= 1000) bulletGrade = 2;
+  if (score >= scoreGradeThree) bulletGrade = 3;
+  else if (score >= scoreGradeTwo) bulletGrade = 2;
   else bulletGrade = 1;
 }
 
 
-
-  let displayedFuel = 100; 
-  const noFlyZoneHeight = 100; 
   
-
 
 
    const missileImages = [
@@ -2869,7 +2858,7 @@ function updateBulletGrade(score) {
 
 window.imageSources = window.imageSources || [];   // آرایه مسیرها (ممکنه از قبل داشته باشی)
 window.loadedImages = window.loadedImages || {};   // محل ذخیره تصاویر لودشده
-let missiles = 0; // تعداد موشک‌ها
+
 let activeMissiles = []; // لیست موشک‌های فعال در حال حرکت
 let missileBtn = document.getElementById("missileBtn");
 // ✅ لیست تمام تصاویر
@@ -3341,8 +3330,8 @@ if (airplaneContainer) {
 
 function drawLives() {
  if (!gameRunning) return;
- const size = 22; // 🔹 کوچکتر از قبل (35 → 22)
-  const padding = 8; // فاصله کمی کمتر برای تناسب بهتر
+ const size = 22; 
+
 
   // محاسبه موقعیت شروع برای قرار گرفتن در وسط صفحه
   const totalWidth = lives * size + (lives - 1) * padding;
@@ -3665,12 +3654,12 @@ function drawFuelGaugeAnimated() {
 
   // 🎧 بررسی وضعیت سوخت و پخش آلارم
   try {
-    if (fuel <= 20 && !fuelAlarmActive) {
+    if (fuel <= alarmfuel  && !fuelAlarmActive) {
       fuelAlarm.currentTime = 0;
       fuelAlarm.play().catch(() => {});
       fuelAlarmActive = true;
     } 
-    else if (fuel > 20 && fuelAlarmActive) {
+    else if (fuel > alarmfuel && fuelAlarmActive) {
       fuelAlarm.pause();
       fuelAlarm.currentTime = 0;
       fuelAlarmActive = false;
@@ -3687,8 +3676,8 @@ function drawFuelGaugeAnimated() {
   ctx.stroke();
 
 // 🔹 افکت چشمک‌زن قرمز وقتی سوخت ≤ 20٪
-if (fuel <= 20) {
-  const fade = 0.3 + 0.7 * Math.abs(Math.sin(performance.now() / 300)); // 0.3 تا 1
+if (fuel <= alarmfuel) {
+  const fade = 0.3 + 0.7 * Math.abs(Math.sin(performance.now() / 300));
   ctx.beginPath();
   ctx.arc(centerX, centerY, radius - 10, Math.PI, 2 * Math.PI);
   ctx.lineWidth = 16;
@@ -3732,7 +3721,7 @@ if (fuel <= 20) {
 
   // 🔹 درصد سوخت
   ctx.font = "12px Arial";
-  ctx.fillStyle = (fuel <= 20) ? "red" : "#00ffff";
+  ctx.fillStyle = (fuel <= alarmfuel) ? "red" : "#00ffff";
   ctx.fillText(Math.round(fuel) + "%", centerX, centerY - 10);
 
   // 🔹 Smooth animation عقربه
@@ -3760,33 +3749,12 @@ if (fuel <= 20) {
 
 
 
-
-
-
-
-
-
-
-
-
-
 /* ===========================================================
    سیستم مستقل دشمن هوشمند (بدون وابستگی به کد اصلی)
    تمام نام‌ها شامل hoosh هستند
    =========================================================== */
 
-/* ------- تنظیمات کلی ------- */
-const hooshSettings = {
-    spawnInterval: 30000,   // هر 80 ثانیه
-    lifeTime: 10000,        // عمر هر دشمن
-    shotRate: 1,            // یک تیر در ثانیه
-    evadeLookAhead: 1000,    // پیش‌بینی 1000میلی‌ثانیه‌ای
-    evadeRadius: 100,       // شعاع شناسایی تیر
-    maxSpeedX: 1,
-    evadeForce: 0.10,
-    imgList: [ "hooshmandP.png", "hooshmandP2.png" ],
-    scoreOnKill: 500
-};
+
 
 /* ------- ساخت کانتینر مستقل ------- */
 const hooshEnemies = [];
@@ -3880,7 +3848,7 @@ function hooshEnemyShoot(e, player){
     let dy = ty - spawnY;
     let len = Math.sqrt(dx*dx + dy*dy) || 1;
 
-    const speed = 2; // یا hooshSettings.bulletSpeed اگر خواستی اضافه کنی
+    const speed = 2; 
     hooshBullets.push({
         x: spawnX,
         y: spawnY,
@@ -4831,6 +4799,7 @@ function startGame() {
   showHelpImages();
   markPlaying(); 
   lastFuelSpawn = 0; // ریست زمان سوخت
+  speedMultiplier = 1;
 
  // 🔹 هر بار شروع جدید، چرخه‌ی روز/شب از "روز کامل" آغاز شود
   if (typeof dayNight !== 'undefined') {
@@ -4847,11 +4816,7 @@ function startGame() {
   document.getElementById("finalScore").style.display = "none";
   document.getElementById("playernameDisplay").style.display = "block";
   document.getElementById("bestPlayer").style.display = "block";
-
-
   document.getElementById("heatBarContainer").style.display = "block";
-
-
   document.getElementById("airplaneArcContainer").style.display = "none";
   document.getElementById("scoreContainer").style.display = "block";
   const controlPanel = document.getElementById('controlPanel');
@@ -5498,17 +5463,17 @@ nameCells.forEach(cell => {
         const chatKey = `${window.chatSenderId}_${window.chatReceiverId}`;
         if (!window.chatState) window.chatState = {};
         if (!window.chatState[chatKey]) {
-            // ایجاد state خالی برای این چت (در پوچی اولیه)
-           window.chatState[chatKey] = { lastTs: 0, seenIds: new Set(), messages: [], fetching: false };
+        // ایجاد state خالی برای این چت (در پوچی اولیه)
+        window.chatState[chatKey] = { lastTs: 0, seenIds: new Set(), messages: [], fetching: false };
 
         }
 
-        // پاک کردن DOM قبل از رندر کش (تا پیام‌های نفر قبلی نشان داده نشود)
-       // پاک کردن DOM قبل از رندر کش (تا پیام‌های نفر قبلی نشان داده نشود)
+// پاک کردن DOM قبل از رندر کش (تا پیام‌های نفر قبلی نشان داده نشود)
+// پاک کردن DOM قبل از رندر کش (تا پیام‌های نفر قبلی نشان داده نشود)
 const chatListEl = document.getElementById('chatList');
 if (chatListEl) chatListEl.innerHTML = '';
 
-// اگر cache داشتیم، آن را رندر کن (نمایش فوری)
+//نمایش فوری از کش
 if (window.chatState && window.chatState[chatKey] && Array.isArray(window.chatState[chatKey].messages) && window.chatState[chatKey].messages.length > 0) {
     
 } else {
@@ -5521,7 +5486,7 @@ if (window.chatState && window.chatState[chatKey] && Array.isArray(window.chatSt
 document.getElementById('chatOverlay').style.display = 'flex';
 document.getElementById('chatComposer').style.display = 'flex';
 
-// ===== مهم: شناسه گیرنده را از سلول بگیر، **هرگز** آن را با playerId بازنویسی نکن
+
 window.chatReceiverId = cell.getAttribute('data-playerid');
 window.chatReceiverName = cell.getAttribute('data-playername');
 
@@ -5681,9 +5646,9 @@ window.addEventListener("resize",()=>{
 })();
 
 function trySpawnHeartDrop(x, y) {
-  if (Math.random() <= HEART_DROP_CHANCE) {
+  if (score >= scoreToHeart && lives < maxLives  &&  Math.random() <= HEART_DROP_CHANCE) {
     heartDrops.push({
-      x: x,
+      x: x ,
       y: y,
       size: HEART_SIZE,
       speed: HEART_FALL_SPEED,
@@ -5715,11 +5680,11 @@ function updateHeartDrops() {
 
     // برخورد با هواپیما
     if (checkHeartCollisionWithPlayer(heart)) {
-  if (score >= 1500 && lives < 3) {
+  if (score >= scoreToHeart && lives < maxLives ) {
     increasePlayerLife();
     spawnHeartPickupEffect(heart.x, heart.y); 
   }
-  heartDrops.splice(i, 1); // قلب همیشه حذف شود
+  heartDrops.splice(i, 1);
 }
 
   }
@@ -5748,7 +5713,7 @@ function checkHeartCollisionWithPlayer(heart) {
 }
 
 function increasePlayerLife() {
-  if (lives < 3) {
+  if (lives < maxLives ) {
     lives++;
   }
 }
@@ -5807,18 +5772,6 @@ function drawHeartParticles(ctx) {
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
