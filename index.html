@@ -1256,71 +1256,6 @@ const HEART_DROP_CHANCE = 0.90; // 0.5 درصد
 const HEART_FALL_SPEED = 2;
 const HEART_SIZE = 24;
 
-function trySpawnHeartDrop(x, y) {
-  if (Math.random() <= HEART_DROP_CHANCE) {
-    heartDrops.push({
-      x: x,
-      y: y,
-      size: HEART_SIZE,
-      speed: HEART_FALL_SPEED,
-      active: true,
-      angle: 0,             // زاویه فعلی
-      rotationSpeed: Math.PI * 2 // یک دور کامل در هر ثانیه (radians/s)
-    });
-  }
-}
-
-function updateHeartDrops(deltaTime) {
-  // deltaTime بر حسب ثانیه است
-  for (let i = heartDrops.length - 1; i >= 0; i--) {
-    const heart = heartDrops[i];
-    if (!heart.active) continue;
-
-    heart.y += heart.speed;
-    heart.angle += heart.rotationSpeed * deltaTime; // بروزرسانی زاویه
-
-    // حذف اگر از صفحه خارج شد
-    if (heart.y > canvas.height + heart.size) {
-      heartDrops.splice(i, 1);
-      continue;
-    }
-
-    // برخورد با هواپیمای بازیکن
-    if (checkHeartCollisionWithPlayer(heart)) {
-      increasePlayerLife();
-      heartDrops.splice(i, 1);
-    }
-  }
-}
-
-function drawHeartDrops(ctx) {
-  for (const heart of heartDrops) {
-    ctx.save();
-    ctx.translate(heart.x, heart.y);
-    ctx.rotate(heart.angle);
-    ctx.font = `${heart.size}px Arial`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("❤️", 0, 0);
-    ctx.restore();
-  }
-}
-
-function checkHeartCollisionWithPlayer(heart) {
-  return (
-    heart.x + heart.size > airplane.x &&
-    heart.x < airplane.x + airplane.w &&
-    heart.y + heart.size > airplane.y &&
-    heart.y < airplane.y + airplane.h
-  );
-}
-
-
-
-function increasePlayerLife() {
-  lives++;
-}
-
 
 
 
@@ -4158,8 +4093,6 @@ hooshUpdateBullets(delta, canvas, airplane, ()=>explodeAirplane());
 hooshRender(ctx);
 
 
-updateHeartDrops();
-drawHeartDrops(ctx);
 
 
 
@@ -5744,10 +5677,77 @@ window.addEventListener("resize",()=>{
   } catch(e){}
 })();
 
+function trySpawnHeartDrop(x, y) {
+  if (Math.random() <= HEART_DROP_CHANCE) {
+    heartDrops.push({
+      x: x,
+      y: y,
+      size: HEART_SIZE,
+      speed: HEART_FALL_SPEED,
+      active: true,
+      angle: 0,             // زاویه فعلی
+      rotationSpeed: Math.PI * 2 // یک دور کامل در هر ثانیه (radians/s)
+    });
+  }
+}
 
+function updateHeartDrops(deltaTime) {
+  // deltaTime بر حسب ثانیه است
+  for (let i = heartDrops.length - 1; i >= 0; i--) {
+    const heart = heartDrops[i];
+    if (!heart.active) continue;
+
+    heart.y += heart.speed;
+    heart.angle += heart.rotationSpeed * deltaTime; // بروزرسانی زاویه
+
+    // حذف اگر از صفحه خارج شد
+    if (heart.y > canvas.height + heart.size) {
+      heartDrops.splice(i, 1);
+      continue;
+    }
+
+    // برخورد با هواپیمای بازیکن
+    if (checkHeartCollisionWithPlayer(heart)) {
+      increasePlayerLife();
+      heartDrops.splice(i, 1);
+    }
+  }
+}
+
+function drawHeartDrops(ctx) {
+  for (const heart of heartDrops) {
+    ctx.save();
+    ctx.translate(heart.x, heart.y);
+    ctx.rotate(heart.angle);
+    ctx.font = `${heart.size}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("❤️", 0, 0);
+    ctx.restore();
+  }
+}
+
+function checkHeartCollisionWithPlayer(heart) {
+  return (
+    heart.x + heart.size > airplane.x &&
+    heart.x < airplane.x + airplane.w &&
+    heart.y + heart.size > airplane.y &&
+    heart.y < airplane.y + airplane.h
+  );
+}
+
+
+
+function increasePlayerLife() {
+  lives++;
+}
+
+
+  
 </script>
 </body>
 </html>
+
 
 
 
