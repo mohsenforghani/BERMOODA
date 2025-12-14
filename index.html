@@ -4526,13 +4526,8 @@ updateAndDrawBullets();
 }
   
 
-updateHeartDrops();
-updateHeartParticles();
-drawHeartDrops(ctx);
-drawHeartParticles(ctx);
-
-
-  
+  updateHeartDrops();
+  drawHeartDrops(ctx);  
   updateExplosions(delta);
   drawFuelGaugeAnimated();
   drawLives();
@@ -5750,50 +5745,12 @@ function increasePlayerLife() {
 }
 
 
-function spawnHeartParticles(x, y) {
-  for (let i = 0; i < 10; i++) {
-    const angle = Math.random() * Math.PI * 2;
-    const speed = Math.random() * 3 + 1;
-    heartParticles.push({
-      x, y,
-      vx: Math.cos(angle) * speed,
-      vy: Math.sin(angle) * speed,
-      alpha: 1,
-      radius: Math.random() * 3 + 2
-    });
-  }
-}
 
-function updateHeartParticles() {
-  for (let i = heartParticles.length - 1; i >= 0; i--) {
-    const p = heartParticles[i];
-    p.x += p.vx;
-    p.y += p.vy;
-    p.alpha -= 0.05;
-    if (p.alpha <= 0) heartParticles.splice(i, 1);
-  }
-}
-
-function drawHeartParticles(ctx) {
-  for (const p of heartParticles) {
-    ctx.save();
-    ctx.globalAlpha = p.alpha;
-    ctx.fillStyle = "pink";
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, p.radius, 0, Math.PI*2);
-    ctx.fill();
-    ctx.restore();
-  }
-  }
-
-
-
-
-  
 
   </script>
 </body>
 </html>
+
 
 
 
