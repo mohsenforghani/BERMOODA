@@ -5757,10 +5757,12 @@ function spawnHeartPickupEffect(x, y) {
     heartParticles.push({
       x: x,
       y: y,
-      vx: (Math.random() - 0.5) * 7, // افقی تصادفی
-      vy: -Math.random() * 2 - 15,    // حرکت به بالا
-      size: 8 + Math.random() * 4,    // سایز تصادفی
+      vx: (Math.random() - 0.5) * 1,  // افقی آرام‌تر
+      vy: - (1 + Math.random() * 0.5), // سرعت عمودی کمتر (آرام بالا می‌رود)
+      size: 8 + Math.random() * 4,     // سایز تصادفی
       alpha: 1,
+      traveled: 0,                      // مسافت طی شده
+      maxTravel: 50                     // فاصله نهایی 50 پیکسل
     });
   }
 }
@@ -5771,8 +5773,12 @@ function updateHeartParticles() {
     const p = heartParticles[i];
     p.x += p.vx;
     p.y += p.vy;
-    p.alpha -= 0.02; // کم شدن شفافیت
-    if (p.alpha <= 0) heartParticles.splice(i, 1);
+    p.traveled += -p.vy; // مقدار حرکت عمودی به بالا
+
+    // کم شدن آرام‌تر شفافیت نسبت به مسافت طی شده
+    p.alpha = 1 - (p.traveled / p.maxTravel);
+
+    if (p.alpha <= 0 || p.traveled >= p.maxTravel) heartParticles.splice(i, 1);
   }
 }
 
@@ -5791,9 +5797,11 @@ function drawHeartParticles(ctx) {
 }
 
 
+
   </script>
 </body>
 </html>
+
 
 
 
