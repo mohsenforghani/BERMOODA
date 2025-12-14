@@ -2530,54 +2530,60 @@ function addScore(points, enemyCount = 1) {
 }
 
 
-// ===== انفجار ذره‌ای با لرزش و نور =====
+
+// ===== انفجار ذره‌ای با تکه‌های شهاب‌سنگ و لرزش =====
 function createMeteorExplosion(x, y, power = 1) {
-  const colors = [
-    "#3a2e1e", "#5b3c1a", "#8B4513", "#d2691e", 
-    "#ff6600", "#ff9933", "#ffd580", "#b0b0b0"
-  ];
-  const num = Math.floor(14 + 12 * Math.min(3, Math.max(0.5, power)));
+  const meteorColors = ["#3a2e1e", "#5b3c1a", "#8B4513", "#d2691e"];
+  const flashRadius = 50 + power * 40;
+  const numParticles = Math.floor(14 + 12 * Math.min(3, Math.max(0.5, power)));
+
+  // 🔶 Flash نور انفجار
+ // 🔶 اضافه کردن نور نارنجی انفجار
+explosionFlashes.push({
+    x,    // مرکز نور همان موقعیت انفجار
+    y,
+    radius: 200 + power * 50, // شعاع نور بسته به قدرت انفجار
+    alpha: 0.6,              // شدت اولیه
+    decay: 0.03,             // سرعت محو شدن
+    color: "orange"          // رنگ نور
+});
+
+
+  // 🔶 لرزش قوی صفحه 2 ثانیه
+  startScreenShake(12, 1000);
+
   const particles = [];
-
-  // 🔶 اضافه کردن نور انفجار لحظه‌ای
-  explosionFlashes.push({
-    x, y,
-    radius: 50 + power * 40,
-    alpha: 0.6,
-    decay: 0.09
-  });
-
-  // 🔶 لرزش صفحه
-  startScreenShake(10, 600);
-
-  for (let i = 0; i < num; i++) {
+  for (let i = 0; i < numParticles; i++) {
     const angle = Math.random() * Math.PI * 2;
-    const baseSpeed = (1 + Math.random() * 6) * (0.6 + 0.6 * power);
-    const vx = Math.cos(angle) * baseSpeed * (0.6 + Math.random() * 0.9);
-    const vy = Math.sin(angle) * baseSpeed * (0.6 + Math.random() * 0.9) - (0.8 + Math.random() * 1.8) * power;
+    const speed = (2 + Math.random() * 6) * power;
+    const vx = Math.cos(angle) * speed;
+    const vy = Math.sin(angle) * speed - (0.5 + Math.random() * 1) * power;
 
-    // شکل‌های نامنظم
+    // تکه‌ها شبیه شهاب‌سنگ: چندضلعی کوچک
     const verts = [];
-    const vertCount = 3 + Math.floor(Math.random() * 3);
+    const vertCount = 6 + Math.floor(Math.random() * 3);
     for (let v = 0; v < vertCount; v++) {
-      const r = 0.3 + Math.random() * 1;
+      const r = 0.35 + Math.random() * 1;
       const a = (v / vertCount) * Math.PI * 2 + (Math.random() - 0.5) * 0.6;
       verts.push({ x: Math.cos(a) * r, y: Math.sin(a) * r });
     }
 
+    const color = meteorColors[Math.floor(Math.random() * meteorColors.length)];
+
     particles.push({
-      x: x + (Math.random() - 0.5) * 10 * power,
-      y: y + (Math.random() - 0.5) * 10 * power,
-      vx, vy,
-      size: 3 + Math.random() * 5 * (0.6 + 0.4 * power),
-      color: colors[Math.floor(Math.random() * colors.length)],
+      x: x + (Math.random() - 0.5) * 8 * power,
+      y: y + (Math.random() - 0.5) * 8 * power,
+      vx,
+      vy,
+      size: 3 + Math.random() * 5 * (0.5 + 0.5 * power),
+      color,
       life: 1 + Math.random() * 0.7,
-      decay: 0.025 + Math.random() * 0.05,
-      drag: 0.91 + Math.random() * 0.06,
-      gravity: 0.04 + Math.random() * 0.1,
+      decay: 0.02 + Math.random() * 0.03,
+      drag: 0.92 + Math.random() * 0.05,
+      gravity: 0.14 + Math.random() * 0.20,
       rotation: Math.random() * 360,
-      angularVelocity: (Math.random() - 0.5) * 4,
-      shape: Math.random() < 0.6 ? "shard" : (Math.random() < 0.5 ? "ember" : "chunk"),
+      angularVelocity: (Math.random() - 0.5) * 3,
+      shape: "shard",
       verts,
       flickerSeed: Math.random() * 10,
       wobble: Math.random() * 0.5
@@ -2585,12 +2591,14 @@ function createMeteorExplosion(x, y, power = 1) {
   }
 
   meteorExplosions.push({ particles, created: performance.now() });
-  if (navigator.vibrate) navigator.vibrate(50);
 
+  // لرزش کوتاه گوشی (vibration) در موبایل
+  if (navigator.vibrate) navigator.vibrate(80);
 }
 
 
-// ===== بروزرسانی و رسم انفجار =====
+
+// ===== بروزرسانی و رسم انفجار شهاب‌سنگ =====
 function updateMeteorExplosions() {
   const now = performance.now();
   const last = updateMeteorExplosions._last || now;
@@ -2605,32 +2613,38 @@ function updateMeteorExplosions() {
 
     for (let j = particles.length - 1; j >= 0; j--) {
       const p = particles[j];
+
+      // جاذبه و drag
       p.vy += p.gravity * step;
       p.vx *= Math.pow(p.drag, step);
       p.vy *= Math.pow(p.drag, step);
+
+      // حرکت
       p.x += p.vx * step;
       p.y += p.vy * step;
-      p.rotation += p.angularVelocity * step;
-      p.life -= p.decay * step;
-      if (p.life < 0) p.life = 0;
-      p.size *= Math.pow(0.996, step);
 
+      // چرخش و wobble
+      p.rotation += p.angularVelocity * step;
+      const wob = Math.sin((now / 250) * (1 + p.wobble)) * (p.size * 0.03);
+
+      // برخورد با زمین
       if (p.y > canvas.height - 2) {
         p.y = canvas.height - 2;
-        p.vy *= -0.35;
-        p.vx *= 0.6;
-        p.life -= 0.03 * step;
+        p.vy *= -0.35;       // بازتاب
+        p.vx *= 0.8;          // اصطکاک افقی
+        p.life -= 0.02 * step; // کاهش عمر
       }
 
+      // flicker نور ذره
       const flick = 0.8 + 0.3 * Math.sin((now / 1000) * (1 + p.flickerSeed));
-      const wob = Math.sin((now / 300) * (1 + p.wobble)) * (p.size * 0.02);
 
+      // رسم ذره
       ctx.save();
       ctx.globalAlpha = Math.max(0, Math.min(1, p.life * flick));
       ctx.translate(p.x + wob, p.y);
+      ctx.rotate(p.rotation * Math.PI / 180);
 
       if (p.shape === "shard") {
-        ctx.rotate(p.rotation * Math.PI / 180);
         ctx.beginPath();
         for (let k = 0; k < p.verts.length; k++) {
           const v = p.verts[k];
@@ -2642,27 +2656,16 @@ function updateMeteorExplosions() {
         ctx.closePath();
         ctx.fillStyle = p.color;
         ctx.fill();
-      } else if (p.shape === "ember") {
-        const r = Math.max(0.5, p.size / 2);
-        const g = ctx.createRadialGradient(0,0,0,0,0,r);
-        g.addColorStop(0, p.color);
-        g.addColorStop(0.4, "rgba(255,180,80,0.6)");
-        g.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(0,0,r,0,Math.PI*2);
-        ctx.fill();
-      } else {
-        ctx.rotate(p.rotation * Math.PI / 180);
-        ctx.fillStyle = p.color;
-        ctx.fillRect(-p.size/2, -p.size/3, p.size, p.size*0.66);
       }
 
       ctx.restore();
+
+      // بررسی زنده بودن ذره
       if (p.life > 0.03 && p.size > 0.5) alive = true;
       if (p.life <= 0.03 || p.size < 0.5) particles.splice(j, 1);
     }
 
+    // حذف گروه اگر هیچ ذره‌ای زنده نمانده
     if (!alive) meteorExplosions.splice(i, 1);
   }
 
@@ -5771,6 +5774,9 @@ function drawHeartParticles(ctx) {
 
 
 
+
+
+
 // === تابع اجرای انیمیشن recoil ===
 function triggerRecoilAnimation() {
     shootBtn.classList.remove("recoil"); // پاک کردن کلاس
@@ -5783,6 +5789,8 @@ function triggerRecoilAnimation() {
   </script>
 </body>
 </html>
+
+
 
 
 
