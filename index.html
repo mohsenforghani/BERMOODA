@@ -5757,8 +5757,8 @@ function spawnHeartPickupEffect(x, y) {
     heartParticles.push({
       x: x,
       y: y,
-      vx: (Math.random() - 0.5) * 2, // افقی تصادفی
-      vy: -Math.random() * 2 - 1,    // حرکت به بالا
+      vx: (Math.random() - 0.5) * 7, // افقی تصادفی
+      vy: -Math.random() * 2 - 15,    // حرکت به بالا
       size: 8 + Math.random() * 4,    // سایز تصادفی
       alpha: 1,
     });
@@ -5771,7 +5771,7 @@ function updateHeartParticles() {
     const p = heartParticles[i];
     p.x += p.vx;
     p.y += p.vy;
-    p.alpha -= 0.05; // کم شدن شفافیت
+    p.alpha -= 0.02; // کم شدن شفافیت
     if (p.alpha <= 0) heartParticles.splice(i, 1);
   }
 }
@@ -5794,6 +5794,7 @@ function drawHeartParticles(ctx) {
   </script>
 </body>
 </html>
+
 
 
 
