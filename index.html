@@ -897,7 +897,7 @@ position: absolute;
 
 <canvas id="gameCanvas"></canvas>
 <script src="setting.js"></script>
-
+<script src="js/tunnel.js"></script>
 
 <button id="startBtn">شروع بازی</button>
 <div id="bestPlayer">Best Player: ---</div>
@@ -1205,9 +1205,7 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-
-
-
+let lastTunnelFrameTimeMs = performance.now();
 
 
 
@@ -4049,9 +4047,21 @@ function gameLoop() {
   const now = performance.now();
   const delta = (now - lastTime) / 16.67; 
   lastTime = now;
- ctx.clearRect(0, 0, canvas.width, canvas.height);
-applyScreenShake();      // قبل از هر رسم
-drawBackground();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  applyScreenShake();      // قبل از هر رسم
+  drawBackground();
+ 
+
+const nowMs = performance.now();
+const deltaMs = nowMs - (lastTunnelFrameTimeMs || nowMs);
+lastTunnelFrameTimeMs = nowMs;
+
+Tunnel.update(nowMs, deltaMs);
+Tunnel.draw(ctx);
+
+
+
+
 updateExplosionFlashes(); // نور انفجار
 
 
@@ -4570,7 +4580,7 @@ if (m.hp <= 0) {
     meteors.splice(i, 1);
   }
 }
-
+Tunnel.drawIndicator(ctx);
 updateMeteorExplosions(); // رسم ذرات انفجار شهاب‌سنگ
 ctx.setTransform(1, 0, 0, 1, 0, 0);
 cancelAnimationFrame(animationId); // animationId باید متغیر سراسری باشد
@@ -4600,9 +4610,6 @@ setInterval(() => {
     updateHeatBar();
   }
 }, 50);
-
-
-
 
 
 
@@ -4911,6 +4918,19 @@ try {
     cancelAnimationFrame(backgroundAnimation);
     backgroundAnimation = null;
   }
+Tunnel.init({
+    canvas: canvas,
+    airplane: airplane,
+    config: {
+      SPAWN_INTERVAL_MS: 20000
+    }
+  });
+
+  Tunnel.onKill(() => {
+    explodeAirplane();
+  });
+
+  lastTunnelFrameTimeMs = performance.now();
 
 
 
@@ -5789,7 +5809,6 @@ function triggerRecoilAnimation() {
   </script>
 </body>
 </html>
-
 
 
 
