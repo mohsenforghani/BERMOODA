@@ -8,7 +8,8 @@ let gameOverMusic = new Audio("sounds/gameOverSound.mp3");
 // ❤️ جان
 const HEART_DROP_CHANCE = 0.01;
 const HEART_FALL_SPEED  = 2;
-const HEART_SIZE = 24;
+const HEART_WIDTH = 45;
+const HEART_HEIGHT = 23;
 let lives = 3;
 let maxLives = 4;
 let scoreToHeart = 1500;
@@ -80,7 +81,8 @@ window.GAME_CONFIG = {
 
   HEART_DROP_CHANCE,
   HEART_FALL_SPEED,
-  HEART_SIZE,
+  HEART_WIDTH ,
+  HEART_HEIGHT,
   lives,
   maxLives,
   scoreToHeart,
