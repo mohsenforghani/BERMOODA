@@ -574,20 +574,22 @@ position: absolute;
 /* تصویر داخلی (دایره‌ای) */
 #shoot .shoot-img {
     position: absolute;
-    inset: 8px;
-    width: 64px;
-    height: 64px;
+    left: 50%;
+    top: 50%;
+    width: 40px;   /* یا هر اندازه دلخواه */
+    height: 40px;
     border-radius: 50%;
     object-fit: cover;
     z-index: 3;
     pointer-events: none;
 
+    transform: translate(-50%, -50%); /* مرکز کردن دقیق */
     transition: transform .12s ease, filter .12s ease;
 }
 
-/* تکان و درخشش تصویر هنگام هاور */
+
 #shoot:hover .shoot-img {
-    transform: scale(1.12) rotate(3deg);
+    transform: translate(-50%, -50%) scale(1.12) rotate(3deg);
     filter: brightness(1.15) contrast(1.2);
 }
 
@@ -1008,7 +1010,7 @@ position: absolute;
 
 <!-- نمونه‌ی HTML (اگر نداریش) -->
 <div id="shoot" role="button" aria-label="shoot">
-  <img class="shoot-img" src="path/to/your-image.jpg" alt="">
+<img class="shoot-img" src="shootPic.png" alt="">
   <span class="shoot-icon">●</span>
 </div>
 
@@ -5823,7 +5825,6 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
-
 
 
 
