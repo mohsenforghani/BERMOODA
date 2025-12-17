@@ -1,13 +1,12 @@
 {
   "name": "Bermooda",
   "short_name": "Bermooda",
-  "description": "Bermooda Airplane Game",
-  "start_url": "./index.html",
-  "display": "fullscreen",
+  "description": "بازی برمودا برای مرورگر",
+  "start_url": "/BERMOODA/index.html",
+  "scope": "/BERMOODA/",
+  "display": "standalone",
   "background_color": "#000000",
-  "theme_color": "#000000",
-  "orientation": "portrait",
-  "lang": "fa",
+  "theme_color": "#ff8c00",
   "icons": [
     {
       "src": "icons/icon-192.png",
