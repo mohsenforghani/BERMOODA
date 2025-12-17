@@ -3275,43 +3275,53 @@ if (airplaneContainer) {
 if (airplaneContainer) {
   airplaneContainer.style.display = "block";
 
- // ===== اضافه کردن تصویر واتساپ =====
-const waImg = document.createElement("img");
-waImg.id = "whatsappContact";
-waImg.src = "whatsapp.png";
-waImg.alt = "تماس با سازنده";
-waImg.style.width = "120px";
-waImg.style.cursor = "pointer";
-waImg.style.position = "fixed";
-waImg.style.top = "10px";
-waImg.style.left = "10px";
-waImg.style.transition = "transform 0.2s ease"; // اضافه کردن انیمیشن نرم
-waImg.style.zIndex = "9999";
-document.body.appendChild(waImg);
+  // ===== اضافه کردن تصویر واتساپ =====
+  const waImg = document.createElement("img");
+  waImg.id = "whatsappContact";
+  waImg.src = "whatsapp.png";
+  waImg.alt = "تماس با سازنده";
+  waImg.style.width = "120px";
+  waImg.style.cursor = "pointer";
+  waImg.style.position = "fixed";
+  waImg.style.top = "10px";
+  waImg.style.left = "10px";
+  waImg.style.transition = "transform 0.2s ease"; // اضافه کردن انیمیشن نرم
+  waImg.style.zIndex = "9999";
+  document.body.appendChild(waImg);
 
-// افکت هاور: کمی زوم شود
-waImg.addEventListener("mouseenter", () => {
-    waImg.style.transform = "scale(1.1)"; // بزرگ شدن ۱۰٪
-});
-waImg.addEventListener("mouseleave", () => {
-    waImg.style.transform = "scale(1)"; // بازگشت به اندازه اصلی
-});
+  // افکت هاور: کمی زوم شود
+  waImg.addEventListener("mouseenter", () => waImg.style.transform = "scale(1.1)");
+  waImg.addEventListener("mouseleave", () => waImg.style.transform = "scale(1)");
 
-// افکت کلیک: کمی کوچک شود و بعد بازگردد
-waImg.addEventListener("mousedown", () => {
-    waImg.style.transform = "scale(0.9)"; // کوچک شدن ۱۰٪ هنگام کلیک
-});
-waImg.addEventListener("mouseup", () => {
-    waImg.style.transform = "scale(1.1)"; // بعد از کلیک، اگر موس هنوز روی تصویر است، بازگرداندن هاور
-});
+  // افکت کلیک: کمی کوچک شود و بعد بازگردد
+  waImg.addEventListener("mousedown", () => waImg.style.transform = "scale(0.9)");
+  waImg.addEventListener("mouseup", () => waImg.style.transform = "scale(1.1)");
 
-// اسکریپت کلیک برای باز کردن واتساپ
-waImg.addEventListener("click", function() {
-    const phoneNumber = "989335630763";
-    const waLink = `https://wa.me/${phoneNumber}`;
-    window.open(waLink, "_blank");
-});
+  // اسکریپت کلیک برای باز کردن واتساپ
+  waImg.addEventListener("click", () => {
+      const phoneNumber = "989335630763";
+      const waLink = `https://wa.me/${phoneNumber}`;
+      window.open(waLink, "_blank");
+  });
+
+  // ===== انیمیشن لرزش هر 2 ثانیه =====
+  setInterval(() => {
+    // توالی کوچک کردن و چرخش سریع
+    waImg.style.transition = "transform 0.1s ease";
+    waImg.style.transform = "rotate(-15deg) scale(1.1)";
+    setTimeout(() => {
+      waImg.style.transform = "rotate(15deg) scale(1.1)";
+      setTimeout(() => {
+        waImg.style.transform = "rotate(0deg) scale(1.1)";
+        // بازگرداندن transition نرم اصلی بعد از لرزش
+        setTimeout(() => {
+          waImg.style.transition = "transform 0.2s ease";
+        }, 100);
+      }, 100);
+    }, 100);
+  }, 2000); // هر 2 ثانیه اجرا شود
 }
+
 
 
 
