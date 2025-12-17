@@ -5815,7 +5815,7 @@ function triggerRecoilAnimation() {
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./sw.js")
+    navigator.serviceWorker.register("/sw.js")
       .then(() => console.log("Service Worker Registered"))
       .catch(err => console.error("SW error", err));
   });
@@ -5826,6 +5826,7 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
 
