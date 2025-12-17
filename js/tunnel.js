@@ -3,12 +3,12 @@
   // ===== Tunnel module (lightweight, self-contained) =====
   const DEFAULTS = {
     SPAWN_INTERVAL_MS: 50_000,
-    TRAVERSE_MS: 6500,
+    TRAVERSE_MS: 7500,
     INDICATOR_MS: 4200,
-    WIDTH: 200,
+    WIDTH: 250,
     HEIGHT_MULT: 1.4,
     EDGE_THICK: 4,
-    WALL_ALPHA: 0.55
+    WALL_ALPHA: 0.90
   };
 
   // internal state (private)
@@ -149,7 +149,7 @@ if (airplaneRef) {
 
     // thin orange edge lines
     c.globalAlpha = 1;
-    c.fillStyle = "rgba(255,140,0,0.95)";
+    c.fillStyle = "rgba(255,140,0,1)";
     c.fillRect(x - w/2 - cfg.EDGE_THICK, yTop, cfg.EDGE_THICK, h);
     c.fillRect(x + w/2, yTop, cfg.EDGE_THICK, h);
 
@@ -164,7 +164,7 @@ if (airplaneRef) {
   if (performance.now() > currentTunnel.indicatorUntilMs) return;
 
   ctx.save();
-  ctx.globalAlpha = 0.9;
+  ctx.globalAlpha = 1;
   ctx.fillStyle = "rgba(0,0,0,0.35)";
   ctx.fillRect(0, 0, canvas.width, 30);
 
@@ -184,4 +184,5 @@ if (airplaneRef) {
   window.Tunnel = Tunnel;
 
 })(window);
+
 
