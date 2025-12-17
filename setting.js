@@ -59,7 +59,7 @@ let missiles = 0;
 
 // 🤖 دشمن هوشمند
 const hooshSettings = {
-  spawnInterval : 30000,
+  spawnInterval : 40000,
   lifeTime : 10000,
   shotRate : 1,
   evadeLookAhead: 1000,
@@ -112,3 +112,4 @@ window.GAME_CONFIG = {
   missiles,
   hooshSettings
 };
+
