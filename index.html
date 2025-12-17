@@ -1249,6 +1249,13 @@ gameOverMusic.volume = 0.7;
 
 
 
+const heartImage = new Image();
+heartImage.src = "joon.png";
+
+// اگر تصویر افتادن قلب و ذرات یکی است
+const heartParticleImage = heartImage;
+
+
   
 
 const heartDrops = [];
@@ -2540,14 +2547,7 @@ function createMeteorExplosion(x, y, power = 1) {
 
   // 🔶 Flash نور انفجار
  // 🔶 اضافه کردن نور نارنجی انفجار
-explosionFlashes.push({
-    x,    // مرکز نور همان موقعیت انفجار
-    y,
-    radius: 200 + power * 50, // شعاع نور بسته به قدرت انفجار
-    alpha: 0.6,              // شدت اولیه
-    decay: 0.03,             // سرعت محو شدن
-    color: "orange"          // رنگ نور
-});
+
 
 
   // 🔶 لرزش قوی صفحه 2 ثانیه
@@ -2697,19 +2697,19 @@ function applyScreenShake() {
 
 
 // ===== نور انفجار =====
-let explosionFlashes = [];
-function updateExplosionFlashes() {
-  for (let i = explosionFlashes.length - 1; i >= 0; i--) {
-    const f = explosionFlashes[i];
-    const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.radius);
-    g.addColorStop(0, `rgba(255,180,80,${f.alpha})`);
-    g.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g;
-    ctx.fillRect(f.x - f.radius, f.y - f.radius, f.radius * 2, f.radius * 2);
-    f.alpha -= f.decay;
-    if (f.alpha <= 0) explosionFlashes.splice(i, 1);
-  }
-}
+//let explosionFlashes = [];
+//function updateExplosionFlashes() {
+ // for (let i = explosionFlashes.length - 1; i >= 0; i--) {
+ //   const f = explosionFlashes[i];
+ //   const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.radius);
+//    g.addColorStop(0, `rgba(255,180,80,${f.alpha})`);
+  //  g.addColorStop(1, "rgba(0,0,0,0)");
+  //  ctx.fillStyle = g;
+  //  ctx.fillRect(f.x - f.radius, f.y - f.radius, f.radius * 2, f.radius * 2);
+ //   f.alpha -= f.decay;
+  //  if (f.alpha <= 0) explosionFlashes.splice(i, 1);
+ // }
+//}
 
 
 
@@ -4065,7 +4065,7 @@ Tunnel.draw(ctx);
 
 
 
-updateExplosionFlashes(); // نور انفجار
+//updateExplosionFlashes(); // نور انفجار
 
 
 
@@ -5675,15 +5675,16 @@ window.addEventListener("resize",()=>{
 
 function trySpawnHeartDrop(x, y) {
   if (score >= scoreToHeart && lives < maxLives  &&  Math.random() <= HEART_DROP_CHANCE) {
-    heartDrops.push({
-      x: x ,
-      y: y,
-      size: HEART_SIZE,
-      speed: HEART_FALL_SPEED,
-      active: true,
-      scale: 1,           // برای ضربان
-      scaleDir: 1         // جهت بزرگ شدن/کوچک شدن ضربان
-    });
+  heartDrops.push({
+  x: x,
+  y: y,
+  width: HEART_WIDTH,    // عرض تصویر قلب
+  height: HEART_HEIGHT,  // ارتفاع تصویر قلب
+  speed: HEART_FALL_SPEED,
+  active: true,
+  scale: 1,              // برای ضربان
+  scaleDir: 1            // جهت بزرگ شدن/کوچک شدن ضربان
+});
   }
 }
 
@@ -5701,7 +5702,7 @@ function updateHeartDrops() {
     if (heart.scale < 0.8) heart.scaleDir = 1;
 
     // حذف اگر از صفحه خارج شد
-    if (heart.y > canvas.height + heart.size) {
+    if (heart.y > canvas.height + heart.height) {
       heartDrops.splice(i, 1);
       continue;
     }
@@ -5719,26 +5720,42 @@ function updateHeartDrops() {
 }
 
 function drawHeartDrops(ctx) {
+  if (!heartImage.complete) return;
+
   for (const heart of heartDrops) {
     ctx.save();
+
+    // مرکز قلب
     ctx.translate(heart.x, heart.y);
-    ctx.scale(heart.scale, heart.scale); // ضربان
-    ctx.font = `${heart.size}px Arial`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("❤️", 0, 0);
+
+    // ضربان
+    ctx.scale(heart.scale, heart.scale);
+
+    // رسم تصویر دقیقاً وسط
+  ctx.drawImage(
+  heartImage,
+  -heart.width / 2,
+  -heart.height / 2,
+  heart.width,
+  heart.height
+);
+
     ctx.restore();
   }
 }
 
 function checkHeartCollisionWithPlayer(heart) {
-  return (
-    heart.x + heart.size/2 > airplane.x &&
-    heart.x - heart.size/2 < airplane.x + airplane.w &&
-    heart.y + heart.size/2 > airplane.y &&
-    heart.y - heart.size/2 < airplane.y + airplane.h
+ const w = heart.width * heart.scale;
+  const h = heart.height * heart.scale; 
+
+ return (
+    heart.x + w/2 > airplane.x &&
+    heart.x - w/2 < airplane.x + airplane.w &&
+    heart.y + h/2 > airplane.y &&
+    heart.y - h/2 < airplane.y + airplane.h
   );
 }
+
 
 function increasePlayerLife() {
   if (lives < maxLives ) {
@@ -5749,6 +5766,7 @@ function increasePlayerLife() {
 
 
 const heartParticles = [];
+
 
 // ایجاد افکت قلب
 function spawnHeartPickupEffect(x, y) {
@@ -5781,19 +5799,27 @@ function updateHeartParticles() {
   }
 }
 
-// رسم افکت
 function drawHeartParticles(ctx) {
+  if (!heartParticleImage.complete) return;
+
   for (const p of heartParticles) {
     ctx.save();
     ctx.globalAlpha = p.alpha;
-    ctx.fillStyle = "red";
-    ctx.font = `${p.size}px Arial`;
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-    ctx.fillText("❤️", p.x, p.y);
+
+    ctx.drawImage(
+      heartParticleImage,
+      p.x - p.size / 2,
+      p.y - p.size / 2,
+      p.size,
+      p.size
+    );
+
     ctx.restore();
   }
 }
+
+
+
 
 
 
