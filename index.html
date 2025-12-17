@@ -2878,7 +2878,7 @@ window.imageSources = [
   "sang1.png","sang2.png","sang3.png","sang4.png",
   "cloud1.png", "cloud2.png", "cloud3.png",
   "Startbackground/a.png","Startbackground/b.png","Startbackground/c.png",
-  "Startbackground/d.png","Startbackground/e.png"
+  "Startbackground/d.png","Startbackground/e.png","shootPic.png","joon.png"
 ];
 
 
@@ -3271,6 +3271,50 @@ if (airplaneContainer) {
 } else {
   console.warn("airplane container not found in DOM");
 }
+
+if (airplaneContainer) {
+  airplaneContainer.style.display = "block";
+
+ // ===== اضافه کردن تصویر واتساپ =====
+const waImg = document.createElement("img");
+waImg.id = "whatsappContact";
+waImg.src = "whatsapp.png";
+waImg.alt = "تماس با سازنده";
+waImg.style.width = "120px";
+waImg.style.cursor = "pointer";
+waImg.style.position = "fixed";
+waImg.style.top = "10px";
+waImg.style.left = "10px";
+waImg.style.transition = "transform 0.2s ease"; // اضافه کردن انیمیشن نرم
+waImg.style.zIndex = "9999";
+document.body.appendChild(waImg);
+
+// افکت هاور: کمی زوم شود
+waImg.addEventListener("mouseenter", () => {
+    waImg.style.transform = "scale(1.1)"; // بزرگ شدن ۱۰٪
+});
+waImg.addEventListener("mouseleave", () => {
+    waImg.style.transform = "scale(1)"; // بازگشت به اندازه اصلی
+});
+
+// افکت کلیک: کمی کوچک شود و بعد بازگردد
+waImg.addEventListener("mousedown", () => {
+    waImg.style.transform = "scale(0.9)"; // کوچک شدن ۱۰٪ هنگام کلیک
+});
+waImg.addEventListener("mouseup", () => {
+    waImg.style.transform = "scale(1.1)"; // بعد از کلیک، اگر موس هنوز روی تصویر است، بازگرداندن هاور
+});
+
+// اسکریپت کلیک برای باز کردن واتساپ
+waImg.addEventListener("click", function() {
+    const phoneNumber = "989335630763";
+    const waLink = `https://wa.me/${phoneNumber}`;
+    window.open(waLink, "_blank");
+});
+}
+
+
+
 
 
     document.getElementById("joystick").style.display = "none";
