@@ -3,6 +3,15 @@ let gameMusic = new Audio("sounds/BermoodaSound.mp3");
 let gameOverMusic = new Audio("sounds/gameOverSound.mp3");
 
 
+const BOSS_MAX_LIFE = 100;
+const HEALTH_BAR_HEIGHT = 6;
+const HEALTH_BAR_OFFSET = 10; 
+const BOOS_ONE_LIFE = 1500;
+const BOSS_INTERVAL = 30000;
+const FIRE_DELAY = 4000;
+const MAX_FIRE = 5;
+
+
 
 
 // ❤️ جان
@@ -59,7 +68,7 @@ let missiles = 0;
 
 // 🤖 دشمن هوشمند
 const hooshSettings = {
-  spawnInterval : 40000,
+  spawnInterval : 30000,
   lifeTime : 10000,
   shotRate : 1,
   evadeLookAhead: 1000,
@@ -76,8 +85,11 @@ const hooshSettings = {
 
 // 🌐 خروجی نهایی
 window.GAME_CONFIG = {
+  
+
   gameMusic,
   gameOverMusic,
+
 
   HEART_DROP_CHANCE,
   HEART_FALL_SPEED,
@@ -88,13 +100,17 @@ window.GAME_CONFIG = {
   scoreToHeart,
   padding,
 
+
   heat,
   overheated,
   heatFillRate,
   heatCoolRate,
   overheatDuration,
 
+
   SHEET_WEBAPP,
+
+
 
   bulletInterval,
   bulletSpeed,
@@ -105,11 +121,22 @@ window.GAME_CONFIG = {
   refuelRate,
   alarmfuel,
 
+
+
   noFlyZoneHeight,
   bulletGrade,
   scoreGradeThree,
   scoreGradeTwo,
   missiles,
-  hooshSettings
-};
+  hooshSettings,
 
+
+
+ BOSS_MAX_LIFE,
+ HEALTH_BAR_HEIGHT,
+ HEALTH_BAR_OFFSET,
+ BOOS_ONE_LIFE,
+ BOSS_INTERVAL ,
+ FIRE_DELAY ,
+ MAX_FIRE 
+};
