@@ -79,21 +79,32 @@
 
   /* صفحه لودینگ */
   #loadingScreen {
-    position: fixed;
-    inset: 0;
-    background: linear-gradient(180deg, #000, #111);
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    font-family: sans-serif;
-    z-index: 1000;
-  }
+  position: fixed;
+  inset: 0; /* تمام صفحه */
+  background: linear-gradient(180deg, #000, #111);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* محتوا از بالا شروع شود */
+  align-items: center;
+  font-family: sans-serif;
+  z-index: 1000;
+padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گیرند */
+}
+
+
+#loadingImage {
+  width: 65vw;
+  margin-top: 0vh; 
+  opacity: 1; 
+  transition: opacity 0.5s ease;
+}
+
+
 
   #loadingText {
     font-size: 11px;
-    margin-top: 18px;
+    margin-top: 10px; 
     text-align: center; /* وسط‌چین */
   }
 
@@ -102,6 +113,7 @@
     height: 25px;
     border: 1px solid #444;
     border-radius: 6px;
+    margin-top:10px; 
     overflow: hidden;
     background: #222;
   }
@@ -119,7 +131,7 @@
   font-size: 50px;
   font-weight: normal;
   color: #00ffcc;
-  margin-bottom: 40px;
+  margin-top: 10vh;
   font-family: 'Arial Black', sans-serif;
   text-shadow:
     0 0 2px #00ffcc,
@@ -134,7 +146,7 @@
   color: #00ffcc;
   font-family: 'Arial', sans-serif;
   text-shadow: 0 0 3px #00ffcc, 0 0 5px #00ffff;
-  margin-bottom: 30px; /* فاصله از BERMOODA */
+  margin-top: 5vh; /* فاصله از BERMOODA */
 
 }
 
@@ -901,6 +913,7 @@ position: absolute;
 <canvas id="gameCanvas"></canvas>
 <script src="setting.js"></script>
 <script src="js/tunnel.js"></script>
+<script src="js/boss.js"></script>
 
 <button id="startBtn">شروع بازی</button>
 <div id="bestPlayer">Best Player: ---</div>
@@ -1020,6 +1033,7 @@ position: absolute;
 
 
  <div id="loadingScreen">
+ <img id="loadingImage" src="mehradGames.png" alt="Bermooda" />
 <div id="logoText">BERMOODA</div>
 <div id="subLogoText">A GAME BY MOHSEN</div>
     <div id="loadingText">Loading...</div>
@@ -1208,6 +1222,7 @@ const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
+let isBossActive = false;
 let lastTunnelFrameTimeMs = performance.now();
 
 
@@ -1813,9 +1828,18 @@ function initPlayer(onReady) {
   function buildModal() {
     // css
     const css = `
-      #nameModal { position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
-                   background:rgba(0,0,0,0.5); z-index:99999; }
-      #nameModal .card { background:#0d1117; color:#fff; padding:18px; border-radius:8px; width:360px; box-shadow:0 8px 30px rgba(0,0,0,0.6); font-family:system-ui, sans-serif; }
+    #nameModal { 
+    position: fixed; 
+    inset: 0; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.3); /* نیمه شفاف */
+    backdrop-filter: blur(8px);      /* ایجاد بلور */
+    -webkit-backdrop-filter: blur(8px); /* پشتیبانی برای Safari */
+    z-index: 99999; 
+}
+      #nameModal .card { background:#1a2a4f; color:#fff; padding:18px; border-radius:8px; width:360px; box-shadow:0 8px 30px rgba(0,0,0,0.6); font-family:system-ui, sans-serif; }
       #nameModal h3 { margin:0 0 8px 0; font-size:16px; }
       #nameModal p { margin:0 0 12px 0; font-size:14px; color:#ddd; }
       #nameModal .row { display:flex; gap:8px; margin-top:10px; }
@@ -1853,7 +1877,7 @@ function initPlayer(onReady) {
   </div>
 
   <div class="error" id="nameError" style="margin-top:10px; color:red; display:none;">
-    نام معتبر وارد کنید (نمی‌تواند «ناشناس» باشد)
+    نام معتبر وارد کنید (نمی‌تواند ناشناس باشد)
   </div>
 </div>
     `;
@@ -1872,7 +1896,7 @@ function initPlayer(onReady) {
 
     // helpers to show states
     function showConfirm(storedName) {
-      title.innerText = `${storedName} عزیز،`;
+      title.innerText = `${storedName} عزیز  `;
       text.innerText = `آیا با همین نام بازی می‌کنی یا نام دیگری انتخاب می‌کنی؟`;
       stageConfirm.style.display = '';
       stageInput.style.display = 'none';
@@ -2441,6 +2465,7 @@ for (let i = 1; i <= meteorCount; i++) {
 
 
 function spawnMeteor() {
+  if (isBossActive) return;
   // هر 15 ثانیه یک شهاب سنگ
   if (performance.now() - lastMeteorSpawn < 20000) return;
   lastMeteorSpawn = performance.now();
@@ -2831,6 +2856,11 @@ for (let i = 1; i <= 9; i++) {
 const fuelImg = new Image();
 fuelImg.src = "fuel.png"; // مسیر تصویر پمپ بنزینت
   
+
+const bossImage = new Image();
+bossImage.src = "boss.png";
+
+
 let enemyBullets = [];
 
 
@@ -2887,7 +2917,7 @@ const totalImages = window.imageSources.length;
 const loadingText = document.getElementById("loadingText");
 const progressFill = document.getElementById("progressFill");
 const loadingScreen = document.getElementById("loadingScreen");
-
+const loadingImage = document.getElementById("loadingImage");
 
 
   let keys = {
@@ -2961,12 +2991,35 @@ const shootBtn = document.getElementById("shoot");
 
 
 
+
+//==============================تصویر بالای لودینگ===========================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//================================================================
+
+
+
+
 function preloadImages(callback) {
   // ایمن‌سازی المان‌های UI که استفاده می‌شوند
   const scoreContainerEl = document.getElementById("scoreContainer");
   const progressFillEl = typeof progressFill !== 'undefined' ? progressFill : document.querySelector('.progress-fill');
   const loadingTextEl = typeof loadingText !== 'undefined' ? loadingText : document.querySelector('.loading-text');
-
 
   // اضافه‌کردن فریم‌های انفجار اما فقط در صورتی که قبلاً اضافه نشده باشند
   for (let i = 1; i <= 9; i++) {
@@ -3090,6 +3143,11 @@ function preloadImages(callback) {
 // ✅ وقتی همه تصاویر لود شدن:
 preloadImages(() => {
   progressFill.style.width = "100%";
+
+
+
+
+
 
   setTimeout(() => {
     loadingScreen.style.opacity = 0;
@@ -3276,50 +3334,52 @@ if (airplaneContainer) {
   airplaneContainer.style.display = "block";
 
   // ===== اضافه کردن تصویر واتساپ =====
-  const waImg = document.createElement("img");
-  waImg.id = "whatsappContact";
-  waImg.src = "whatsapp.png";
-  waImg.alt = "تماس با سازنده";
-  waImg.style.width = "120px";
-  waImg.style.cursor = "pointer";
-  waImg.style.position = "fixed";
-  waImg.style.top = "10px";
-  waImg.style.left = "10px";
-  waImg.style.transition = "transform 0.2s ease"; // اضافه کردن انیمیشن نرم
-  waImg.style.zIndex = "9999";
-  document.body.appendChild(waImg);
+  // فقط یکبار تعریف شود، مثلاً در ابتدای صفحه
+var waImg = document.createElement("img"); // از var یا let استفاده شود
+waImg.id = "whatsappContact";
+waImg.src = "whatsapp.png";
+waImg.alt = "تماس با سازنده";
+waImg.style.width = "120px";
+waImg.style.cursor = "pointer";
+waImg.style.position = "fixed";
+waImg.style.top = "10px";
+waImg.style.left = "10px";
+waImg.style.transition = "transform 0.2s ease";
+waImg.style.zIndex = "9999";
+// در ابتدا مخفی
+waImg.style.display = "none";  
+document.body.appendChild(waImg);
 
-  // افکت هاور: کمی زوم شود
-  waImg.addEventListener("mouseenter", () => waImg.style.transform = "scale(1.1)");
-  waImg.addEventListener("mouseleave", () => waImg.style.transform = "scale(1)");
+// افکت هاور
+waImg.addEventListener("mouseenter", () => waImg.style.transform = "scale(1.1)");
+waImg.addEventListener("mouseleave", () => waImg.style.transform = "scale(1)");
 
-  // افکت کلیک: کمی کوچک شود و بعد بازگردد
-  waImg.addEventListener("mousedown", () => waImg.style.transform = "scale(0.9)");
-  waImg.addEventListener("mouseup", () => waImg.style.transform = "scale(1.1)");
+// افکت کلیک
+waImg.addEventListener("mousedown", () => waImg.style.transform = "scale(0.9)");
+waImg.addEventListener("mouseup", () => waImg.style.transform = "scale(1.1)");
 
-  // اسکریپت کلیک برای باز کردن واتساپ
-  waImg.addEventListener("click", () => {
-      const phoneNumber = "989335630763";
-      const waLink = `https://wa.me/${phoneNumber}`;
-      window.open(waLink, "_blank");
-  });
+// باز کردن لینک واتساپ
+waImg.addEventListener("click", () => {
+    const phoneNumber = "989335630763";
+    const waLink = `https://wa.me/${phoneNumber}`;
+    window.open(waLink, "_blank");
+});
 
-  // ===== انیمیشن لرزش هر 2 ثانیه =====
-  setInterval(() => {
-    // توالی کوچک کردن و چرخش سریع
-    waImg.style.transition = "transform 0.1s ease";
-    waImg.style.transform = "rotate(-15deg) scale(1.1)";
+// انیمیشن لرزش
+setInterval(() => {
+  waImg.style.transition = "transform 0.1s ease";
+  waImg.style.transform = "rotate(-15deg) scale(1.1)";
+  setTimeout(() => {
+    waImg.style.transform = "rotate(15deg) scale(1.1)";
     setTimeout(() => {
-      waImg.style.transform = "rotate(15deg) scale(1.1)";
+      waImg.style.transform = "rotate(0deg) scale(1.1)";
       setTimeout(() => {
-        waImg.style.transform = "rotate(0deg) scale(1.1)";
-        // بازگرداندن transition نرم اصلی بعد از لرزش
-        setTimeout(() => {
-          waImg.style.transition = "transform 0.2s ease";
-        }, 100);
+        waImg.style.transition = "transform 0.2s ease";
       }, 100);
     }, 100);
-  }, 2000); // هر 2 ثانیه اجرا شود
+  }, 100);
+}, 2000);
+
 }
 
 
@@ -3837,6 +3897,7 @@ function hooshDist(a,b){
    =========================================================== */
 // helper: چرخاندن نقطه (px,py) حول مبدا با زاویه angle
 function hooshRotatePoint(px, py, angle){
+
     const c = Math.cos(angle);
     const s = Math.sin(angle);
     return {
@@ -3847,6 +3908,7 @@ function hooshRotatePoint(px, py, angle){
 
 /* ---- در هنگام اسپاون: اضافه کردن gunOffsets و gunIndex و gunRotationOffset ---- */
 function hooshSpawnEnemy(canvas){
+if (isBossActive) return;
     let imgSrc = hooshSettings.imgList[
         Math.floor(Math.random()*hooshSettings.imgList.length)
     ];
@@ -3882,6 +3944,7 @@ function hooshSpawnEnemy(canvas){
 
 /* ---- شلیک: تولید گلوله از نقطهٔ چرخیده شده روی هواپیما ---- */
 function hooshEnemyShoot(e, player){
+if (isBossActive) return;
     let now = performance.now();
     if(now - e.lastShot < e.shotDelay) return;
     e.lastShot = now;
@@ -3925,6 +3988,7 @@ function hooshEnemyShoot(e, player){
    3) سیستم فرار دشمن هوشمند
    =========================================================== */
 function hooshEvade(e, playerBullets, delta){
+
     let threat = null;
     let bestScore = -99999;
 
@@ -3957,6 +4021,7 @@ function hooshEvade(e, playerBullets, delta){
    =========================================================== */
 /* ---- در آپدیت، زاویه را به سمت targetAngle نرم حرکت بده ---- */
 function hooshUpdateEnemies(delta, canvas, player, playerBullets, onKill){
+
     let now = performance.now();
 
     for(let i = hooshEnemies.length - 1; i >= 0; i--){
@@ -4023,6 +4088,7 @@ function hooshUpdateEnemies(delta, canvas, player, playerBullets, onKill){
    5) بروزرسانی گلوله‌های دشمن هوشمند
    =========================================================== */
 function hooshUpdateBullets(delta, canvas, player, onHit){
+if (isBossActive) return;
     for(let i = hooshBullets.length - 1; i >= 0; i--){
         let b = hooshBullets[i];
 
@@ -4057,6 +4123,7 @@ function hooshUpdateBullets(delta, canvas, player, onHit){
 let hooshLastSpawn = performance.now() - hooshSettings.spawnInterval;
 
 function hooshTickSpawner(canvas){
+if (isBossActive) return;
     let now = performance.now();
     if(now - hooshLastSpawn >= hooshSettings.spawnInterval){
         hooshLastSpawn = now;
@@ -4112,10 +4179,15 @@ function gameLoop() {
 const nowMs = performance.now();
 const deltaMs = nowMs - (lastTunnelFrameTimeMs || nowMs);
 lastTunnelFrameTimeMs = nowMs;
+ 
 
+if (!isBossActive) {
 Tunnel.update(nowMs, deltaMs);
 Tunnel.draw(ctx);
+}
 
+Boss.update(delta, canvas, airplane);
+Boss.draw(ctx);
 
 
 
@@ -4393,7 +4465,7 @@ if (airplane.y + airplane.h > canvas.height-noFlyZoneHeight)
 
 
 // بخش اضافه کردن دشمن جدید
-if (Math.random() < 0.005) {
+if (!isBossActive && Math.random() < 0.005) {
   const padding = 30;
 
   const time = performance.now();
@@ -4637,7 +4709,9 @@ if (m.hp <= 0) {
     meteors.splice(i, 1);
   }
 }
+if (!isBossActive) {
 Tunnel.drawIndicator(ctx);
+}
 updateMeteorExplosions(); // رسم ذرات انفجار شهاب‌سنگ
 ctx.setTransform(1, 0, 0, 1, 0, 0);
 cancelAnimationFrame(animationId); // animationId باید متغیر سراسری باشد
@@ -4712,7 +4786,7 @@ function shootBullets() {
 
 
 
-  if (bulletGrade === 1) {
+ if (bulletGrade === 1) {
     bullets.push({
       x: airplane.x + airplane.w / 2,
       y: airplane.y - airplane.h / 2,
@@ -4859,7 +4933,8 @@ function launchMissile() {
 
 
 function startGame() {
- if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفج
+
+if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفج
   startPresence();
   window.alreadySentScore = false;
   showTopPlayerName();
@@ -4903,6 +4978,24 @@ updateHeatBar();
 
 
   score = 0;
+
+
+
+
+  // ⏱ ریست رییس
+ Boss.resetTimer();
+
+  // ⏱ ریست تونل
+  Tunnel.resetTimer();
+
+
+
+ hooshEnemies.length = 0;        // پاک کردن همه دشمن‌ها
+ hooshBullets.length = 0;        // پاک کردن همه گلوله‌ها
+ hooshLastSpawn = performance.now(); 
+
+
+
   document.getElementById("scoreValue").textContent = score;
   fuel = 100;
   paused = false;
