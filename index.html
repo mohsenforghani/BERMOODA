@@ -2456,7 +2456,7 @@ let meteorExplosions = []; // ذرات فعال انفجار شهاب‌سنگ
 let meteors = [];
 let lastMeteorSpawn = performance.now();
 const meteorImages = [];
-const meteorCount = 4;
+const meteorCount = 5;
 for (let i = 1; i <= meteorCount; i++) {
   const img = new Image();
   img.src = `sang${i}.png`;
@@ -2471,7 +2471,19 @@ function spawnMeteor() {
   lastMeteorSpawn = performance.now();
 
   const img = meteorImages[Math.floor(Math.random() * meteorImages.length)];
-  const size = Math.random() * 60 + 50; 
+
+
+
+
+ // اگر شهاب‌سنگ sang5.png است، اندازه ثابت 120 باشد
+  if (img === "sang5.png") {
+    size = Math.random() * 80 + 140;
+  } else {
+    size = Math.random() * 60 + 50; // اندازه تصادفی بین 50 تا 110
+  }
+
+
+
   const direction = Math.random() < 0.5 ? "right" : "left";
   const rotationSpeed = (Math.random() * 5 + 1) * (Math.random() < 0.5 ? -1 : 1); // سرعت چرخش تصادفی
 
@@ -2539,12 +2551,6 @@ function showHelpImages() {
 }
 
 
-
-
-
-
-
-
 function addScore(points, enemyCount = 1) {
   // افزایش امتیاز بر اساس تعداد دشمن
   score += points * enemyCount;
@@ -2564,19 +2570,10 @@ function addScore(points, enemyCount = 1) {
 
 
 
-// ===== انفجار ذره‌ای با تکه‌های شهاب‌سنگ و لرزش =====
 function createMeteorExplosion(x, y, power = 1) {
   const meteorColors = ["#3a2e1e", "#5b3c1a", "#8B4513", "#d2691e"];
-  const flashRadius = 50 + power * 40;
   const numParticles = Math.floor(14 + 12 * Math.min(3, Math.max(0.5, power)));
 
-  // 🔶 Flash نور انفجار
- // 🔶 اضافه کردن نور نارنجی انفجار
-
-
-
-  // 🔶 لرزش قوی صفحه 2 ثانیه
-  startScreenShake(12, 1000);
 
   const particles = [];
   for (let i = 0; i < numParticles; i++) {
@@ -2606,7 +2603,7 @@ function createMeteorExplosion(x, y, power = 1) {
       life: 1 + Math.random() * 0.7,
       decay: 0.02 + Math.random() * 0.03,
       drag: 0.92 + Math.random() * 0.05,
-      gravity: 0.14 + Math.random() * 0.20,
+      gravity: 0.2 + Math.random() * 0.20,
       rotation: Math.random() * 360,
       angularVelocity: (Math.random() - 0.5) * 3,
       shape: "shard",
@@ -2661,12 +2658,11 @@ function updateMeteorExplosions() {
         p.life -= 0.02 * step; // کاهش عمر
       }
 
-      // flicker نور ذره
-      const flick = 0.8 + 0.3 * Math.sin((now / 1000) * (1 + p.flickerSeed));
+   
 
       // رسم ذره
       ctx.save();
-      ctx.globalAlpha = Math.max(0, Math.min(1, p.life * flick));
+      ctx.globalAlpha = Math.max(0, Math.min(1, p.life ));
       ctx.translate(p.x + wob, p.y);
       ctx.rotate(p.rotation * Math.PI / 180);
 
@@ -2905,7 +2901,7 @@ window.imageSources = [
   "plane1.png", "plane2.png", "plane3.png", "plane4.png",
   "plane6.png", "plane8.png", "plane10.png", "plane12.png",
   "plane30.png","plane31.png","plane32.png","plane33.png","plane34.png",
-  "sang1.png","sang2.png","sang3.png","sang4.png",
+  "sang1.png","sang2.png","sang3.png","sang4.png","sang5.png",
   "cloud1.png", "cloud2.png", "cloud3.png",
   "Startbackground/a.png","Startbackground/b.png","Startbackground/c.png",
   "Startbackground/d.png","Startbackground/e.png","shootPic.png","joon.png"
