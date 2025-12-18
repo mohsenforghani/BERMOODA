@@ -80,12 +80,12 @@
         }
       }
     }
-// ==========================================================
+
     if (movePhase === "relocate") {
       boss.x += (boss.targetX - boss.x) * 0.02;
       boss.y += (boss.targetY - boss.y) * 0.02;
     }
-// ==========================================================
+
     /* ---- Boss Bullets ---- */
     for (let i = bossBullets.length - 1; i >= 0; i--) {
       const b = bossBullets[i];
@@ -93,13 +93,13 @@
       b.y += b.vy;
 
       // برخورد با بازیکن
-      if (
-        player.x < b.x &&
-        player.x + player.w > b.x &&
-        player.y < b.y &&
-        player.y + player.h > b.y
-      ) {
-        explodeAirplane();
+     if (
+            airplane.x < b.x &&
+            airplane.x + airplane.w > b.x &&
+            airplane.y < b.y &&
+            airplane.y + airplane.h > b.y
+        ) {
+        createExplosion(airplane.x + airplane.w/2, airplane.y + airplane.h/2, 50, 50);
         bossBullets.splice(i, 1);
       }
 
