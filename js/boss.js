@@ -15,7 +15,7 @@
       y: -200,
       w: 60,
       h: 100,
-      life: GAME_CONFIG.BOSS_MAX_LIFE,
+      life: 1500,
       targetX: canvas.width / 2 - 100,
       targetY: canvas.height / 2 - 100,
       speed: 1,
@@ -215,3 +215,4 @@ return BossAPI;
 
 })();
 window.Boss = Boss;
+
