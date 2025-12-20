@@ -94,7 +94,7 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
 
 
 #loadingImage {
-  width: 65vw;
+  width: 250px;
   margin-top: 0vh; 
   opacity: 1; 
   transition: opacity 0.5s ease;
@@ -4785,7 +4785,7 @@ function shootBullets() {
  if (bulletGrade === 1) {
     bullets.push({
       x: airplane.x + airplane.w / 2,
-      y: airplane.y - airplane.h / 2,
+      y: airplane.y + airplane.h / 2,
       w: 2,
       h: 6,
       color: "#FFFF00", // زرد طلایی
@@ -5994,7 +5994,6 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
-
 
 
 
