@@ -13,9 +13,9 @@
     boss = {
       x: canvas.width / 2 - 100,
       y: -200,
-      w: 60,
+      w: 100,
       h: 100,
-      life: 100,
+      life: 135,
       targetX: canvas.width / 2 - 100,
       targetY: canvas.height / 2 - 100,
       speed: 1,
@@ -215,5 +215,6 @@ return BossAPI;
 
 })();
 window.Boss = Boss;
+
 
 
