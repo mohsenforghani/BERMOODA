@@ -1,3 +1,4 @@
+// eslint-disable-next-line security/detect-insecure-random
 const CACHE_NAME = "bermooda-cache-v1";
 const ASSETS = [
   "/BERMOODA/",
@@ -105,3 +106,4 @@ self.addEventListener("fetch", event => {
     caches.match(event.request).then(res => res || fetch(event.request))
   );
 });
+
