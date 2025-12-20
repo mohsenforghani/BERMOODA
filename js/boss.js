@@ -11,16 +11,17 @@
 
   function spawn(canvas) {
     boss = {
-      x: canvas.width / 2 - 100,
+      x: canvas.width / 2 -50,
       y: -200,
       w: 100,
-      h: 100,
-      life: 135,
-      targetX: canvas.width / 2 - 100,
+      h: 133,
+      life: 100,
+      targetX: canvas.width / 2 -100,
       targetY: canvas.height / 2 - 100,
       speed: 1,
       img: bossImage
     };
+
 
     bossBullets = [];
     fireCount = 0;
@@ -215,6 +216,4 @@ return BossAPI;
 
 })();
 window.Boss = Boss;
-
-
 
