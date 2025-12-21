@@ -30,7 +30,7 @@ const padding = 8;
 // 🎯 نوار گرما
 let heat = 0;
 let overheated = false;
-let heatFillRate  = 1.2;
+let heatFillRate  = 1.04;
 let heatCoolRate = 0.2;
 let overheatDuration = 3000;
 
@@ -140,3 +140,4 @@ window.GAME_CONFIG = {
  FIRE_DELAY ,
  MAX_FIRE 
 };
+
