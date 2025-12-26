@@ -622,7 +622,7 @@ position: absolute;
 
 
 
-/* لرزش   */
+/* لرزش */
 #shoot.recoil {
     animation: gunRecoil 0.15s cubic-bezier(.3,.9,.3,1);
 }
@@ -738,7 +738,7 @@ position: absolute;
   align-items: flex-end;
 }
 
-/* پیام‌های من  => سمت راست، حباب سبز */
+/* پیام‌های من سمت راست، حباب سبز */
 .chat-row.me {
   justify-content: flex-end;
 }
@@ -753,7 +753,7 @@ position: absolute;
   box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 
-/* پیام‌های دیگر => سمت چپ، حباب صورتی */
+/* پیام‌های دیگر سمت چپ، حباب صورتی */
 .chat-row.other {
   justify-content: flex-start;
 }
@@ -908,11 +908,6 @@ position: absolute;
 <div id="bestPlayer">Best Player: ---</div>
 
 
-
-
-
-
-
 <button id="scoreBtn">نمایش امتیازات و نفرات آنلاین</button>
 <button id="continueBtn">ادامه بازی</button>
 <button id="exitBtn">خروج</button>
@@ -928,10 +923,10 @@ position: absolute;
 
 
 
-<!-- جای جدید برای پیام‌ها + overlay و composer -->
+<!-- جای جدید برای پیام‌ها  -->
 <div id="chatMessages" class="chat-messages" dir="rtl" aria-live="polite"></div>
 
-<!-- پنجره‌ی چت (overlay) -->
+<!-- پنجره‌ی چت  -->
 <div id="chatOverlay">
   <!-- زمینه نیمه‌شفاف  -->
   <div id="chatBackdrop" style="position:absolute; inset:0; background:rgba(0,0,0,0.25);"></div>
@@ -986,7 +981,7 @@ position: absolute;
          padding:8px 12px; 
          border-radius:20px; 
          border:1px solid rgba(0,0,0,0.25); 
-         background:rgba(0,0,0,0.25);   /* 🔥 تیره‌تر از پنجره چت */
+         background:rgba(0,0,0,0.25);   /*  تیره‌تر از پنجره چت */
          color:#fff; 
          outline:none;
          text-align:right;
@@ -998,7 +993,7 @@ position: absolute;
 </div>
 
 
-<!-- 🎮 کنترل‌ها -->
+
 <div id="joystick">
   <span class="up"></span>
   <span class="down"></span>
@@ -1979,7 +1974,7 @@ async function markMessagesAsRead(myId, otherId) {
 
 let _offlineSent = false;      // جلوگیری از ارسال تکراری آفلاین
 let hiddenTimer = null;
-const HIDDEN_CLOSE_MS = 8000;  // میلی‌ثانیه تا زمانی که تب مخفی شد آفلاین بزن
+const HIDDEN_CLOSE_MS = 8000;  
 
 function forceOffline() {
   if (_offlineSent) return;
@@ -1987,7 +1982,7 @@ function forceOffline() {
 
   try {
     stopPlaying();
-    stopPresence(); // تابع خودت را فراخوانی کن
+    stopPresence(); 
 
     // ارسال مستقیم با sendBeacon در صورت وجود
     const id = window.playerId || getOrCreatePlayerId();
@@ -2070,7 +2065,6 @@ const pid = window.playerId || getOrCreatePlayerId();
 const name = window.playerName || "";
 
 
-// جلوگیری از ارسال مکرر زمانی که وضعیت تغییر نکرده
 if (__isPlayingFlag) return;
 __isPlayingFlag = true;
 
@@ -2096,7 +2090,7 @@ const pid = window.playerId || getOrCreatePlayerId();
 const name = window.playerName || "";
 
 
-// فقط وقتی ارسال شود که قبلاً playing فعال بوده
+
 if (!__isPlayingFlag) return;
 __isPlayingFlag = false;
 
@@ -2116,8 +2110,6 @@ keepalive: true
 }).catch(() => {});
 }
 
-// ارسال پیام (فرم-انکد)
-// در بالای فایل یک helper برای uuid (اگر crypto.randomUUID در دسترس باشه ازش استفاده کن)
 function makeUUID() {
   if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
@@ -2144,19 +2136,9 @@ async function sendChatMessage(message, opts = {}) {
 
   const res = await fetch(SHEET_WEBAPP, { method: 'POST', body });
   const json = await res.json().catch(()=>null);
-  // سرور می‌تواند در پاسخ ts و msgId را برگرداند؛ اگر برگردوند می‌توانی آن را استفاده کنی
   return Object.assign(json||{}, { msgId });
 }
 
-
-
-
-
-
-
-// ارسال پیام (فرم-انکد)
-// حذف یا غیرفعال کن هر setInterval قدیمی که innerHTML کامل می‌ساخت.
-// از این تابع استفاده کن:
 
 /* ----------------- Chat rendering (replacement) ----------------- */
 
@@ -2174,7 +2156,7 @@ function renderChatMessage(msgObj) {
     const meta = document.createElement('div');
     meta.className = 'meta';
     meta.textContent = msgObj.fromName || 'ناشناس';
-    // می‌تونی این رو فعال یا غیرفعال کنی:
+
     // row.appendChild(meta);
   }
 
@@ -2206,7 +2188,6 @@ function renderChatMessage(msgObj) {
   chatList.scrollTop = chatList.scrollHeight;
 }
 
-/** اصلاح‌شده: fetch ساده و افزودن پیام‌ها (با caching ساده) */
 async function fetchChatMessagesAndRender() {
   if (!window.chatSenderId || !window.chatReceiverId) return;
   window.chatState = window.chatState || {};
@@ -2259,7 +2240,6 @@ async function fetchChatMessagesAndRender() {
       added++;
     }
 
-    // اگر پیام جدید داشتیم، اسکرول کن (renderChatMessage خودش اسکرول میکنه)
     state.fetching = false;
     setTimeout(fetchChatMessagesAndRender, 600);
   } catch (err) {
@@ -2269,7 +2249,7 @@ async function fetchChatMessagesAndRender() {
   }
 }
 
-/* Send button handler (با استفاده از sendChatMessage موجود) */
+
 const chatSendBtn = document.getElementById('chatSendBtn');
 const chatInput = document.getElementById('chatInput');
 
@@ -2278,9 +2258,6 @@ if (chatSendBtn && chatInput) {
   chatSendBtn.addEventListener('click', async () => {
     const txt = (chatInput.value || '').trim();
     if (!txt) return;
-
-    // ❗ نمایش فوری را حذف کردیم (این خط دیگر نباید اجرا شود)
-    // renderChatMessage(...)
 
     chatInput.value = '';
 
@@ -2386,7 +2363,6 @@ document.querySelectorAll('.plane').forEach(plane => {
 
    
 
-    // بعد از انتخاب، دکمه شروع بازی را نمایش بده
     startBtn.style.display = "block";
     scoreBtn.style.display = "block";
     exitBtn.style.display = "block";
@@ -2414,7 +2390,6 @@ function spawnMeteor() {
   const img = meteorImages[Math.floor(Math.random() * meteorImages.length)];
 
 
-// Non-security random value used only for gameplay visuals
 
  // اگر شهاب‌سنگ sang5.png است، اندازه ثابت 120 باشد
   if (img === "sang5.png") {
@@ -2556,7 +2531,7 @@ function createMeteorExplosion(x, y, power = 1) {
 
   meteorExplosions.push({ particles, created: performance.now() });
 
-  // لرزش کوتاه گوشی (vibration) در موبایل
+
   if (navigator.vibrate) navigator.vibrate(80);
 }
 
@@ -2628,7 +2603,7 @@ function updateMeteorExplosions() {
       if (p.life <= 0.03 || p.size < 0.5) particles.splice(j, 1);
     }
 
-    // حذف گروه اگر هیچ ذره‌ای زنده نمانده
+
     if (!alive) meteorExplosions.splice(i, 1);
   }
 
@@ -2656,23 +2631,6 @@ function applyScreenShake() {
   const dy = (Math.random() - 0.5) * intensity;
   ctx.setTransform(1, 0, 0, 1, dx, dy);
 }
-
-
-// ===== نور انفجار =====
-//let explosionFlashes = [];
-//function updateExplosionFlashes() {
- // for (let i = explosionFlashes.length - 1; i >= 0; i--) {
- //   const f = explosionFlashes[i];
- //   const g = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, f.radius);
-//    g.addColorStop(0, `rgba(255,180,80,${f.alpha})`);
-  //  g.addColorStop(1, "rgba(0,0,0,0)");
-  //  ctx.fillStyle = g;
-  //  ctx.fillRect(f.x - f.radius, f.y - f.radius, f.radius * 2, f.radius * 2);
- //   f.alpha -= f.decay;
-  //  if (f.alpha <= 0) explosionFlashes.splice(i, 1);
- // }
-//}
-
 
 
 
@@ -2720,11 +2678,11 @@ let paused = false;
 let pauseTime = 0;
 pauseBtn.addEventListener("click", () => {
   if (!paused) {
-    // ⏸ وقتی بازی متوقف می‌شود
+
     paused = true;
     pauseTime = performance.now();
     pauseBtn.innerHTML = "▶"; // علامت Play روی دکمه Pause
-    // 🎯 نمایش دکمه‌های منوی Pause
+
     continueBtn.style.display = "block";
     startBtn.style.display = "block";
     exitBtn.style.display = "block";
@@ -2746,13 +2704,13 @@ pauseBtn.addEventListener("click", () => {
     exitBtn.style.transform = "translate(-50%, -50%)";
 
   } else {
-    // ▶ وقتی بازی از Pause خارج می‌شود
+
     paused = false;
     const now = performance.now();
     lastTime += (now - pauseTime);
-    pauseBtn.innerHTML = "⏸"; // علامت Pause روی دکمه
+    pauseBtn.innerHTML = "⏸"; 
 
-    // 🔹 پنهان کردن دکمه‌ها هنگام ادامه بازی
+
     continueBtn.style.display = "none";
     startBtn.style.display = "none";
     exitBtn.style.display = "none";
@@ -2832,7 +2790,7 @@ window.loadedImages = window.loadedImages || {};   // محل ذخیره تصاو
 
 let activeMissiles = []; // لیست موشک‌های فعال در حال حرکت
 let missileBtn = document.getElementById("missileBtn");
-// ✅ لیست تمام تصاویر
+// لیست تمام تصاویر
   
 window.imageSources = [
   "airplane.png",
@@ -2868,7 +2826,7 @@ const loadingImage = document.getElementById("loadingImage");
 
 const airplaneImg = new Image();
 airplaneImg.src = "airplane.png";
-// ✈️ تصاویر دشمن‌ها
+// تصاویر دشمن‌ها
 const enemyImages = [
   "plane1.png",
   "plane2.png",
@@ -2892,18 +2850,7 @@ const shootBtn = document.getElementById("shoot");
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-  // 🎨 پس‌زمینه متحرک آسمان
+  //  پس‌زمینه متحرک آسمان
   let clouds = [];
   const cloudImages = ["cloud1.png", "cloud2.png", "cloud3.png"].map(src => {
   const img = new Image();
@@ -2928,43 +2875,18 @@ const shootBtn = document.getElementById("shoot");
 
 
 
-
-//==============================تصویر بالای لودینگ===========================
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//================================================================
-
-
-
-
 function preloadImages(callback) {
-  // ایمن‌سازی المان‌های UI که استفاده می‌شوند
+
   const scoreContainerEl = document.getElementById("scoreContainer");
   const progressFillEl = typeof progressFill !== 'undefined' ? progressFill : document.querySelector('.progress-fill');
   const loadingTextEl = typeof loadingText !== 'undefined' ? loadingText : document.querySelector('.loading-text');
 
-  // اضافه‌کردن فریم‌های انفجار اما فقط در صورتی که قبلاً اضافه نشده باشند
   for (let i = 1; i <= 9; i++) {
     const path = `ex/ex${i}.png`;
     if (!window.imageSources.includes(path)) window.imageSources.push(path);
   }
 
-  // اضافه کردن 5 بک‌گراند اگر هنوز اضافه نشده‌اند (اسامی ثابت نگه داشته شدند)
+  
   const bgPaths = [
     "Startbackground/a.png",
     "Startbackground/b.png",
@@ -2976,18 +2898,18 @@ function preloadImages(callback) {
 
   const totalImages = window.imageSources.length;
   if (totalImages === 0) {
-    // هیچ تصویری نیست — مستقیم ادامه بده
+
     return Promise.resolve().then(() => callback && callback());
   }
 
   let loadedCount = 0;
-  let finished = false; // برای اطمینان که بلوک پایان فقط یکبار اجرا شود
+  let finished = false; 
 
   function markOne(src, img) {
      window.loadedImages[src] = img;
      loadedCount++;
      console.log(` Loaded: ${src}  |  Size: ${img.width}x${img.height}`);
-    // آپدیت UI پراگرس اگر وجود داشت
+
     if (progressFillEl) {
       const percent = Math.floor((loadedCount / totalImages) * 100);
       progressFillEl.style.width = percent + "%";
@@ -3004,8 +2926,6 @@ function preloadImages(callback) {
         if (window.loadedImages[p]) window.explosionFrames.push(window.loadedImages[p]);
       }
 
-      // حالا ترتیب اجرای بقیه‌ی شروع را به شکل ایمن بدهیم
-      // اگر getOrCreatePlayerId sync یا async باشد، Promise.resolve کار هر دو را پوشش می‌دهد
       Promise.resolve().then(() => {
         return Promise.resolve(getOrCreatePlayerId && getOrCreatePlayerId());
       }).then(() => {
@@ -3024,11 +2944,11 @@ function preloadImages(callback) {
                   await loadAndShowUnread(window.playerId);
                 }
 
-                // نمایش نام بازیکن (اگر وجود دارد)
+                // نمایش نام بازیکن 
                 const nameEl = document.getElementById("playernameDisplay");
                 if (nameEl) nameEl.innerText = 'Player : ' + (window.playerName || '');
 
-                // بررسی پیام‌های خوانده نشده (اگر تابع موجود است)
+                // بررسی پیام‌های خوانده نشده )
                 if (typeof checkUnreadMessages === 'function') {
                   const unread = await checkUnreadMessages(window.playerId);
                   if (unread > 0) {
@@ -3080,9 +3000,6 @@ function preloadImages(callback) {
 // ✅ وقتی همه تصاویر لود شدن:
 preloadImages(() => {
   progressFill.style.width = "100%";
-
-
-
 
 
 
@@ -3178,27 +3095,24 @@ preloadImages(() => {
     if (centerPlane) {
       const idx = planes.indexOf(centerPlane);
 
-      // فقط وقتی وسط تغییر کرد اقدام کن — تا انتخاب‌های تکراری رخ ندهد
+      
       if (idx !== currentCenterIndex) {
         currentCenterIndex = idx;
 
-        // همان کاری که قبلاً با کلیک انجام می‌شد: انتخاب ظاهری
         planes.forEach(x => x.classList.remove('selected'));
         centerPlane.classList.add('selected');
 
-        // به متغیرهای موجود مقدار بده (بدون ایجاد نام جدید)
-        selectedPlane = centerPlane.dataset.plane;
+      selectedPlane = centerPlane.dataset.plane;
         const imgEl = centerPlane.querySelector('img');
         if (typeof selectedPlaneImg !== 'undefined') {
           selectedPlaneImg = imgEl ? (imgEl.src || selectedPlaneImg) : selectedPlaneImg;
         }
 
-        // نمایش نام (ایمن‌سازی: اگر المان وجود نداشت خطا نده)
         const alt = imgEl?.alt || '';
         const nameEl = document.getElementById('planeName') || document.getElementById('planeSelectTitle');
         if (nameEl) nameEl.innerText = alt;
 
-        // نمایش startBtn (همان رفتار قبلی)
+
         const sb = document.getElementById('startBtn');
         if (sb) sb.style.display = 'block';
       }
@@ -3206,7 +3120,7 @@ preloadImages(() => {
 
   }
 
-  // لمسی / ماوس برای حرکت پیکسل به پیکسل
+
   let startX = null;
   arcContainer.addEventListener('touchstart', e => startX = e.touches[0].clientX, {passive:true});
   arcContainer.addEventListener('touchmove', e => {
@@ -3283,7 +3197,7 @@ waImg.style.top = "10px";
 waImg.style.left = "10px";
 waImg.style.transition = "transform 0.2s ease";
 waImg.style.zIndex = "9999";
-// در ابتدا مخفی
+
 waImg.style.display = "none";  
 document.body.appendChild(waImg);
 
@@ -3318,9 +3232,6 @@ setInterval(() => {
 }, 2000);
 
 }
-
-
-
 
 
 
@@ -3365,8 +3276,6 @@ setInterval(() => {
 };
 
   
-
-
   
  exitBtn.onclick = () => {
     stopPlaying();
@@ -3418,7 +3327,7 @@ async function showTopPlayerName() {
 
 
 
-// === day/night config (قرار بده نزدیک بقیهٔ تنظیمات گلوبال) ===
+// === day/night config ===
 const dayNight = {
   halfCycle: 50 * 1000, 
   start: performance.now()
@@ -3443,8 +3352,7 @@ function createStars(count = 100) {
     });
   }
 }
-
-// --- توابع کمکی رنگ و lerp ---
+ 
 function hexToRgb(hex) {
   const h = hex.replace('#','');
   return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
@@ -3491,8 +3399,6 @@ function drawBackground() {
   ctx.fillStyle = grad;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // ستاره‌ها (تدریجی بر اساس nf)
-  // ستاره‌ها (تدریجی بر اساس nf)
 const starAppear = Math.max(0, (nf - 0.15) / (1 - 0.15)); 
 if (starAppear > 0.001) {
   createStars(120); // یک‌بار تولید می‌شوند
@@ -3507,7 +3413,7 @@ if (starAppear > 0.001) {
     ctx.fillStyle = `rgba(255,255,230,${alpha})`;
 
     // حرکت به سمت پایین
-    s.y += (s.vy || 10) * dt;  // سرعت ستاره، می‌توانی 5 تا 20 تغییر دهی
+    s.y += (s.vy || 10) * dt;  // بین ۵ تا ۲۰
     if (s.y > canvas.height) s.y = 0; // اگر از پایین خارج شد، دوباره از بالا
 
     ctx.beginPath();
@@ -3538,7 +3444,6 @@ if (starAppear > 0.001) {
     c.y += vy * dt;   // حرکت به سمت پایین
   //  c.x += vx * dt;
 
-    // اگر از پایین خارج شد -> بازنشانی از بالا با مشخصات رندوم
     if (c.y > canvas.height + 200) {
       c.y = - (50 + Math.random() * 200);
       c.x = Math.random() * canvas.width;
@@ -3642,7 +3547,6 @@ function getDeviceInfo() {
   let browser = "Unknown";
 
   // --- iPhone ---
-  // Example: iPhone; CPU iPhone OS 18_6 like Mac OS X
   if (/iPhone/i.test(ua)) {
     brand = "Apple";
     os = ua.match(/iPhone OS ([\d_]+)/i)?.[1].replace(/_/g, ".") || "iOS";
@@ -3806,7 +3710,6 @@ if (fuel <= alarmfuel) {
 
 /* ===========================================================
    سیستم مستقل دشمن هوشمند (بدون وابستگی به کد اصلی)
-   تمام نام‌ها شامل hoosh هستند
    =========================================================== */
 
 
@@ -3984,14 +3887,14 @@ function hooshUpdateEnemies(delta, canvas, player, playerBullets, onKill){
         e.y += e.vy*delta*2;
 
         // نرمال‌سازی و هموارسازی زاویه (lerp ساده)
-        // برای جلوگیری از پرش‌های ناگهانی، اختلاف زاویه را در بازه‌ی -PI..PI نرمال کن
+        // برای جلوگیری از پرش‌های ناگهانی، اختلاف زاویه را در بازه‌ی -PI..PI تنظیم میکنیم
         let a = e.angle;
         let ta = e.targetAngle || a;
         // نرمال‌سازی اختلاف
         let diff = ta - a;
         while(diff > Math.PI) diff -= 2*Math.PI;
         while(diff < -Math.PI) diff += 2*Math.PI;
-        // هموارسازی: ضریب 0.12 قابل تنظیم است (بزرگ‌تر -> سریع‌تر می‌چرخد)
+        // هموارسازی: ضریب 0.12 قابل تنظیم است (بزرگ‌تر شود سریع‌تر می‌چرخد)
         e.angle = a + diff * 0.10;
 
         // تیراندازی
@@ -4032,7 +3935,7 @@ if (isBossActive) return;
         b.x += b.vx*delta*3;
         b.y += b.vy*delta*3;
 
-        // برخورد با بازی‌کن
+        // برخورد با بازیکن
         if(
             player.x < b.x &&
             player.x + player.w > b.x &&
@@ -4079,7 +3982,7 @@ function hooshRender(ctx){
         ctx.translate(e.x, e.y);
         // rotate توسط e.angle
         ctx.rotate(e.angle);
-        // تصویر را طوری بکش که مرکز تصویر در مبدأ قرار گیرد
+        
         ctx.drawImage(e.img, -e.w/2, -e.h/2, e.w, e.h);
         ctx.restore();
     });
@@ -4093,10 +3996,6 @@ function hooshRender(ctx){
     ctx.restore();
 });
 }
-
-
-
-
 
 
 
@@ -4132,21 +4031,10 @@ Boss.draw(ctx);
 
 
 
-
-
 hooshTickSpawner(canvas);
 hooshUpdateEnemies(delta, canvas, airplane, bullets, (score)=>addScore(score));
 hooshUpdateBullets(delta, canvas, airplane, ()=>explodeAirplane());
 hooshRender(ctx);
-
-
-
-
-
-
-
-
-
 
 
 
@@ -4266,11 +4154,11 @@ if (dx < -0.2) {
   airplane.x = Math.max(0, Math.min(canvas.width - airplane.w, airplane.x));
   airplane.y = Math.max(0, Math.min(canvas.height - airplane.h, airplane.y));
 
-// 🌟 حالت متمایل شدن: -1: چپ، 0: صاف، 1: راست
+//  حالت متمایل شدن: -1: چپ، 0: صاف، 1: راست
 if (!airplane.direction) airplane.direction = 0;
 if (!airplane.tiltProgress) airplane.tiltProgress = 0;
 
-// بروزرسانی tiltProgress برای حرکت نرم
+// برای حرکت نرم
 airplane.tiltProgress += (airplane.direction - airplane.tiltProgress) * 0.3; // 0.3 سرعت متمایل شدن
 
 if (!airplane.hidden) {
@@ -4294,7 +4182,7 @@ if (!airplane.hidden) {
   ctx.restore();
 }
 
-// 🔫 رسم گلوله‌ها با توجه به گرید
+// رسم گلوله‌ها با توجه به گرید
 bullets.forEach((b,i) => {
   b.y += b.vy;
   b.x += b.vx;
@@ -4433,8 +4321,8 @@ if (!isBossActive && Math.random() < 0.005) {
     spiral: Math.random() < 0.3,
     angle: 0,
     amplitude: 60,
-    speedType: chosenType,         // ذخیره تیپ
-    speed: baseSpeed * speedMultiplier // سرعت واقعی
+    speedType: chosenType,         k
+    speed: baseSpeed * speedMultiplier
   };
 
   enemies.push(enemy);
@@ -4444,7 +4332,7 @@ if (!isBossActive && Math.random() < 0.005) {
 
 
 
-// تولید سوخت هر 15 ثانیه
+// تولید سوخت هر 18 ثانیه
 if (performance.now() - lastFuelSpawn > 18000) {
   fuels.push({
     x: Math.random() * (canvas.width - 80) + 40,
@@ -4466,7 +4354,7 @@ enemies.forEach((e, i) => {
 } else {
   e.y += e.speed * delta;
 }
-// 🔹 حذف دشمن وقتی 100 پیکسل تا پایین فاصله دارد
+// حذف دشمن وقتی 100 پیکسل تا پایین فاصله دارد
   if (e.y > canvas.height - noFlyZoneHeight) {
     enemies.splice(i, 1);
   }
@@ -4489,11 +4377,10 @@ if (e.canShoot) {
 }
 
 
-// 🎯 بررسی و رسم تیرهای دشمن — بیرون از enemies.forEach
+//  بررسی و رسم تیرهای دشمن — بیرون از enemies.forEach
 for (let i = enemyBullets.length - 1; i >= 0; i--) {
   const b = enemyBullets[i];
 
-  // حرکت گلوله (سرعت متناسب با delta)
   b.y += b.vy * delta * 3;
 
   // رسم گلوله
@@ -4520,8 +4407,6 @@ for (let i = enemyBullets.length - 1; i >= 0; i--) {
 
 
 
-
-
   // بررسی برخورد گلوله‌ها با دشمن
   bullets.forEach((b, j) => {
     if (
@@ -4540,7 +4425,7 @@ for (let i = enemyBullets.length - 1; i >= 0; i--) {
     }
   });
 
-  // ✅ بررسی برخورد هواپیما با دشمن
+  //  بررسی برخورد هواپیما با دشمن
   if (
     airplane.x < e.x + e.w / 2 &&
     airplane.x + airplane.w > e.x - e.w / 2 &&
@@ -4557,11 +4442,7 @@ for (let i = enemyBullets.length - 1; i >= 0; i--) {
 
 
 
-
-
-
-
-// 🔫 کنترل شلیک Space در حلقه بازی
+//شلیک با زدن دکمه space
 if (keys.space) {
   const now = performance.now();
   if (now - lastShotTime > shootDelay) {
@@ -4586,7 +4467,7 @@ updateAndDrawBullets();
 
 
 
-// 🔹 هر 20 ثانیه یک شهاب‌سنگ ایجاد می‌کنیم
+// هر 20 ثانیه یک شهاب‌سنگ ایجاد شود
 spawnMeteor();
 
 for (let i = meteors.length - 1; i >= 0; i--) {
@@ -4595,7 +4476,6 @@ for (let i = meteors.length - 1; i >= 0; i--) {
   m.y += m.vy;
   m.rotation += m.rotationSpeed;
 
-  // اگر مقدار hp تعریف نشده، مقدار اولیه بده
   if (m.hp === undefined) m.hp = 10;
 
   // رسم شهاب سنگ با چرخش
@@ -4620,7 +4500,7 @@ for (let i = meteors.length - 1; i >= 0; i--) {
 if (m.hp <= 0) {
   createMeteorExplosion(m.x + m.w/2, m.y + m.h/2); 
   meteors.splice(i, 1);
-  // اضافه کردن امتیاز برای ترکاندن شهاب سنگ
+
       addScore(100);
   break;
 }
@@ -4628,7 +4508,6 @@ if (m.hp <= 0) {
     }
   }
 
-  // حذف اگر از پایین صفحه خارج شد
   if (m.y > canvas.height + 100) {
     meteors.splice(i, 1);
     continue;
@@ -4651,17 +4530,17 @@ Tunnel.drawIndicator(ctx);
 }
 updateMeteorExplosions(); // رسم ذرات انفجار شهاب‌سنگ
 ctx.setTransform(1, 0, 0, 1, 0, 0);
-cancelAnimationFrame(animationId); // animationId باید متغیر سراسری باشد
+cancelAnimationFrame(animationId); 
 animationId = null;
 animationId = requestAnimationFrame(gameLoop);
 } 
 
 
-// 🎨 تابع به‌روزرسانی نوار گرما
+//  تابع به‌روزرسانی نوار گرما
 function updateHeatBar() {
   heatBar.style.width = `${heat}%`;
 
-  // رنگ داینامیک در صورت تمایل (افزودنی)
+
   const color = `linear-gradient(90deg,
     hsl(${120 - (heat * 1.2)}, 100%, 50%),
     hsl(${60 - (heat * 0.6)}, 100%, 50%),
@@ -4670,7 +4549,6 @@ function updateHeatBar() {
   heatBar.style.background = color;
 }
 
-// ♻️ خنک شدن تدریجی — در حلقه‌ی اصلی بازی یا با setInterval
 setInterval(() => {
   if (!overheated && heat > 0 && !paused) {
     heat -= heatCoolRate;
@@ -4684,7 +4562,7 @@ setInterval(() => {
 
 
 // === کنترل‌ها ===
-// 🔫 ایجاد تیرها
+// ایجاد تیرها
 function shootBullets() {
   if (airplane.hidden) return;
  if (overheated) return;
@@ -4698,7 +4576,6 @@ function shootBullets() {
 
   updateHeatBar();
 
-  // اگر به حداکثر رسید، قفل شلیک به مدت ۵ ثانیه
   if (heat >= 100) {
     overheated = true;
     lastOverheatTime = Date.now();
@@ -4707,16 +4584,15 @@ function shootBullets() {
       heat = 0;
       updateHeatBar();
     }, overheatDuration);
-    return; // جلوگیری از شلیک
+    return; 
   }
 
 
 
-// 🎧 پخش صدای شلیک
   try {
-    //const sfx = shootSound.cloneNode(); // جلوگیری از تداخل شلیک‌های همزمان
+    //const sfx = shootSound.cloneNode();
     sfx.volume = 0.1;
-    sfx.play().catch(() => {}); // جلوگیری از خطای مرورگر در حالت mute
+    sfx.play().catch(() => {}); 
   } catch (e) {
     console.warn("خطا در پخش صدای شلیک:", e);
   }
@@ -4729,14 +4605,14 @@ function shootBullets() {
       y: airplane.y + airplane.h / 2,
       w: 2,
       h: 6,
-      color: "#FFFF00", // زرد طلایی
+      color: "#FFFF00", 
       vx: 0,
       vy: -bulletSpeed,
       glow: 10
     });
   }
   else if (bulletGrade === 2) {
-    // دو تیر از دو بال
+
     bullets.push({
       x: airplane.x + 5,
       y: airplane.y -3,
@@ -4759,7 +4635,7 @@ function shootBullets() {
     });
   }
   else if (bulletGrade === 3) {
-    // سه تیر: نوک و دو بال با کمی زاویه
+
     bullets.push({
       x: airplane.x + airplane.w / 2,
       y: airplane.y,
@@ -4793,7 +4669,7 @@ function shootBullets() {
   }
 }
 
-// 🔫 به‌روزرسانی و رسم تیرها
+// به‌روزرسانی و رسم تیرها
 function updateAndDrawBullets() {
   bullets.forEach((b, i) => {
     b.x += b.vx || 0;
@@ -4807,7 +4683,7 @@ function updateAndDrawBullets() {
     ctx.fillStyle = b.color;
     ctx.fillRect(b.x - b.w / 2, b.y, b.w, b.h);
 
-    // غیرفعال کردن glow برای سایر اشیا
+
     ctx.shadowBlur = 0;
 
     // حذف تیر خارج از صفحه
@@ -4836,10 +4712,9 @@ function launchMissile() {
   updateMissileBtn();
   //enemyBullets = [];
 
-  // 🎯 انتخاب تصادفی بین مدل‌های مختلف موشک
   const missileImage = missileImages[Math.floor(Math.random() * missileImages.length)];
 
-  // ✨ تعیین اندازه بر اساس نوع تصویر
+
   let missileW = 15;
   let missileH = 30;
 
@@ -4851,7 +4726,7 @@ function launchMissile() {
     missileH = 27;
   }
 
-  // 🚀 اضافه کردن موشک به لیست فعال‌ها
+  
   activeMissiles.push({
     x: airplane.x + airplane.w / 2 - missileW / 2,
     y: airplane.y - missileH,
@@ -4863,7 +4738,7 @@ function launchMissile() {
     prevX: airplane.x + airplane.w / 2 - missileW / 2,
     prevY: airplane.y - missileH,
     baseX: airplane.x + airplane.w / 2 - missileW / 2,
-    img: missileImage // ✅ تصویر انتخاب‌شده
+    img: missileImage 
   });
 }
 
@@ -4871,7 +4746,7 @@ function launchMissile() {
 
 function startGame() {
 
-if (explosionRunning) return; // جلوگیری از شروع بازی قبل از پایان انفج
+if (explosionRunning) return;
   startPresence();
   window.alreadySentScore = false;
   showTopPlayerName();
@@ -4880,12 +4755,11 @@ if (explosionRunning) return; // جلوگیری از شروع بازی قبل ا
   lastFuelSpawn = 0; // ریست زمان سوخت
   speedMultiplier = 1;
 
- // 🔹 هر بار شروع جدید، چرخه‌ی روز/شب از "روز کامل" آغاز شود
+
   if (typeof dayNight !== 'undefined') {
     dayNight.start = performance.now(); // از همین لحظه دوباره شروع کن → روز کامل
   }
 
-  // 🔹 زمان آخرین فریم پس‌زمینه را هم ریست کن تا حرکت ابرها نرم بماند
   if (typeof drawBackground !== 'undefined') {
     drawBackground._lastTime = performance.now();
   }
@@ -4901,12 +4775,12 @@ if (explosionRunning) return; // جلوگیری از شروع بازی قبل ا
   const controlPanel = document.getElementById('controlPanel');
   controlPanel.style.display = 'block'; 
   gameOverBackground = false;
-  cancelAnimationFrame(backgroundAnimation); // متوقف کن
+  cancelAnimationFrame(backgroundAnimation); 
   airplane.hidden = false;
   pauseBtn.innerHTML = "⏸";
   lives = 3;
   difficultyMultiplier = 1;      // ضریب سرعت دشمنان
-  lastDifficultyIncrease = performance.now(); // زمان آخرین افزایش سختی
+  lastDifficultyIncrease = performance.now(); 
 
 
 heat = 0;
@@ -4919,16 +4793,16 @@ updateHeatBar();
 
 
 
-  // ⏱ ریست رییس
+  // ریست رییس
  Boss.resetTimer();
 
-  // ⏱ ریست تونل
+  // ریست تونل
   Tunnel.resetTimer();
 
 
 
- hooshEnemies.length = 0;        // پاک کردن همه دشمن‌ها
- hooshBullets.length = 0;        // پاک کردن همه گلوله‌ها
+ hooshEnemies.length = 0;      
+ hooshBullets.length = 0;        
  hooshLastSpawn = performance.now(); 
 
 
@@ -4939,16 +4813,16 @@ updateHeatBar();
   bulletSpeed = 10;
   airplane.x = canvas.width / 2 - (airplane.w)/2;
   airplane.y = canvas.height - 200;
- // ✅ اینجا تصویر هواپیمای بازیکن تعیین می‌شود
+
   airplaneImg.src = selectedPlaneImg || "plane30.png";
   enemies = [];
   bullets = [];
-  fuels = []; // پاک کردن سوخت‌های باقی‌مانده
-  enemyBullets = []; // ✅ پاک کردن تمام تیرهای دشمن
-  lastFuelSpawn = performance.now(); // ریست تایمر تولید سوخت
-  missiles = 0;              // ← تعداد موشک‌ها صفر
-  lastMissileBonusLevel = 0; //  ریست سطح پاداش موشک‌ها
-  updateMissileBtn();        // ← بروزرسانی دکمه
+  fuels = []; 
+  enemyBullets = []; 
+  lastFuelSpawn = performance.now(); 
+  missiles = 0;              
+  lastMissileBonusLevel = 0;
+  updateMissileBtn();        
   gameRunning = true;
   document.getElementById("startBtn").style.display = "none";
   document.getElementById("continueBtn").style.display = "none";
@@ -4960,11 +4834,8 @@ updateHeatBar();
   document.getElementById("missileBtn").style.display = "block";
   pauseBtn.style.display = "block";
   
-
-
-// 🎮 شروع آهنگ بازی با fade-in نرم
 try {
-  // 🔸 توقف نرم آهنگ Game Over در صورت پخش
+
   if (gameOverMusic && !gameOverMusic.paused) {
     clearInterval(fadeGameOverMusic);
     fadeGameOverMusic = setInterval(() => {
@@ -4978,7 +4849,6 @@ try {
     }, 150);
   }
 
-  // 🔸 شروع یا ادامه آهنگ بازی با fade-in
   if (gameMusic) {
     gameMusic.currentTime = 0;
     gameMusic.play();
@@ -4997,10 +4867,6 @@ try {
 }
 
 
-
-
-
- // اگر حلقه‌ی پس‌زمینه‌ی game over فعال است، متوقفش کن
   if (typeof backgroundAnimation !== 'undefined' && backgroundAnimation) {
     cancelAnimationFrame(backgroundAnimation);
     backgroundAnimation = null;
@@ -5042,7 +4908,7 @@ Tunnel.init({
     animateGameOverBackground();
     stopPlaying();
   
-  // پاک کردن صفحه قبل از نمایش متن
+
   //ctx.clearRect(0, 0, canvas.width, canvas.height);
   document.getElementById("scoreContainer").style.display = "none";
   controlPanel.style.display = 'none'; 
@@ -5066,9 +4932,7 @@ Tunnel.init({
 
   fuelAlarmActive = false;
 
-// 💀 پخش آهنگ پایان بازی با fade
 try {
-  // 🔸 قطع نرم آهنگ اصلی بازی
   if (gameMusic && !gameMusic.paused) {
     clearInterval(fadeGameMusic);
     fadeGameMusic = setInterval(() => {
@@ -5082,7 +4946,7 @@ try {
     }, 150);
   }
 
-  // 🔸 بعد از کمی تأخیر آهنگ Game Over پخش شود
+  
   setTimeout(() => {
     if (gameOverMusic) {
       gameOverMusic.currentTime = 0;
@@ -5106,7 +4970,6 @@ try {
 }
 
 
-// ===== جایگزین createExplosion =====
 function createExplosion(x, y, w = 50, h = 50, power = 1) {
   const particles = [];
   const numParticles = Math.min(40, Math.floor(18 + 12 * Math.min(3, Math.max(0.5, power))));
@@ -5146,13 +5009,13 @@ explosions.push({
   fadeRate: 0.01 + Math.random() * 0.01,
   imgAlpha: 1,
   imgFadeStep: 1 / 20,
-  frame: 0,           // ✅ فریم فعلی
-  frameTimer: 0,      // ✅ شمارنده برای تعویض فریم
-  frameDelay: 3,      // ✅ هر چند فریم یک‌بار تغییر کند
+  frame: 0,           //  فریم فعلی
+  frameTimer: 0,      //  شمارنده برای تعویض فریم
+  frameDelay: 3,      //  هر چند فریم یک‌بار تغییر کند
   callback: null
 });
 
-// 🎧 پخش تصادفی صدای انفجار
+
   if (explosionSounds.length > 0) {
     const randomIndex = Math.floor(Math.random() * explosionSounds.length);
     const explosionSound = explosionSounds[randomIndex].cloneNode(); // جلوگیری از تداخل پخش‌ها
@@ -5167,7 +5030,7 @@ explosions.push({
 }
 
 
-// ===== جایگزین updateExplosions(delta) =====
+
 function updateExplosions(delta) {
   for (let i = explosions.length - 1; i >= 0; i--) {
     const ex = explosions[i];
@@ -5182,7 +5045,6 @@ function updateExplosions(delta) {
     }
 
 
-   // ===== رسم تصویر انفجار (پشتیبانی از explosionImg یا explosionFrames) =====
 if (
   (typeof explosionImg !== "undefined" && explosionImg.complete) ||
   (typeof explosionFrames !== "undefined" && explosionFrames.length > 0)
@@ -5190,7 +5052,6 @@ if (
   if (typeof ex.imgAlpha === "undefined") ex.imgAlpha = 1;
   if (typeof ex.imgFadeStep === "undefined") ex.imgFadeStep = 1 / 20;
 
-  // مطمئن شو این انفجار فیلدهای فریم رو داره (برای انفجارهایی که قبلاً با ساختار قدیمی ساخته شده‌اند)
   if (typeof ex.frame === "undefined") ex.frame = 0;
   if (typeof ex.frameTimer === "undefined") ex.frameTimer = 0;
   if (typeof ex.frameDelay === "undefined") ex.frameDelay = 3;
@@ -5215,13 +5076,12 @@ if (
       ctx.drawImage(img, drawX, drawY, drawW, drawH);
     }
 
-    // افزایش فریم بر اساس timer
     ex.frameTimer++;
     if (ex.frameTimer >= ex.frameDelay) {
       ex.frame++;
       ex.frameTimer = 0;
     }
-    // اگر از آخر گذشت، در آخرین فریم بماند
+
     if (ex.frame >= explosionFrames.length) ex.frame = explosionFrames.length - 1;
   } else if (typeof explosionImg !== "undefined" && explosionImg.complete) {
     // حالت تصویر منفرد (fallback)
@@ -5230,16 +5090,16 @@ if (
 
   ctx.shadowBlur = 0;
 
-  // کاهش آلفا مانند قبل
+
   ex.imgAlpha -= ex.imgFadeStep;
   if (ex.imgAlpha < 0) ex.imgAlpha = 0;
 }
 
-    // ----- پردازش و رسم ذرات به همان شکل قبلی -----
+    // ----- پردازش و رسم ذرات  -----
     for (let j = ex.particles.length - 1; j >= 0; j--) {
       const p = ex.particles[j];
 
-      // فیزیک (مقیاس‌شده با delta)
+      // فیزیک
       p.vy += (p.gravity || 0.12) * delta;
       p.vx *= Math.pow(p.drag || 0.985, delta);
       p.vy *= Math.pow(p.drag || 0.985, delta);
@@ -5255,11 +5115,9 @@ if (
       p.life -= (p.decay || 0.02) * delta;
       if (p.life < 0) p.life = 0;
 
-      // کمی کوچک‌شدن برای جلوهٔ پراکندگی
       p.w *= Math.pow(0.999, delta);
       p.h *= Math.pow(0.999, delta);
 
-      // برخورد ساده با "زمین" (پایین صفحه)
       if (p.y > canvas.height - 2) {
         p.y = canvas.height - 2;
         p.vy *= -0.35;
@@ -5267,7 +5125,7 @@ if (
         p.life -= 0.02 * delta; // سریع‌تر محو شود پس از نشست
       }
 
-      // رسم ذره با alpha مبتنی بر life
+
       ctx.save();
       ctx.globalAlpha = Math.max(0, Math.min(1, p.life));
       ctx.translate(p.x, p.y);
@@ -5276,14 +5134,12 @@ if (
       ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
       ctx.restore();
 
-      // حذف ذره اگر عمر تمام شد یا خیلی کوچک شد
       if (p.life <= 0.03 || p.w < 0.25 || p.h < 0.25) {
       ex.particles.splice(j, 1);
       continue;
       }
     }
 
-    // پاک کردن مجموعه وقتی خالی شد
     if (ex.particles.length === 0) {
       if (ex.callback) {
         try { ex.callback(); } catch (e) {}
@@ -5304,7 +5160,7 @@ window.addEventListener("resize", resizeCanvas);
 resizeCanvas(); // اجرا در ابتدا
 
 function explodeAirplane() {
-  if (invincible) return; // اگر مصون است، بی‌تأثیر
+  if (invincible) return; 
   if (paused || !gameRunning || explosionRunning) return; // جلوگیری از انفجار دوباره
   explosionRunning = true;
 
@@ -5316,7 +5172,7 @@ function explodeAirplane() {
   const w = airplane.w;
   const h = airplane.h;
 
-  // 🔥 تولید ذرات انفجار
+  //  تولید ذرات انفجار
   const particles = [];
   const numParticles = 60;
   for (let i = 0; i < numParticles; i++) {
@@ -5339,15 +5195,15 @@ function explodeAirplane() {
   fadeRate: 0.03,
   particles: particles,
 });
-  // 🔹 کم کردن یک جان
+  //  کم کردن یک جان
   lives--;
 
-// 💥 کاهش گرید تیر بعد از از دست دادن جان
+// کاهش گرید تیر بعد از از دست دادن جان
 if (typeof bulletGrade !== "undefined") {
   bulletGrade = Math.max(1, bulletGrade - 1);
 }
 
-  // 🔹 ناپدید کردن موقت هواپیما برای ۲ ثانیه
+  // ناپدید کردن موقت هواپیما برای ۲ ثانیه
   airplane.hidden = true;
 
   // اگر همه‌ی جان‌ها تمام شد
@@ -5356,7 +5212,7 @@ if (typeof bulletGrade !== "undefined") {
       endGame();
     }, 2000);
   } else {
-    // ✳️ بازگشت هواپیما پس از ۲ ثانیه
+    //  بازگشت هواپیما پس از ۲ ثانیه
     setTimeout(() => {
       airplane.x = canvas.width / 2 - 40;
       airplane.y = canvas.height - 200;
@@ -5364,7 +5220,7 @@ if (typeof bulletGrade !== "undefined") {
       explosionRunning = false;
       fuel = 100;
 
-      // ✅ فعال‌سازی مصونیت و چشمک‌زن شدن
+      //  فعال‌سازی چشمک زدن هواپیما پس از کسر جان 
       invincible = true;
       respawnTime = performance.now();
 
@@ -5375,11 +5231,6 @@ if (typeof bulletGrade !== "undefined") {
     }, 2000);
   }
 }
-
-
-
-
-
 
 
 // === جوی‌استیک لمسی ===
@@ -5498,7 +5349,7 @@ function updateScores(data) {
 
     if (!tbody || !wrapper || !countLabel) return;
 
-    // --- نرمالایز داده‌ها ---
+
     const normalized = data.map(item => ({
         playerId: item.playerId || "",
         name: item.name || "ناشناس",
@@ -5507,7 +5358,7 @@ function updateScores(data) {
         status: item.status || ""
     }));
 
-    // --- مرتب‌سازی از بیشترین امتیاز به کمترین ---
+    //  مرتب‌سازی از بیشترین امتیاز به کمترین 
     normalized.sort((a, b) => b.score - a.score);
 
     const onlineCount = normalized.filter(r => r.online === 1).length;
@@ -5552,7 +5403,7 @@ function updateScores(data) {
 
     tbody.innerHTML = rowsHtml;
 
-    // بازیابی اسکرول
+
     requestAnimationFrame(() => {
         wrapper.scrollTop = prevScrollTop;
     });
@@ -5567,21 +5418,16 @@ nameCells.forEach(cell => {
   if (!cell.dataset.listenerAdded) {
     cell.addEventListener('click', () => {
 
-        // مقداردهی گیرنده
         window.chatReceiverId = cell.getAttribute('data-playerid');
         window.chatReceiverName = cell.getAttribute('data-playername');
 
-        // chatKey مخصوص این مکالمه
         const chatKey = `${window.chatSenderId}_${window.chatReceiverId}`;
         if (!window.chatState) window.chatState = {};
         if (!window.chatState[chatKey]) {
-        // ایجاد state خالی برای این چت (در پوچی اولیه)
+
         window.chatState[chatKey] = { lastTs: 0, seenIds: new Set(), messages: [], fetching: false };
 
-        }
-
-// پاک کردن DOM قبل از رندر کش (تا پیام‌های نفر قبلی نشان داده نشود)
-// پاک کردن DOM قبل از رندر کش (تا پیام‌های نفر قبلی نشان داده نشود)
+  }
 const chatListEl = document.getElementById('chatList');
 if (chatListEl) chatListEl.innerHTML = '';
 
@@ -5594,15 +5440,13 @@ if (window.chatState && window.chatState[chatKey] && Array.isArray(window.chatSt
     window.chatState[chatKey].lastTs = 0;
 }
 
-// باز کردن پنجره چت و آماده‌سازی لیست
+
 document.getElementById('chatOverlay').style.display = 'flex';
 document.getElementById('chatComposer').style.display = 'flex';
 
 
 window.chatReceiverId = cell.getAttribute('data-playerid');
-window.chatReceiverName = cell.getAttribute('data-playername');
-
-// شروع دریافت پیام‌ها از سرور (polling امن)
+window.chatReceiverName = cell.getAttribute (polling امن)
 fetchChatMessagesAndRender();
 
 
@@ -5709,9 +5553,6 @@ function fetchScores(showLoading = false) {
 }
 
 
-
-
-
 // نمایش امتیازات
 document.getElementById("scoreBtn").addEventListener("click", () => {
   stopPlaying();
@@ -5744,7 +5585,7 @@ window.addEventListener("resize",()=>{
 });
 
 
-// بستن پنجره چت با کلیک روی بک‌دراپ
+// بستن پنجره چت با کلیک روی بکگراند
 (function(){
   try {
     const bd = document.getElementById('chatBackdrop');
@@ -5780,7 +5621,7 @@ function updateHeartDrops() {
     // حرکت به سمت پایین
     heart.y += heart.speed;
 
-    // ضربان قلب: تغییر سایز کوتاه
+    // ضربان قلب: تغییر سایز 
     heart.scale += 0.02 * heart.scaleDir;
     if (heart.scale > 1.2) heart.scaleDir = -1;
     if (heart.scale < 0.8) heart.scaleDir = 1;
@@ -5904,12 +5745,6 @@ function drawHeartParticles(ctx) {
 
 
 
-
-
-
-
-
-
 // === تابع اجرای انیمیشن recoil ===
 function triggerRecoilAnimation() {
     shootBtn.classList.remove("recoil"); // پاک کردن کلاس
@@ -5935,6 +5770,7 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
 
