@@ -35,7 +35,7 @@
   background: transparent;
   box-sizing: border-box;
   border: 3px solid transparent;
-  background-clip: padding-box; /* تا حاشیه از پس‌زمینه جدا باشد */
+  background-clip: padding-box; 
   display: none;
 }
 
@@ -85,11 +85,11 @@
   color: white;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* محتوا از بالا شروع شود */
+  justify-content: flex-start; /*شروع محتوا از بالا */
   align-items: center;
   font-family: sans-serif;
   z-index: 1000;
-padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گیرند */
+padding-top:10vh;  
 }
 
 
@@ -172,7 +172,7 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
 
   #startBtn {
   position: fixed;
-  width: 300px;     /* عرض یکسان */
+  width: 300px;     
   height: 40px;
   bottom: 30%; 
   left: 50%;
@@ -188,14 +188,14 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
   cursor: pointer;
   box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
   transition: all 0.3s ease;
-  display: none; /* اول بازی مخفی باشد */
+  display: none; 
   z-index: 999;
 }
 
 
   #scoreBtn {
   position: fixed;
-  width: 300px;     /* عرض یکسان */
+  width: 300px;     
   height: 40px;
   bottom: 20%; 
   left: 50%;
@@ -211,12 +211,12 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
   cursor: pointer;
   box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
   transition: all 0.3s ease;
-  display: none; /* اول بازی مخفی باشد */
+  display: none; 
   z-index: 999;
 }
  #exitBtn {
   position: fixed;
-  width: 300px;     /* عرض یکسان */
+  width: 300px;     
   height: 40px;
   bottom: 10%; 
   left: 50%;
@@ -232,7 +232,7 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
   cursor: pointer;
   box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
   transition: all 0.3s ease;
-  display: none; /* اول بازی مخفی باشد */
+  display: none; 
   z-index: 999;
 }
  #continueBtn {
@@ -253,7 +253,7 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
   cursor: pointer;
   box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
   transition: all 0.3s ease;
-  display: none; /* اول بازی مخفی باشد */
+  display: none;
   z-index: 999;
  }
 #startBtn:hover {
@@ -328,7 +328,7 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
   align-items: center;
 }
 
-/* خطوط جهت‌نما */
+/* خطوط جوی استیک */
 #joystick::before,
 #joystick::after {
   content: "";
@@ -374,7 +374,7 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
 #joystick span.left  { left: 5px; top: 50%; transform: translateY(-50%); }
 #joystick span.right { right: 5px; top: 50%; transform: translateY(-50%); }
 
-/* خود استیک (دایره داخلی متحرک) */
+/* خود استیک (دایره داخلی) */
 #stick {
 position: absolute;
     width: 30px;
@@ -391,9 +391,6 @@ position: absolute;
 
 
 
-    
-
-
 #scoreContainer {
   position: fixed;
   display: none;
@@ -404,7 +401,7 @@ position: absolute;
   text-shadow: 0 0 6px #00ffff, 0 0 10px #00ffff;
   font-size: 18px;
   text-align: right;
-  user-select: none; /* تا قابل انتخاب نباشد */
+  user-select: none; /* قابل انتخاب نباشد */
 }
 
 #scoreLabel {
@@ -427,15 +424,15 @@ position: absolute;
   border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.4);
   background: radial-gradient(circle at center, #0ff, #00f);
-  color: #001122; /* تیره‌تر برای خوانایی بهتر */
+  color: #001122; 
   font-weight: bold;
   font-size: 16px;
-  justify-content: center; /* افقی در مرکز */
-  align-items: center; /* عمودی در مرکز */
+  justify-content: center; 
+  align-items: center; 
   cursor: pointer;
   box-shadow: 0 0 15px #0ff, 0 0 30px #0ff inset;
   transition: all 0.2s ease;
-  text-shadow: 0 0 8px #0ff, 0 0 15px #0ff; /* جلوه نئونی نوشته */
+  text-shadow: 0 0 8px #0ff, 0 0 15px #0ff; /* جلوه نئونی  */
 }
 
 
@@ -520,12 +517,6 @@ position: absolute;
 }
 
 
-
-
-
-
-
-
 #shoot {
     position: fixed;
     bottom: 30px;
@@ -555,7 +546,7 @@ position: absolute;
     backdrop-filter: blur(6px) saturate(180%);
     -webkit-backdrop-filter: blur(6px) saturate(180%);
 
-    /* لرزش خفیف هیجانی */
+    /* لرزش خفیف  */
     animation: shootPulse 1.8s infinite ease-in-out;
     transition: transform .15s ease, box-shadow .15s ease;
 }
@@ -575,7 +566,7 @@ position: absolute;
         0 0 80px rgba(255,0,0,0.8);
 }
 
-/* افکت کلیک انفجاری */
+/* افکت کلیک  */
 #shoot:active {
     transform: scale(0.92);
     box-shadow:
@@ -588,14 +579,14 @@ position: absolute;
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 40px;   /* یا هر اندازه دلخواه */
+    width: 40px;   
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
     z-index: 3;
     pointer-events: none;
 
-    transform: translate(-50%, -50%); /* مرکز کردن دقیق */
+    transform: translate(-50%, -50%);
     transition: transform .12s ease, filter .12s ease;
 }
 
@@ -605,7 +596,7 @@ position: absolute;
     filter: brightness(1.15) contrast(1.2);
 }
 
-/* افکت Shockwave */
+/* افکت شوک */
 #shoot .shockwave {
     position: absolute;
     left: 50%;
@@ -631,7 +622,7 @@ position: absolute;
 
 
 
-/* لرزش شدید اسلحه */
+/* لرزش   */
 #shoot.recoil {
     animation: gunRecoil 0.15s cubic-bezier(.3,.9,.3,1);
 }
@@ -647,8 +638,6 @@ position: absolute;
 }
 
 
-
-/* اضافه کن به CSS موجودت — ripple لازم بود که توی CSS قبلی نبود */
 #shoot .ripple{
   position: absolute;
   border-radius: 50%;
@@ -681,8 +670,8 @@ position: absolute;
   border-radius: 50%;
   font-weight: bold;
   font-size: 16px;
-  justify-content: center; /* افقی در مرکز */
-  align-items: center; /* عمودی در مرکز */
+  justify-content: center; 
+  align-items: center; 
   cursor: pointer;
   box-shadow: 0 0 15px #0ff, 0 0 30px #0ff inset;
   transition: all 0.2s ease;
@@ -692,7 +681,7 @@ position: absolute;
 
 #missileBtn:disabled {
   opacity: 1;       /* شفافیت کمتر */
-  cursor: not-allowed; /* نشانگر غیر فعال */
+  cursor: not-allowed; /* موس غیر فعال */
 }
 
 #bestPlayer {
@@ -704,7 +693,7 @@ position: absolute;
   -ms-user-select: none;
   user-select: none;
   pointer-events: none;
-  top: calc(3% + 15px); /* یعنی ۲۰ پیکسل پایین‌تر از نام بازیکن */
+  top: calc(3% + 15px); 
   left: 10px;
   color: black;
 }
@@ -729,7 +718,7 @@ position: absolute;
 }
 
 
-/* ---- استایل‌های چت مدل واتساپ - حبابی ---- */
+/*  استایل‌های چت مدل واتساپ - حبابی  */
 .chat-messages, {
   box-sizing: border-box;
   font-family: Tahoma, "Segoe UI", sans-serif;
@@ -749,7 +738,7 @@ position: absolute;
   align-items: flex-end;
 }
 
-/* پیام‌های من (local sender) => سمت راست، حباب سبز */
+/* پیام‌های من  => سمت راست، حباب سبز */
 .chat-row.me {
   justify-content: flex-end;
 }
@@ -792,10 +781,10 @@ position: absolute;
   opacity:0.8;
   margin-top:6px;
   text-align: right;
-  direction: ltr; /* زمان معمولاً LTR */
+  direction: ltr;
 }
 
-/* استایل برای avatar یا نام (اختیاری) */
+/* استایل برای avatar */
 .chat-row .meta {
   font-size:12px;
   color:rgba(255,255,255,0.6);
@@ -803,7 +792,7 @@ position: absolute;
   align-self:flex-end;
 }
 
-/* اسکرول بار کوچک‌تر */
+/* اسکرول بار  */
 .chat-messages::-webkit-scrollbar, #chatList::-webkit-scrollbar {
   width:8px;
 }
@@ -817,7 +806,7 @@ position: absolute;
 
 
 
-/* وقتی حباب طولانی است، نوشتار خط‌خور باشد */
+/* وقتی حباب طولانی است، نوشته خط بعد برود  */
 .bubble { word-break: break-word; }
 
 /* در حالت موبایل کوچک‌تر */
@@ -832,7 +821,7 @@ position: absolute;
   background-position: center;
   opacity: 0;
   transition: opacity 0.5s ease-in-out;
-  z-index: 0;   /* ← این باید 0 باشد */
+  z-index: 0;  
 }
 
 #gameBackground.fadeOutBg {
@@ -843,14 +832,14 @@ position: absolute;
 
 
 
-/* پنجره‌ی اصلی چت - تمام صفحه واقعی */
+/* پنجره‌ی اصلی چت  */
 #chatOverlay {
   position: fixed;
-  inset: 0;                 /* جایگزین width/height و top/left */
+  inset: 0;                 /*  */
   background: rgba(0,0,0,0.8);
   z-index: 20000;
 
-  display: none;            /* در شروع مخفی */
+  display: none;            /* */
   flex-direction: column;
   overflow: hidden;         /* جلوگیری از خروج از صفحه */
   box-sizing: border-box;
@@ -858,7 +847,7 @@ position: absolute;
 
 #chatComposer {
   position: absolute;
-  inset: 0;                 /* کل صفحه را بگیرد */
+  inset: 0;                 /* کل صفحه  */
   width: 100%;
   height: 100%;
   background: rgba(0,0,0,0.85);
@@ -944,7 +933,7 @@ position: absolute;
 
 <!-- پنجره‌ی چت (overlay) -->
 <div id="chatOverlay">
-  <!-- زمینه نیمه‌شفاف برای پوشش -->
+  <!-- زمینه نیمه‌شفاف  -->
   <div id="chatBackdrop" style="position:absolute; inset:0; background:rgba(0,0,0,0.25);"></div>
 
   <!-- پنجره پیام‌ها و composer -->
@@ -958,7 +947,7 @@ position: absolute;
      height:100vh;
      max-height:100vh;
 
-     /* ---- بک‌گراند جدید تصویری با opacity 70% ---- */
+     /* ---- بک‌گراند جدید با opacity 70% ---- */
      background: rgba(255,255,255,0.7) url('chatBackground1.png');
      background-size: cover;
      background-position: center;
@@ -986,7 +975,7 @@ position: absolute;
       <button id="closeChatBtn" aria-label="بستن چت" style="background:transparent;border:0;color:#fff;font-size:18px;cursor:pointer;">✕</button>
     </div>
 
-    <!-- لیست پیام‌ها (اسکرول پذیر) -->
+    <!-- لیست پیام‌ها  -->
     <div id="chatList" style="flex:1; overflow-y:auto; padding:10px; box-sizing:border-box; display:flex; flex-direction:column; gap:8px;" ></div>
 
     <!-- composer پایین -->
@@ -1021,7 +1010,6 @@ position: absolute;
 
 
 
-<!-- نمونه‌ی HTML (اگر نداریش) -->
 <div id="shoot" role="button" aria-label="shoot">
 <img class="shoot-img" src="shootPic.png" alt="">
   <span class="shoot-icon">●</span>
@@ -1043,10 +1031,6 @@ position: absolute;
   </div>
 
 
-
-
-
-<!-- 🔥 نوار محدودیت شلیک (گرافیکی + لرزش استرس) -->
 <div id="heatBarContainer" style="
   position: fixed;
   top: 5px;
@@ -1148,7 +1132,7 @@ display: none;
 
 
 
-<!-- لایه‌ی نمایش امتیازات -->
+<!--  نمایش امتیازات -->
 <div id="scoreOverlay" style="
   display:none;
   position:fixed;
@@ -1165,7 +1149,7 @@ display: none;
     width:90%;
     max-width:600px;
 
-    /* بک‌گراند مینیمال + شیشه‌ای */
+    /* بک‌گراند شیشه‌ای */
     background:rgba(255,255,255,0.30);
     backdrop-filter:blur(6px);
 
@@ -1226,27 +1210,19 @@ let isBossActive = false;
 let lastTunnelFrameTimeMs = performance.now();
 
 
-
-// ===========================
-// مرحله ۲: متغیرهای سراسری چت
-// ===========================
-
-// فرستنده همیشه بازیکن فعلی است
-// این مقدار پس از اجرای initPlayer() آماده می‌شود
 window.chatSenderId = null;
 window.chatSenderName = null;
 
-// بازیکنی که روی نامش کلیک شده و قرار است به او پیام بدهیم
 window.chatReceiverId = null;
 window.chatReceiverName = null;
 
-// پرچم باز بودن پنجره چت
+// متغیر باز بودن پنجره چت
 window.chatWindowOpen = false;
 
 
 
 
-gameMusic.loop = true;     // آهنگ تکرارشونده
+gameMusic.loop = true;     // آهنگ تکرار شود
 gameMusic.volume = 0.0;    // شروع بی‌صدا (برای fade in)
 let fadeGameMusic = null;
 
@@ -1267,21 +1243,10 @@ gameOverMusic.volume = 0.7;
 const heartImage = new Image();
 heartImage.src = "joon.png";
 
-// اگر تصویر افتادن قلب و ذرات یکی است
 const heartParticleImage = heartImage;
 
 
-  
-
 const heartDrops = [];
-
-
-
-
-
-  
-
-  
 
 
 let lastOverheatTime = 0;
@@ -1345,7 +1310,7 @@ function sendPresence(isOnline) {
       method: 'POST',
       body: params,
       credentials: 'omit',
-      keepalive: true // helpful during unload
+      keepalive: true 
     }).catch(e => console.warn("presence fetch failed:", e));
   } catch (e) {
     console.warn("presence final fallback failed:", e);
@@ -1392,11 +1357,11 @@ function renderUnreadPopup(data, playerId) {
   const listArr = data.bySender || [];
 
   if (totalUnread === 0 || listArr.length === 0) {
-    return; // هیچ چیز نساز، خارج شو
+    return; // چیزی ساخته نشود
   }
 
 
-  // اضافه‌کردن استایل‌ها یک‌بار
+  // اضافه‌کردن استایل‌ها 
   if (!document.getElementById('unread-styles')) {
     const css = `
       #unreadPopup { position: fixed; display: flex; justify-content: center;  align-items: flex-start;
@@ -1474,13 +1439,12 @@ function renderUnreadPopup(data, playerId) {
     document.head.appendChild(st);
   }
 
-  // حذف بک‌دراپ/پاپ‌آپ قبلی اگر بود
   const prevBackdrop = document.getElementById('unreadBackdrop');
   if (prevBackdrop) prevBackdrop.remove();
   const prevBox = document.getElementById('unreadPopup');
   if (prevBox) prevBox.remove();
 
-  // بک‌دراپ
+
   const backdrop = document.createElement('div');
   backdrop.id = 'unreadBackdrop';
   Object.assign(backdrop.style, { position: 'fixed', inset: '0', background: 'rgba(0,0,0,0.12)', zIndex: 9990, pointerEvents: 'auto' });
@@ -1516,7 +1480,7 @@ function renderUnreadPopup(data, playerId) {
   const list = document.createElement('div');
   list.className = 'unread-list';
 
-  // helper برای بروزرسانی عدد کل
+  //  برای بروزرسانی عدد کل
   function updateTotal() {
     const rem = Array.from(list.querySelectorAll('.unread-item')).reduce((s, el) => {
       const c = Number(el.getAttribute('data-count') || 0);
@@ -1526,7 +1490,6 @@ function renderUnreadPopup(data, playerId) {
     if (totalDisplay) totalDisplay.innerText = `پیام‌های خوانده‌نشده: ${rem}`;
   }
 
-  // ساخت آیتم‌ها (حفظ ترتیب داده‌شده در data.bySender)
   (data.bySender || []).forEach(item => {
     const count = (item.count !== undefined) ? Number(item.count) : (item.unread !== undefined ? Number(item.unread) : 0);
     const name = item.senderName || item.senderId || 'ناشناس';
@@ -1537,37 +1500,32 @@ function renderUnreadPopup(data, playerId) {
     row.setAttribute('data-sender', senderId);
     row.setAttribute('data-count', String(count));
 
-    // متا (نام و توضیح کوچک)
     const meta = document.createElement('div');
     meta.className = 'meta';
     const nameEl = document.createElement('div'); nameEl.className = 'name'; nameEl.innerText = name;
     const subEl = document.createElement('div'); subEl.className = 'sub'; subEl.innerText = `${count} پیام`;
     meta.appendChild(nameEl); meta.appendChild(subEl);
 
-    // badge (شماره)
+
     const badge = document.createElement('div'); badge.className = 'badge'; badge.innerText = String(count);
 
-    // label-cta کوچک سمت چپ
     const cta = document.createElement('div'); cta.style.fontSize = '13px'; cta.style.fontWeight = '800'; cta.innerText = 'مشاهده →';
 
     row.appendChild(meta);
     row.appendChild(badge);
     row.appendChild(cta);
 
-    // handler کلیک — استفاده از playerId تابع برای عدم ایجاد تغییرات
     row.addEventListener('click', async (ev) => {
       ev.stopPropagation();
       ev.preventDefault();
 
-      // تنظیم متغیرهای چت (از همان اسامی موجود در کد خودت استفاده کن)
+      
       window.chatReceiverId = senderId;
       window.chatReceiverName = name;
 
-      // اگر بازی قبلاً window.playerId را ست کرده، از همان استفاده کن؛ در غیر اینصورت از playerId پارامتر
       window.chatSenderId = window.chatSenderId || window.playerId || playerId || '';
       window.chatSenderName = window.chatSenderName || window.playerName || (localStorage.getItem('bermooda_playerName') || '');
 
-      // باز کردن سریع UI چت (اگر تو پروژه‌ش هست)
       try {
         const chatOverlay = document.getElementById('chatOverlay');
         const chatComposer = document.getElementById('chatComposer');
@@ -1577,16 +1535,13 @@ function renderUnreadPopup(data, playerId) {
         if (chatListEl) chatListEl.innerHTML = '';
       } catch(e){ /* بی‌سر و صدا */ }
 
-      // ارسال درخواست markread به سرور (از playerId پارامتر استفاده می‌کنیم)
       try { fetchFromServer({ action: "markread", myId: playerId, otherId: senderId }).catch(()=>{}); } catch(e){}
 
-      // انیمیشن: سریع به چپ خارج شود
+      
       row.classList.add('sliding');
-
-      // بعد از حرکت خارج، ارتفاع collapse شود تا آیتم‌های زیر نرم بالا بیایند
+ 
       const slideMs = 320;
       setTimeout(() => {
-        // تعیین ارتفاع فعلی برای transition درست
         const h = row.getBoundingClientRect().height;
         row.style.height = h + 'px';
         row.style.transition = 'height 340ms ease, padding 340ms ease, margin 340ms ease';
@@ -1594,7 +1549,7 @@ function renderUnreadPopup(data, playerId) {
           row.classList.add('collapsing');
         });
 
-        // حذف نهایی و آپدیت شمارش
+        
         const onEnd = () => {
           try { row.removeEventListener('transitionend', onEnd); } catch(e){}
           try { row.remove(); updateTotal(); } catch(e){}
@@ -1602,14 +1557,14 @@ function renderUnreadPopup(data, playerId) {
         row.addEventListener('transitionend', onEnd);
       }, slideMs);
 
-      // تلاش برای گرفتن و رندر پیام‌ها (اگر تابع موجود باشد)
+      // تلاش برای گرفتن و رندر پیام‌ها 
       try { if (typeof fetchChatMessagesAndRender === 'function') await fetchChatMessagesAndRender(); } catch(e){ console.warn(e); }
 
-      // بستن پنجره و بک‌دراپ (دلخواه)
+
       try { backdrop.remove(); } catch(e){}
       try { const p = document.getElementById('unreadPopup'); if (p) p.remove(); } catch(e){}
 
-      // اگر می‌خواهی دوباره لیست را از سرور بگیری
+
       try { if (typeof loadAndShowUnread === 'function') loadAndShowUnread(playerId); } catch(e){}
     });
 
@@ -1620,8 +1575,7 @@ function renderUnreadPopup(data, playerId) {
   box.appendChild(panel);
   document.body.appendChild(box);
 
-  // مقداردهی اولیه شمارش کل
-  // اگر در data.total اشتباه باشد، از جمع آیتم‌ها استفاده کن
+
  let totalElDisplay = document.getElementById('unreadTotalDisplay');
 
   if (totalElDisplay ) {
@@ -1631,19 +1585,16 @@ function renderUnreadPopup(data, playerId) {
 }
 
 
-//=====================================توابع مربوط به پیامهای خوانده نشده=================================
+//توابع مربوط به پیامهای خوانده نشده
 
-
-// === utility: secure uuid (modern) with fallback ===
 
 function getOrCreatePlayerId() {
 
-  // --- helper: cookie ---
+ 
   function setCookie(name, value, days = 3650) {
     try {
       const d = new Date();
       d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
-      // SameSite=Lax برای افزایش احتمال پذیرفته شدن در مرورگرهای مدرن
       document.cookie = name + "=" + encodeURIComponent(value) + "; expires=" + d.toUTCString() + "; path=/; SameSite=Lax";
     } catch (e) {
       console.warn("setCookie failed:", e);
@@ -1669,24 +1620,20 @@ function getOrCreatePlayerId() {
       return false;
     }
   }
-
-  // --- helper: generate uuid ---
+ 
   function generateUuid() {
     try {
       if (window.crypto && crypto.randomUUID) return crypto.randomUUID();
     } catch (e) {}
-    // fallback uuidv4
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       const r = Math.random() * 16 | 0;
       const v = c === 'x' ? r : (r & 0x3 | 0x8);
       return v.toString(16);
     });
   }
-
-  // --- helper: write to IndexedDB (fire-and-forget) ---
   function saveToIndexedDB(key, value) {
     try {
-      // non-blocking attempt; browsers that don't support IDB will throw and we'll ignore
+
       const req = indexedDB.open("bermooda_db_v1", 1);
       req.onupgradeneeded = function(e) {
         const db = req.result;
@@ -1703,36 +1650,31 @@ function getOrCreatePlayerId() {
       };
       req.onerror = function(){ /* ignore */ };
     } catch (e) {
-      // IndexedDB unavailable or blocked (e.g. some private modes) -> ignore
+      
     }
   }
 
-  // ---------- main (synchronous return) ----------
   try {
-    // 1) cached in memory?
     if (window.playerId) return window.playerId;
 
-    // 2) try localStorage (fast, sync)
     try {
       const idLS = (function(){
         try { return localStorage.getItem('bermooda_playerId'); } catch(e) { return null; }
       })();
       if (idLS) {
-        // ensure cookie + idb written asynchronously (migration)
         try { setCookie('bermooda_playerId', idLS); } catch(e){}
         try { saveToIndexedDB('playerId', idLS); } catch(e){}
         window.playerId = idLS;
         return idLS;
       }
     } catch (e) {
-      // continue to fallback
+
     }
 
-    // 3) try cookie (sync)
+
     try {
       const idCookie = getCookie('bermooda_playerId');
       if (idCookie) {
-        // try to write back to localStorage if writable (migration)
         try {
           if (isLocalStorageWritable()) {
             try { localStorage.setItem('bermooda_playerId', idCookie); } catch(e) {}
@@ -1743,24 +1685,23 @@ function getOrCreatePlayerId() {
         return idCookie;
       }
     } catch (e) {
-      // ignore
+
     }
 
-    // 4) NOTHING found -> create new id
     const newId = generateUuid();
     window.playerId = newId;
 
-    // try write to localStorage (best effort)
+
     try {
       if (isLocalStorageWritable()) {
         try { localStorage.setItem('bermooda_playerId', newId); }
         catch(e) { console.warn("localStorage.setItem failed while storing playerId:", e); }
       } else {
-        // localStorage not writable — still try set (some browsers may accept but not persist)
+
         try { localStorage.setItem('bermooda_playerId', newId); } catch(e){}
       }
     } catch (e) {
-      // ignore
+      
     }
 
     // always set cookie (high probability to persist on iOS Safari)
@@ -5994,6 +5935,7 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
+
 
 
 
