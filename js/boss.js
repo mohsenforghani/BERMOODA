@@ -100,7 +100,7 @@
             airplane.y < b.y &&
             airplane.y + airplane.h > b.y
         ) {
-        createExplosion(airplane.x + airplane.w/2, airplane.y + airplane.h/2, 50, 50);
+        explodeAirplane();
         bossBullets.splice(i, 1);
       }
 
@@ -216,4 +216,5 @@ return BossAPI;
 
 })();
 window.Boss = Boss;
+
 
