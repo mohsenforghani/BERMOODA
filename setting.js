@@ -4,11 +4,11 @@ let gameOverMusic = new Audio("sounds/gameOverSound.mp3");
 
 
 const BOSS_MAX_LIFE = 100;
-const HEALTH_BAR_HEIGHT = 6;
+const HEALTH_BAR_HEIGHT = 4;
 const HEALTH_BAR_OFFSET = 10; 
 const BOOS_ONE_LIFE = 1500;
-const BOSS_INTERVAL = 30000;
-const FIRE_DELAY = 4000;
+const BOSS_INTERVAL = 60000;
+const FIRE_DELAY = 6000;
 const MAX_FIRE = 5;
 
 
@@ -21,7 +21,7 @@ const HEART_WIDTH = 45;
 const HEART_HEIGHT = 23;
 let lives = 3;
 let maxLives = 4;
-let scoreToHeart = 1500;
+let scoreToHeart = 2000;
 const padding = 8;
 
 
@@ -60,7 +60,7 @@ let alarmfuel = 20;
 // ✈️ گرید تیر
 const noFlyZoneHeight = 128;
 let bulletGrade= 1;
-let scoreGradeThree = 3000;
+let scoreGradeThree = 4000;
 let scoreGradeTwo  = 1500;
 let missiles = 0;
 
@@ -68,7 +68,7 @@ let missiles = 0;
 
 // 🤖 دشمن هوشمند
 const hooshSettings = {
-  spawnInterval : 30000,
+  spawnInterval : 40000,
   lifeTime : 10000,
   shotRate : 1,
   evadeLookAhead: 1000,
@@ -140,5 +140,6 @@ window.GAME_CONFIG = {
  FIRE_DELAY ,
  MAX_FIRE 
 };
+
 
 
