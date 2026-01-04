@@ -139,7 +139,7 @@
 // ==========================================================
   function killBoss() {
     createExplosion(boss.x + boss.w / 2, boss.y + boss.h / 2, 300, 300);
-    addScore(GAME_CONFIG.BOOS_ONE_LIFE);
+    addScore(GAME_CONFIG.BOSS_ONE_LIFE);
 
     boss = null;
     bossBullets = [];
