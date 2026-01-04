@@ -32,7 +32,7 @@ const padding = 8;
 
 
 
-const separ_DROP_CHANCE = 0.10;
+const separ_DROP_CHANCE = 0.25;
 const separ_FALL_SPEED  = 2;
 const separ_WIDTH = 51;
 const separ_HEIGHT = 50;
@@ -169,5 +169,6 @@ scoreTosepar,
  FIRE_DELAY ,
  MAX_FIRE 
 };
+
 
 
