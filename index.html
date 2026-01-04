@@ -1029,6 +1029,22 @@ position: absolute;
 
 
 
+<div id="shieldTimer" style="
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 25px;
+  color: #00FFFF;
+  text-shadow: 0 10 30px #00FFFF;
+  font-family: Arial, sans-serif;
+  pointer-events: none;
+  z-index: 9999;
+  display: none; 
+"></div>
+
+
+
 
 
 
@@ -1225,6 +1241,16 @@ canvas.height = window.innerHeight;
 let isBossActive = false;
 let lastTunnelFrameTimeMs = performance.now();
 
+const shieldTimerDiv = document.getElementById("shieldTimer");
+
+
+function activateShield(duration = 10) { 
+  shielded = true;
+  shieldStartTime = performance.now();
+  shieldEndTime = shieldStartTime + duration * 1000;
+  shieldTimerDiv.style.display = "block";
+}
+
 
 
 // ===========================
@@ -1266,14 +1292,21 @@ gameOverMusic.volume = 0.7;
 
 const heartImage = new Image();
 heartImage.src = "joon.png";
-
-// اگر تصویر افتادن قلب و ذرات یکی است
 const heartParticleImage = heartImage;
+const heartDrops = [];
 
+
+
+//==============separ=============
+const separImage = new Image();
+separImage .src = "separ.png";
+const separParticleImage = separImage;
+const separDrops = [];
+//===============================
 
   
 
-const heartDrops = [];
+
 
 
 
@@ -2743,6 +2776,49 @@ let lastBulletTime = 0;
 
 
 
+
+//======================نا میرا====================
+let shielded = false;          
+let shieldEndTime = 0;   
+let shieldStartTime = 0;    
+
+let shieldEffect = {
+  active: false,
+  currentSecond: 0,
+  startTime: 0,
+  duration: 1000, // مدت زمان هر عدد (1 ثانیه)
+};
+
+   
+
+// وقتی آیتم سپر گرفته می‌شود
+function onShieldPickup() {
+  shielded = true;
+  shieldEndTime = performance.now() + 10000; 
+  respawnTime = performance.now();           // شروع چشمک
+}
+function activateShield(duration = 10) {
+  shielded = true;
+  shieldStartTime = performance.now();
+  shieldEndTime = shieldStartTime + duration * 1000;
+
+  // راه‌اندازی افکت زوم + fade
+  shieldEffect.active = true;
+  shieldEffect.currentSecond = duration;
+  shieldEffect.startTime = performance.now();
+
+  // نمایش div تایمر هم
+  shieldTimerDiv.style.display = "block";
+}
+
+
+//==========================================
+
+
+
+
+
+
 let backgroundAnimation=null;
 function animateGameOverBackground() {
   drawBackground(); // فقط آسمان شب و ستاره‌ها
@@ -4202,7 +4278,11 @@ Boss.draw(ctx);
 
 
 
-//updateExplosionFlashes(); // نور انفجار
+
+
+if (invincible && now - respawnTime > 10000) { 
+  invincible = false;
+}
 
 
 
@@ -4359,14 +4439,82 @@ if (!airplane.hidden) {
     ctx.globalAlpha = 1;
   }
 
+if (shielded) {
+  const now = performance.now();
+  const remaining = Math.ceil((shieldEndTime - now) / 1000);
 
-  const tiltFactor = 1 + 0.3 * airplane.tiltProgress; // 0.3 مقدار کشش افقی
-  const w = airplane.w * tiltFactor;
-  const h = airplane.h;
-  const x = airplane.x - (w - airplane.w)/2; // مرکز کردن تصویر
-  ctx.drawImage(airplaneImg, x, airplane.y, w, h);
-  ctx.restore();
+  if (remaining <= 0) {
+    shielded = false;
+    shieldEffect.active = false;
+    ctx.globalAlpha = 1; // مطمئن شو هواپیما کامل دیده می‌شود
+  } else {
+    // چشمک زدن هواپیما
+    const blinkElapsed = now - shieldStartTime;
+    const blink = Math.floor(blinkElapsed / 100) % 2;
+    ctx.globalAlpha = blink === 0 ? 0.3 : 1;
+
+    // ✨ افکت زوم + fade وسط صفحه
+    if (!shieldEffect.active) {
+      shieldEffect.active = true;
+      shieldEffect.currentSecond = remaining;
+      shieldEffect.startTime = now;
+    }
+
+    if (shieldEffect.active) {
+      const elapsed = now - shieldEffect.startTime;
+      const progress = Math.min(elapsed / 1000, 1); // 1 ثانیه برای هر عدد
+
+      const scale = 1 + progress * 1.5;   // زوم از 1 تا 2.5 برابر
+      const alpha = 1 - progress;         // fade out
+
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = "#00FFFF";
+      ctx.font = `${60 * scale}px Arial`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(shieldEffect.currentSecond, canvas.width / 2, canvas.height / 2);
+      ctx.restore();
+
+      // وقتی یک ثانیه تمام شد، عدد بعدی را نمایش بده
+      if (elapsed >= 1000) {
+        shieldEffect.currentSecond--;
+        shieldEffect.startTime = now;
+
+        if (shieldEffect.currentSecond <= 0) {
+          shieldEffect.active = false;
+        }
+      }
+    }
+  }
+} else {
+  shieldEffect.active = false;
+  ctx.globalAlpha = 1;
 }
+
+
+
+
+
+
+
+
+// سپس هواپیما را با این globalAlpha رندر کن
+const tiltFactor = 1 + 0.3 * airplane.tiltProgress; 
+const w = airplane.w * tiltFactor;
+const h = airplane.h;
+const x = airplane.x - (w - airplane.w)/2;
+ctx.drawImage(airplaneImg, x, airplane.y, w, h);
+ctx.globalAlpha = 1; // reset برای سایر اشیا
+}
+
+
+//==========نا میرا=========
+if (shielded && performance.now() > shieldEndTime) {
+  shielded = false;
+}
+//=======================
+
 
 // 🔫 رسم گلوله‌ها با توجه به گرید
 bullets.forEach((b,i) => {
@@ -4581,7 +4729,9 @@ for (let i = enemyBullets.length - 1; i >= 0; i--) {
     airplane.y < b.y &&
     airplane.y + airplane.h > b.y
   ) {
-    explodeAirplane();
+    if (!shielded) {
+     explodeAirplane();  // تیر روی بازیکن اثر کند
+    } 
     enemyBullets.splice(i, 1);
     continue;
   }
@@ -4606,7 +4756,7 @@ for (let i = enemyBullets.length - 1; i >= 0; i--) {
     ) {
       createExplosion(e.x, e.y, e.w, e.h); // انفجار ترکیبی
       trySpawnHeartDrop(e.x, e.y);
-
+      trySpawnseparDrop(e.x, e.y);
       enemies.splice(i, 1);
       bullets.splice(j, 1);
    addScore(10, enemies.length);
@@ -4623,7 +4773,11 @@ for (let i = enemyBullets.length - 1; i >= 0; i--) {
   ) {
  // انفجار هواپیمای دشمن
   createExplosion(e.x, e.y, e.w, e.h);
-    explodeAirplane();
+  
+
+ if (!shielded) {
+  explodeAirplane();  // تیر روی بازیکن اثر کند
+   }
     enemies.splice(i, 1);
    
   }
@@ -4651,6 +4805,14 @@ updateAndDrawBullets();
   drawHeartDrops(ctx);  
   updateHeartParticles();
   drawHeartParticles(ctx);
+
+
+
+  updateseparDrops();
+  drawseparDrops(ctx);  
+
+
+
 
   updateExplosions(delta);
   drawFuelGaugeAnimated();
@@ -4716,7 +4878,15 @@ if (m.hp <= 0) {
     airplane.y < m.y + m.h &&
     airplane.y + airplane.h > m.y
   ) {
-    explodeAirplane();
+    
+
+
+if (!shielded) {
+  explodeAirplane();  // تیر روی بازیکن اثر کند
+}
+
+
+
     meteors.splice(i, 1);
   }
 }
@@ -5050,7 +5220,14 @@ Tunnel.init({
   });
 
   Tunnel.onKill(() => {
-    explodeAirplane();
+    
+
+if (!shielded) {
+  explodeAirplane();  // تیر روی بازیکن اثر کند
+}
+
+
+
   });
 
   lastTunnelFrameTimeMs = performance.now();
@@ -5884,6 +6061,110 @@ function increasePlayerLife() {
 }
 
 
+//================================================================
+
+
+function trySpawnseparDrop(x, y) {
+  if (score >= scoreTosepar  &&  Math.random() <= separ_DROP_CHANCE) {
+  separDrops.push({
+  x: x,
+  y: y,
+  width: separ_WIDTH,    // عرض تصویر قلب
+  height: separ_HEIGHT,  // ارتفاع تصویر قلب
+  speed: separ_FALL_SPEED,
+  active: true,
+  scale: 1,              // برای ضربان
+  scaleDir: 1            // جهت بزرگ شدن/کوچک شدن ضربان
+});
+  }
+}
+
+function updateseparDrops() {
+  for (let i = separDrops.length - 1; i >= 0; i--) {
+    const separ = separDrops[i];
+    if (!separ.active) continue;
+
+    // حرکت به سمت پایین
+    separ.y += separ.speed;
+
+    // ضربان قلب: تغییر سایز کوتاه
+    separ.scale += 0.02 * separ.scaleDir;
+    if (separ.scale > 1.2) separ.scaleDir = -1;
+    if (separ.scale < 0.8) separ.scaleDir = 1;
+
+    // حذف اگر از صفحه خارج شد
+    if (separ.y > canvas.height + separ.height) {
+      separDrops.splice(i, 1);
+      continue;
+    }
+
+    // برخورد با هواپیما
+    if (checkseparCollisionWithPlayer(separ)) {
+  
+      invincible = true;
+      activateShield(10);
+      respawnTime = performance.now(); // زمان شروع مصونیت
+
+      separDrops.splice(i, 1);
+      continue;
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+function drawseparDrops(ctx) {
+  if (!separImage.complete) return;
+
+  for (const separ of separDrops) {
+    ctx.save();
+
+    // مرکز قلب
+    ctx.translate(separ.x, separ.y);
+
+    // ضربان
+    ctx.scale(separ.scale, separ.scale);
+
+    // رسم تصویر دقیقاً وسط
+  ctx.drawImage(
+  separImage,
+  -separ.width / 2,
+  -separ.height / 2,
+  separ.width,
+  separ.height
+);
+
+    ctx.restore();
+  }
+}
+
+function checkseparCollisionWithPlayer(separ) {
+ const w = separ.width * separ.scale;
+  const h = separ.height * separ.scale; 
+
+ return (
+    separ.x + w/2 > airplane.x &&
+    separ.x - w/2 < airplane.x + airplane.w &&
+    separ.y + h/2 > airplane.y &&
+    separ.y - h/2 < airplane.y + airplane.h
+  );
+}
+
+
+//function increasePlayerLife() {
+//  if (lives < maxLives ) {
+ //   lives++;
+//  }
+//}
+
+//================================================================
+
 
 const heartParticles = [];
 
@@ -5903,6 +6184,9 @@ function spawnHeartPickupEffect(x, y) {
     });
   }
 }
+
+
+
 
 // بروزرسانی افکت
 function updateHeartParticles() {
