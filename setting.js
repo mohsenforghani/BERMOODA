@@ -60,8 +60,10 @@ let alarmfuel = 20;
 // ✈️ گرید تیر
 const noFlyZoneHeight = 128;
 let bulletGrade= 1;
-let scoreGradeThree = 4000;
-let scoreGradeTwo  = 1500;
+let scoreGradeFive = 6000;
+let scoreGradeFour = 4500;
+let scoreGradeThree = 2000;
+let scoreGradeTwo  = 700;
 let missiles = 0;
 
 
@@ -140,6 +142,5 @@ window.GAME_CONFIG = {
  FIRE_DELAY ,
  MAX_FIRE 
 };
-
 
 
