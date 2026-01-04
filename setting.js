@@ -46,8 +46,8 @@ let scoreTosepar= 200;
 // 🎯 نوار گرما
 let heat = 0;
 let overheated = false;
-let heatFillRate  = 1.04;
-let heatCoolRate = 0.4;
+let heatFillRate  = 1.02;
+let heatCoolRate = 0.2;
 let overheatDuration = 3000;
 
 
