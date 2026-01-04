@@ -2853,8 +2853,16 @@ const fuelImg = new Image();
 fuelImg.src = "fuel.png"; // مسیر تصویر پمپ بنزینت
   
 
-const bossImage = new Image();
-bossImage.src = "boss.png";
+// قبل از شروع بازی (global یا init)
+const bossImage1 = new Image();
+bossImage1.src = "boss1.png";
+const bossImage2 = new Image();
+bossImage2.src = "boss2.png";
+const bossImage3 = new Image();
+bossImage3.src = "boss3.png";
+
+const bossImages = [bossImage1, bossImage2, bossImage3];
+
 
 
 let enemyBullets = [];
@@ -2864,11 +2872,18 @@ let enemyBullets = [];
 
 
 // تعیین گرید گلوله‌ها بر اساس امتیاز
-
 function updateBulletGrade(score) {
-  if (score >= scoreGradeThree) bulletGrade = 3;
-  else if (score >= scoreGradeTwo) bulletGrade = 2;
-  else bulletGrade = 1;
+  if (score >= scoreGradeFive) {
+    bulletGrade = 5;
+  } else if (score >= scoreGradeFour) {
+    bulletGrade = 4;
+  } else if (score >= scoreGradeThree) {
+    bulletGrade = 3;
+  } else if (score >= scoreGradeTwo) {
+    bulletGrade = 2;
+  } else {
+    bulletGrade = 1;
+  }
 }
 
 
@@ -2894,7 +2909,7 @@ let missileBtn = document.getElementById("missileBtn");
 // ✅ لیست تمام تصاویر
   
 window.imageSources = [
-  "airplane.png",
+  "airplane.png", "boss1.png", "boss2.png", "boss3.png",
   "fuel.png",
   "mooshak.png", 
   "mooshak2.png", 
@@ -4746,18 +4761,13 @@ setInterval(() => {
 // 🔫 ایجاد تیرها
 function shootBullets() {
   if (airplane.hidden) return;
- if (overheated) return;
+  if (overheated) return;
 
   // افزایش گرما
   heat += heatFillRate;
   if (heat > 100) heat = 100;
-
-
-
-
   updateHeatBar();
 
-  // اگر به حداکثر رسید، قفل شلیک به مدت ۵ ثانیه
   if (heat >= 100) {
     overheated = true;
     lastOverheatTime = Date.now();
@@ -4766,91 +4776,58 @@ function shootBullets() {
       heat = 0;
       updateHeatBar();
     }, overheatDuration);
-    return; // جلوگیری از شلیک
+    return;
   }
 
-
-
-// 🎧 پخش صدای شلیک
+  // 🎧 پخش صدای شلیک
   try {
-    //const sfx = shootSound.cloneNode(); // جلوگیری از تداخل شلیک‌های همزمان
     sfx.volume = 0.1;
-    sfx.play().catch(() => {}); // جلوگیری از خطای مرورگر در حالت mute
-  } catch (e) {
-    console.warn("خطا در پخش صدای شلیک:", e);
-  }
+    sfx.play().catch(() => {});
+  } catch (e) { console.warn(e); }
 
-
-
- if (bulletGrade === 1) {
+  // --- گلوله‌ها بر اساس گرید ---
+  if (bulletGrade === 1) {
     bullets.push({
       x: airplane.x + airplane.w / 2,
       y: airplane.y + airplane.h / 2,
-      w: 2,
-      h: 6,
-      color: "#FFFF00", // زرد طلایی
-      vx: 0,
-      vy: -bulletSpeed,
-      glow: 10
+      w: 2, h: 6, color: "#FFFF00", vx:0, vy:-bulletSpeed, glow:10
     });
   }
   else if (bulletGrade === 2) {
-    // دو تیر از دو بال
-    bullets.push({
-      x: airplane.x + 5,
-      y: airplane.y -3,
-      w: 2,
-      h: 6,
-      color: "#00FFFF", // آبی روشن
-      vx: 0,
-      vy: -bulletSpeed,
-      glow: 10
-    });
-    bullets.push({
-      x: airplane.x + airplane.w - 5,
-      y: airplane.y -3,
-      w: 2,
-      h: 6,
-      color: "#00FFFF",
-      vx: 0,
-      vy: -bulletSpeed,
-      glow: 6
-    });
+    bullets.push({ x: airplane.x + 5, y: airplane.y -3, w:2, h:6, color:"#00FFFF", vx:0, vy:-bulletSpeed, glow:10 });
+    bullets.push({ x: airplane.x + airplane.w - 5, y: airplane.y -3, w:2, h:6, color:"#00FFFF", vx:0, vy:-bulletSpeed, glow:6 });
   }
   else if (bulletGrade === 3) {
-    // سه تیر: نوک و دو بال با کمی زاویه
-    bullets.push({
-      x: airplane.x + airplane.w / 2,
-      y: airplane.y,
-      w: 4,
-      h: 8,
-      color: "#00FF00", // سبز نئونی
-      vx: 0,
-      vy: -bulletSpeed,
-      glow: 10
-    });
-    bullets.push({
-      x: airplane.x + 5,
-      y: airplane.y,
-      w: 3,
-      h: 7,
-      color: "#FF66FF", // بنفش نئونی
-      vx: -0.5,
-      vy: -bulletSpeed,
-      glow: 8
-    });
-    bullets.push({
-      x: airplane.x + airplane.w - 5,
-      y: airplane.y,
-      w: 3,
-      h: 7,
-      color: "#FF66FF",
-      vx: 0.5,
-      vy: -bulletSpeed,
-      glow: 8
-    });
+    bullets.push({ x: airplane.x + airplane.w / 2, y: airplane.y, w:4, h:8, color:"#00FF00", vx:0, vy:-bulletSpeed, glow:10 });
+    bullets.push({ x: airplane.x + 5, y: airplane.y, w:3, h:7, color:"#FF66FF", vx:-0.5, vy:-bulletSpeed, glow:8 });
+    bullets.push({ x: airplane.x + airplane.w - 5, y: airplane.y, w:3, h:7, color:"#FF66FF", vx:0.5, vy:-bulletSpeed, glow:8 });
   }
+  else if (bulletGrade === 4) {
+    // گرید ۴: پنج تیر، دو رنگ و زاویه ±0.5 و ±1
+    bullets.push({ x: airplane.x + airplane.w / 2, y: airplane.y, w:4, h:10, color:"#00FF66", vx:0, vy:-bulletSpeed, glow:12 });
+    bullets.push({ x: airplane.x + 6, y: airplane.y, w:3, h:9, color:"#FF33FF", vx:-0.5, vy:-bulletSpeed, glow:10 });
+    bullets.push({ x: airplane.x + airplane.w - 6, y: airplane.y, w:3, h:9, color:"#FF33FF", vx:0.5, vy:-bulletSpeed, glow:10 });
+    bullets.push({ x: airplane.x + 10, y: airplane.y, w:2, h:8, color:"#FFFF33", vx:-1, vy:-bulletSpeed, glow:8 });
+    bullets.push({ x: airplane.x + airplane.w - 10, y: airplane.y, w:2, h:8, color:"#FFFF33", vx:1, vy:-bulletSpeed, glow:8 });
+  }
+ else if (bulletGrade === 5) {
+  const cx = airplane.x + airplane.w / 2;
+  const y  = airplane.y;
+
+  bullets.push({ x: cx,     y, w:6, h:14, color:"#00FFFF", vx: 0.0,  vy:-bulletSpeed,     glow:16 });
+
+  bullets.push({ x: cx - 6, y, w:5, h:12, color:"#FF00FF", vx:-0.9,  vy:-bulletSpeed+0.2, glow:14 });
+  bullets.push({ x: cx + 6, y, w:5, h:12, color:"#FF00FF", vx: 0.9,  vy:-bulletSpeed+0.2, glow:14 });
+
+  bullets.push({ x: cx -10, y, w:4, h:11, color:"#FFFF00", vx:-1.6,  vy:-bulletSpeed+0.4, glow:12 });
+  bullets.push({ x: cx +10, y, w:4, h:11, color:"#FFFF00", vx: 1.6,  vy:-bulletSpeed+0.4, glow:12 });
+
+  bullets.push({ x: cx -14, y, w:3, h:10, color:"#00FF33", vx:-2.2,  vy:-bulletSpeed+0.6, glow:10 });
+  bullets.push({ x: cx +14, y, w:3, h:10, color:"#00FF33", vx: 2.2,  vy:-bulletSpeed+0.6, glow:10 });
 }
+
+}
+
 
 // 🔫 به‌روزرسانی و رسم تیرها
 function updateAndDrawBullets() {
@@ -5994,5 +5971,4 @@ if ("serviceWorker" in navigator) {
 
 </body>
 </html>
-
 
