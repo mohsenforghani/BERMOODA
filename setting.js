@@ -6,10 +6,15 @@ let gameOverMusic = new Audio("sounds/gameOverSound.mp3");
 const BOSS_MAX_LIFE = 100;
 const HEALTH_BAR_HEIGHT = 4;
 const HEALTH_BAR_OFFSET = 10; 
-const BOOS_ONE_LIFE = 1500;
+const BOSS_ONE_LIFE = 1500;
 const BOSS_INTERVAL = 60000;
 const FIRE_DELAY = 6000;
 const MAX_FIRE = 5;
+
+
+
+
+
 
 
 
@@ -23,6 +28,17 @@ let lives = 3;
 let maxLives = 4;
 let scoreToHeart = 2000;
 const padding = 8;
+
+
+
+
+const separ_DROP_CHANCE = 0.20;
+const separ_FALL_SPEED  = 2;
+const separ_WIDTH = 51;
+const separ_HEIGHT = 50;
+let scoreTosepar= 200;
+
+
 
 
 
@@ -97,6 +113,17 @@ window.GAME_CONFIG = {
   HEART_FALL_SPEED,
   HEART_WIDTH ,
   HEART_HEIGHT,
+
+
+separ_DROP_CHANCE,
+separ_FALL_SPEED,
+separ_WIDTH,
+separ_HEIGHT,
+scoreTosepar,
+
+
+
+
   lives,
   maxLives,
   scoreToHeart,
@@ -137,7 +164,7 @@ window.GAME_CONFIG = {
  BOSS_MAX_LIFE,
  HEALTH_BAR_HEIGHT,
  HEALTH_BAR_OFFSET,
- BOOS_ONE_LIFE,
+ BOSS_ONE_LIFE,
  BOSS_INTERVAL ,
  FIRE_DELAY ,
  MAX_FIRE 
