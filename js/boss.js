@@ -9,28 +9,33 @@
 
  // ========================================================== 
 
-  function spawn(canvas) {
-    boss = {
-      x: canvas.width / 2 -50,
-      y: -200,
-      w: 100,
-      h: 133,
-      life: 100,
-      targetX: canvas.width / 2 -100,
-      targetY: canvas.height / 2 - 100,
-      speed: 1,
-      img: bossImage
-    };
+ function spawn(canvas) {
+  // انتخاب تصویر رندوم
+  const imgIndex = Math.floor(Math.random() * bossImages.length);
+  const selectedImg = bossImages[imgIndex];
+
+  boss = {
+    x: canvas.width / 2 - 50,
+    y: -200,
+    w: 100,
+    h: 133,
+    life: GAME_CONFIG.BOSS_MAX_LIFE,
+    targetX: canvas.width / 2 - 100,
+    targetY: canvas.height / 2 - 100,
+    speed: 1,
+    img: selectedImg
+  };
+
+  bossBullets = [];
+  fireCount = 0;
+  movePhase = "enter";
+  active = true;
+  lastFireTime = performance.now();
+  isBossActive = true;
+}
 
 
-    bossBullets = [];
-    fireCount = 0;
-    movePhase = "enter";
-    active = true;
-    lastFireTime = performance.now();
-    isBossActive = true;   // ⛔ توقف اسپاون دشمن‌ها و شهاب‌سنگ‌ها
-    
-  }
+
 // ==========================================================
   function fire() {
     const cx = boss.x + boss.w / 2;
@@ -216,5 +221,4 @@ return BossAPI;
 
 })();
 window.Boss = Boss;
-
 
