@@ -6271,13 +6271,21 @@ function triggerRecoilAnimation() {
   </script>
 
 <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/BERMOODA/js/sw.js")
-      .then(() => console.log("Service Worker Registered"))
-      .catch(err => console.error("SW error", err));
-  });
-}
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+      if (registrations.length === 0) {
+        navigator.serviceWorker.register('/BERMOODA/js/sw.js')
+          .then(reg => {
+            console.log("Service Worker ثبت شد و آماده کش فایل‌هاست:", reg.scope);
+          })
+          .catch(err => {
+            console.warn("خطا در ثبت Service Worker:", err);
+          });
+      } else {
+        console.log("Service Worker قبلاً نصب شده است.");
+      }
+    });
+  }
 </script>
 
 
