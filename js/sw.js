@@ -1,4 +1,4 @@
-const CACHE_NAME = "bermooda-cache-v3"; // هر نسخه جدید، شماره نسخه را تغییر دهید
+const CACHE_NAME = "bermooda-cache-v2"; // با هر آپدیت تغییر دهید
 const ASSETS = [
 "/BERMOODA/",
 
@@ -108,11 +108,12 @@ const ASSETS = [
   "/BERMOODA/index.html"
 ];
 
+// نصب SW و کش فایل‌ها
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
-
+  // self.skipWaiting(); <-- حذف شد
 });
 
 // فعال‌سازی و حذف کش‌های قدیمی
@@ -127,18 +128,16 @@ self.addEventListener("activate", event => {
   self.clients.claim();
 });
 
-// fetch از کش یا شبکه
+// پاسخ به fetch
 self.addEventListener("fetch", event => {
   event.respondWith(
     caches.match(event.request).then(cached => cached || fetch(event.request))
   );
 });
 
-// گوش دادن به پیام از صفحه (برای فعال‌سازی نسخه جدید)
+// گوش دادن به پیام‌ها برای فعال‌سازی SW جدید
 self.addEventListener("message", event => {
   if (event.data === "SKIP_WAITING") {
     self.skipWaiting();
   }
 });
-
-
