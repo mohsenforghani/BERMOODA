@@ -1,4 +1,4 @@
-const CACHE_NAME = "bermooda-cache-v4"; // با هر آپدیت تغییر دهید
+const CACHE_NAME = "bermooda-cache-v5"; // با هر آپدیت تغییر دهید
 const ASSETS = [
 "/BERMOODA/",
 
@@ -141,4 +141,5 @@ self.addEventListener("message", event => {
     self.skipWaiting();
   }
 });
+
 
