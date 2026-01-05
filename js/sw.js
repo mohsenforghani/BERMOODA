@@ -1,4 +1,4 @@
-const CACHE_NAME = "bermooda-cache-v1";
+const CACHE_NAME = "bermooda-cache-v2";
 
 const ASSETS = [
 "/BERMOODA/",
