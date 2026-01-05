@@ -6269,30 +6269,62 @@ function triggerRecoilAnimation() {
     shootBtn.classList.add("recoil");    // دوباره اضافه کردن
 }
 
-
-
-  </script>
+</script>
 
 <script>
 if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/BERMOODA/js/sw.js').then(reg => {
 
-  navigator.serviceWorker.register('/BERMOODA/js/sw.js')
-    .then(reg => {
-      console.log('Service Worker ثبت شد:', reg.scope);
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
 
-      // اگر همین صفحه تحت کنترل SW است
-      if (navigator.serviceWorker.controller) {
-        console.log('Service Worker فعال و در حال کنترل صفحه است ✅');
-      } else {
-        console.log('Service Worker نصب شد، اما در بارگذاری بعدی فعال می‌شود');
-      }
-    })
-    .catch(err => {
-      console.error('خطا در ثبت Service Worker:', err);
+      newWorker.addEventListener('statechange', () => {
+        if (
+          newWorker.state === 'installed' &&
+          navigator.serviceWorker.controller
+        ) {
+          showUpdateMessage(reg);
+        }
+      });
     });
 
+  });
 }
+
+
+
+function showUpdateMessage(registration) {
+  const box = document.createElement("div");
+  box.style.position = "fixed";
+  box.style.bottom = "20px";
+  box.style.left = "50%";
+  box.style.transform = "translateX(-50%)";
+  box.style.background = "#111";
+  box.style.color = "#fff";
+  box.style.padding = "15px 20px";
+  box.style.borderRadius = "10px";
+  box.style.zIndex = "9999";
+  box.style.fontFamily = "sans-serif";
+  box.innerHTML = `
+    <div style="margin-bottom:10px">
+      نسخه جدید بازی آماده دانلود است
+    </div>
+    <button id="updateGameBtn"
+      style="padding:8px 15px;border:none;border-radius:6px;background:#e53935;color:#fff;font-size:14px">
+      دانلود نسخه جدید
+    </button>
+  `;
+
+  document.body.appendChild(box);
+
+  document.getElementById("updateGameBtn").onclick = () => {
+    registration.waiting.postMessage("SKIP_WAITING");
+    location.reload();
+  };
+}
+
 </script>
+
 
 </body>
 </html>
