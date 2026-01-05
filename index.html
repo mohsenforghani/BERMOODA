@@ -6275,25 +6275,33 @@ function triggerRecoilAnimation() {
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/BERMOODA/js/sw.js').then(reg => {
 
+    if (reg.waiting) {
+      showUpdateMessage(reg);
+    }
+
     reg.addEventListener('updatefound', () => {
       const newWorker = reg.installing;
-
       newWorker.addEventListener('statechange', () => {
-        if (
-          newWorker.state === 'installed' &&
-          navigator.serviceWorker.controller
-        ) {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
           showUpdateMessage(reg);
         }
       });
     });
 
   });
+
+  // رفرش بعد از فعال شدن SW جدید
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      window.location.reload();
+      refreshing = true;
+    }
+  });
 }
 
-
-
 function showUpdateMessage(registration) {
+  if (document.getElementById("updateGameBtn")) return; // فقط یک پیام
   const box = document.createElement("div");
   box.style.position = "fixed";
   box.style.bottom = "20px";
@@ -6314,18 +6322,20 @@ function showUpdateMessage(registration) {
       دانلود نسخه جدید
     </button>
   `;
-
   document.body.appendChild(box);
 
   document.getElementById("updateGameBtn").onclick = () => {
-    registration.waiting.postMessage("SKIP_WAITING");
-    location.reload();
+    if (registration.waiting) {
+      registration.waiting.postMessage("SKIP_WAITING");
+    }
   };
 }
+
 
 </script>
 
 
 </body>
 </html>
+
 
