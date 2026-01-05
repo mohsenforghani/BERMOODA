@@ -6269,38 +6269,9 @@ function triggerRecoilAnimation() {
     shootBtn.classList.add("recoil");    // دوباره اضافه کردن
 }
 
-</script>
 
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/BERMOODA/js/sw.js').then(reg => {
 
-    if (reg.waiting) {
-      showUpdateMessage(reg);
-    }
-
-    reg.addEventListener('updatefound', () => {
-      const newWorker = reg.installing;
-      newWorker.addEventListener('statechange', () => {
-        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          showUpdateMessage(reg);
-        }
-      });
-    });
-
-  });
-
-  // رفرش بعد از فعال شدن SW جدید
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!refreshing) {
-      window.location.reload();
-      refreshing = true;
-    }
-  });
-}
-
-function showUpdateMessage(registration) {
+  function showUpdateMessage(registration) {
   if (document.getElementById("updateGameBtn")) return; // فقط یک پیام
   const box = document.createElement("div");
   box.style.position = "fixed";
@@ -6332,11 +6303,48 @@ function showUpdateMessage(registration) {
 }
 
 
+
+  
+
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/BERMOODA/js/sw.js').then(reg => {
+
+    if (reg.waiting) {
+      showUpdateMessage(reg);
+    }
+
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          showUpdateMessage(reg);
+        }
+      });
+    });
+
+  });
+
+  // رفرش بعد از فعال شدن SW جدید
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      window.location.reload();
+      refreshing = true;
+    }
+  });
+}
+
+
+
 </script>
 
 
 </body>
 </html>
+
 
 
 
