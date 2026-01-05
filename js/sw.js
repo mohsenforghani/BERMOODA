@@ -21,9 +21,6 @@ const ASSETS = [
 "/BERMOODA/images/Startbackground/d.png",    
 "/BERMOODA/images/Startbackground/e.png", 
 
-
-
-
 "/BERMOODA/sounds/explosion/explosion1.wav",
 "/BERMOODA/sounds/explosion/explosion2.wav",
 "/BERMOODA/sounds/explosion/explosion3.wav",
@@ -42,11 +39,6 @@ const ASSETS = [
   "/BERMOODA/js/sw.js",
   "/BERMOODA/js/cheat.js",
   "/BERMOODA/js/manifest.json",
-
-
-
-
-
 
   "/BERMOODA/images/airplane.png",
 
@@ -148,3 +140,4 @@ self.addEventListener("message", event => {
     self.skipWaiting();
   }
 });
+
