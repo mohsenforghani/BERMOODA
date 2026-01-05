@@ -1,7 +1,7 @@
-document.addEventListener("DOMContentLoaded", () => {
-  (function () {
+(function () {
   "use strict";
 
+  // ==== بخش چیت اصلی ====
   const CHEAT = { infiniteShield: false };
   Object.defineProperty(window, "CHEAT_STATE", { value: CHEAT, writable: false });
 
@@ -11,72 +11,16 @@ document.addEventListener("DOMContentLoaded", () => {
     { zone: "center", count: 5 }
   ];
 
-  let stage = 0, hits = 0, lastTapTime = 0, totalClicks = 0;
-  const TIMEOUT = 3000;
+  let stage = 0, hits = 0, lastTapTime = 0;
+  const TIMEOUT = 3000; // موبایل کمی آهسته تر
+  let touchHandled = false; // جلوگیری از چندبار شمارش در یک لمس
 
-  const canvas = document.querySelector("canvas");
-  if (!canvas) return;
+  function getCanvas() { return document.querySelector("canvas"); }
 
-  // ===== ایجاد لایه HTML برای نمایش labels و شمارنده =====
-  const cheatOverlay = document.createElement("div");
-  cheatOverlay.style.position = "fixed";
-  cheatOverlay.style.top = 0;
-  cheatOverlay.style.left = 0;
-  cheatOverlay.style.width = "100%";
-  cheatOverlay.style.height = "100%";
-  cheatOverlay.style.pointerEvents = "none";
-  cheatOverlay.style.zIndex = 99999;
-  document.body.appendChild(cheatOverlay);
-
-  // برچسب‌ها
-  const leftLabel = document.createElement("div");
-  leftLabel.innerText = "LEFT";
-  leftLabel.style.position = "absolute";
-  leftLabel.style.left = "5%";
-  leftLabel.style.top = "50%";
-  leftLabel.style.transform = "translateY(-50%)";
-  leftLabel.style.color = "red";
-  leftLabel.style.fontSize = "24px";
-  leftLabel.style.fontWeight = "bold";
-  cheatOverlay.appendChild(leftLabel);
-
-  const centerLabel = document.createElement("div");
-  centerLabel.innerText = "CENTER";
-  centerLabel.style.position = "absolute";
-  centerLabel.style.left = "50%";
-  centerLabel.style.top = "50%";
-  centerLabel.style.transform = "translate(-50%, -50%)";
-  centerLabel.style.color = "yellow";
-  centerLabel.style.fontSize = "24px";
-  centerLabel.style.fontWeight = "bold";
-  cheatOverlay.appendChild(centerLabel);
-
-  const rightLabel = document.createElement("div");
-  rightLabel.innerText = "RIGHT";
-  rightLabel.style.position = "absolute";
-  rightLabel.style.right = "5%";
-  rightLabel.style.top = "50%";
-  rightLabel.style.transform = "translateY(-50%)";
-  rightLabel.style.color = "lime";
-  rightLabel.style.fontSize = "24px";
-  rightLabel.style.fontWeight = "bold";
-  cheatOverlay.appendChild(rightLabel);
-
-  // شمارنده کلیک‌ها
-  const clickCounter = document.createElement("div");
-  clickCounter.innerText = "Clicks: 0";
-  clickCounter.style.position = "absolute";
-  clickCounter.style.left = "50%";
-  clickCounter.style.top = "10%";
-  clickCounter.style.transform = "translateX(-50%)";
-  clickCounter.style.color = "#00ffff";
-  clickCounter.style.fontSize = "28px";
-  clickCounter.style.fontWeight = "bold";
-  clickCounter.style.textShadow = "0 0 10px #00ffff";
-  cheatOverlay.appendChild(clickCounter);
-
-  // ===== توابع اصلی چیت =====
   function getZoneFromEvent(e) {
+    const canvas = getCanvas();
+    if (!canvas) return null;
+
     const rect = canvas.getBoundingClientRect();
     let x;
     if (e.touches) x = e.touches[0].clientX - rect.left;
@@ -91,17 +35,22 @@ document.addEventListener("DOMContentLoaded", () => {
   function reset() { stage = 0; hits = 0; }
 
   function handleInput(e) {
-    totalClicks++;
-    clickCounter.innerText = "Clicks: " + totalClicks;
+    e.preventDefault(); // جلوگیری از ایجاد click اضافی روی موبایل
 
-    if (CHEAT.infiniteShield) return;
+    // فقط یک بار برای هر لمس
+    if (e.type === "touchstart" && touchHandled) return;
+    if (e.type === "touchstart") touchHandled = true;
+
+    const zone = getZoneFromEvent(e);
+    if (!zone) return;
+
+    // ==== منطق چیت ====
     const now = performance.now();
     if (now - lastTapTime > TIMEOUT) reset();
     lastTapTime = now;
 
-    const zone = getZoneFromEvent(e);
     const need = SEQUENCE[stage];
-    if (!zone || !need || zone !== need.zone) { reset(); return; }
+    if (!need || zone !== need.zone) { reset(); return; }
 
     hits++;
     if (hits >= need.count) {
@@ -115,8 +64,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ===== رویدادها =====
-  addEventListener("touchstart", e => handleInput(e), { passive: false });
-  addEventListener("mousedown", e => handleInput(e));
+  // ریست flag بعد از پایان لمس
+  addEventListener("touchend", () => { touchHandled = false; });
+
+  // ثبت رویدادها
+  addEventListener("touchstart", handleInput, { passive: false });
+  addEventListener("mousedown", handleInput);
+
 })();
-});
