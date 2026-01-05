@@ -6323,13 +6323,20 @@ function showUpdateMessage(registration) {
 }
 </script>
 
-<script src="js/setting.js" defer></script>
-<script src="js/cheat.js" defer></script>
-<script src="js/tunnel.js" defer></script>
-<script src="js/boss.js" defer></script>
+ <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const scriptFiles = ["js/setting.js", "js/cheat.js", "js/tunnel.js", "js/boss.js"];
+      scriptFiles.forEach(src => {
+        const s = document.createElement("script");
+        s.src = src;
+        document.body.appendChild(s);
+      });
+    });
+  </script>
 
 </body>
 </html>
+
 
 
 
