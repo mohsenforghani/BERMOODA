@@ -1,4 +1,4 @@
-const CACHE_NAME = "bermooda-cache-v2";
+const CACHE_NAME = "bermooda-cache-v3";
 
 const ASSETS = [
 "/BERMOODA/",
@@ -143,3 +143,4 @@ self.addEventListener("fetch", event => {
     caches.match(event.request).then(cached => cached || fetch(event.request))
   );
 });
+
