@@ -1,4 +1,3 @@
-
 (function () {
   "use strict";
 
@@ -14,6 +13,7 @@
 
   let stage = 0, hits = 0, lastTapTime = 0;
   const TIMEOUT = 3000; // موبایل کمی آهسته تر
+  let touchHandled = false; // جلوگیری از چند بار شمارش یک لمس
 
   function getCanvas() { return document.querySelector("canvas"); }
 
@@ -35,15 +35,16 @@
   function reset() { stage = 0; hits = 0; }
 
   function handleInput(e) {
+    e.preventDefault(); // جلوگیری از تولید click اضافه روی موبایل
+
+    // فقط یک بار برای هر لمس
+    if (e.type === "touchstart" && touchHandled) return;
+    if (e.type === "touchstart") touchHandled = true;
+
     const zone = getZoneFromEvent(e);
     if (!zone) return;
 
-    // ==== به‌روزرسانی شمارنده و لیبل‌ها ====
-    totalClicks++;
-    updateUI(zone);
-
     // ==== منطق چیت ====
-    if (CHEAT.infiniteShield) return;
     const now = performance.now();
     if (now - lastTapTime > TIMEOUT) reset();
     lastTapTime = now;
@@ -63,37 +64,11 @@
     }
   }
 
-  addEventListener("touchstart", e => handleInput(e), { passive: false });
-  addEventListener("mousedown", e => handleInput(e));
+  // ریست flag بعد از پایان لمس
+  addEventListener("touchend", () => { touchHandled = false; });
 
-  // ==== بخش UI اضافه شده ====
-  let totalClicks = 0;
+  // ثبت رویدادها
+  addEventListener("touchstart", handleInput, { passive: false });
+  addEventListener("mousedown", handleInput);
 
-  const uiDiv = document.createElement("div");
-  uiDiv.style.position = "fixed";
-  uiDiv.style.top = "10px";
-  uiDiv.style.left = "50%";
-  uiDiv.style.transform = "translateX(-50%)";
-  uiDiv.style.background = "rgba(0,0,0,0.6)";
-  uiDiv.style.color = "#fff";
-  uiDiv.style.padding = "10px 20px";
-  uiDiv.style.borderRadius = "8px";
-  uiDiv.style.fontFamily = "sans-serif";
-  uiDiv.style.fontSize = "16px";
-  uiDiv.style.zIndex = "9999";
-  document.body.appendChild(uiDiv);
-
-  function updateUI(zone) {
-    uiDiv.innerHTML = `
-      <div>Clicked Zone: <b>${zone}</b></div>
-      <div>Total Clicks: <b>${totalClicks}</b></div>
-      <div style="margin-top:5px;">
-        Zones: 
-        <span style="color:red">LEFT</span> | 
-        <span style="color:green">CENTER</span> | 
-        <span style="color:blue">RIGHT</span>
-      </div>
-    `;
-  }
 })();
-
