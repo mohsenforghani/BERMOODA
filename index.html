@@ -912,6 +912,7 @@ position: absolute;
 
 <canvas id="gameCanvas"></canvas>
 <script src="setting.js"></script>
+<script src="js/cheat.js"></script>
 <script src="js/tunnel.js"></script>
 <script src="js/boss.js"></script>
 
@@ -3574,9 +3575,15 @@ const dayNight = {
   start: performance.now()
 };
 
+
+
 // رنگ‌های پایه روز/شب
-const dayColors = { top: '#4da6ff', bottom: '#003366' };
-const nightColors = { top: '#000040', bottom: '#000000' };
+let dayColors = { top: '#4da6ff', bottom: '#003366' };
+let nightColors = { top: '#000040', bottom: '#000000' };
+let CHEAT_DAY_COLORS   = { top: '#FF3333', bottom: '#990000' }; // قرمز روشن تا قرمز تیره
+let CHEAT_NIGHT_COLORS = { top: '#000000', bottom: '#000000' }; // شب کاملاً سیاه
+
+
 
 // ستاره‌ها (یک‌بار ساخته می‌شوند)
 const stars = [];
@@ -3632,8 +3639,21 @@ function drawBackground() {
   // nightFactor
   const nf = getNightFactor();
 
-  const topColor = lerpColor(dayColors.top, nightColors.top, nf);
-  const bottomColor = lerpColor(dayColors.bottom, nightColors.bottom, nf);
+  let topColor, bottomColor;
+
+
+
+if (window.CHEAT_STATE?.infiniteShield) {
+    // استفاده از رنگ‌های هگز جایگزین
+    topColor = lerpColor(CHEAT_DAY_COLORS.top, CHEAT_NIGHT_COLORS.top, nf);
+    bottomColor = lerpColor(CHEAT_DAY_COLORS.bottom, CHEAT_NIGHT_COLORS.bottom, nf);
+} else {
+    // حالت عادی
+    topColor = lerpColor(dayColors.top, nightColors.top, nf);
+    bottomColor = lerpColor(dayColors.bottom, nightColors.bottom, nf);
+}
+
+
 
   const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
   grad.addColorStop(0, topColor);
@@ -4284,7 +4304,9 @@ if (invincible && now - respawnTime > 10000) {
   invincible = false;
 }
 
-
+if (window.CHEAT_STATE?.infiniteShield) {
+    lives = 15;
+}
 
 
 
@@ -5220,18 +5242,25 @@ Tunnel.init({
   });
 
   Tunnel.onKill(() => {
-    
-
-if (!shielded) {
-  explodeAirplane();  // تیر روی بازیکن اثر کند
-}
-
-
-
+  explodeAirplane(); 
   });
 
   lastTunnelFrameTimeMs = performance.now();
 
+
+
+ if (window.CHEAT_STATE) {
+    window.CHEAT_STATE.infiniteShield = false;
+  }
+  shielded = false;
+  shieldStartTime = 0;
+  shieldEndTime = 0;
+
+// اگر drawBackground وابسته به CHEAT بود، force کن تا از رنگ‌های معمولی استفاده کند
+  if (typeof dayColors !== 'undefined') dayColors.top = '#4da6ff';
+  if (typeof dayColors !== 'undefined') dayColors.bottom = '#003366';
+  if (typeof nightColors !== 'undefined') nightColors.top = '#000040';
+  if (typeof nightColors !== 'undefined') nightColors.bottom = '#000000';
 
 
   cancelAnimationFrame(animationId); // animationId باید متغیر سراسری باشد
