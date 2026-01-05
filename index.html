@@ -6254,14 +6254,6 @@ function drawHeartParticles(ctx) {
   }
 }
 
-
-
-
-
-
-
-
-
 // === تابع اجرای انیمیشن recoil ===
 function triggerRecoilAnimation() {
     shootBtn.classList.remove("recoil"); // پاک کردن کلاس
@@ -6269,9 +6261,40 @@ function triggerRecoilAnimation() {
     shootBtn.classList.add("recoil");    // دوباره اضافه کردن
 }
 
+  
+</script>
 
 
-  function showUpdateMessage(registration) {
+
+  
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/BERMOODA/js/sw.js').then(reg => {
+
+    // اگر SW جدید از قبل در waiting باشد
+    if (reg.waiting) showUpdateMessage(reg);
+
+    reg.addEventListener('updatefound', () => {
+      const newWorker = reg.installing;
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          showUpdateMessage(reg);
+        }
+      });
+    });
+  });
+
+  // رفرش بعد از فعال شدن SW جدید
+  let refreshing = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!refreshing) {
+      window.location.reload();
+      refreshing = true;
+    }
+  });
+}
+
+function showUpdateMessage(registration) {
   if (document.getElementById("updateGameBtn")) return; // فقط یک پیام
   const box = document.createElement("div");
   box.style.position = "fixed";
@@ -6301,49 +6324,13 @@ function triggerRecoilAnimation() {
     }
   };
 }
-
-
-
-  
-
 </script>
 
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/BERMOODA/js/sw.js').then(reg => {
-
-    if (reg.waiting) {
-      showUpdateMessage(reg);
-    }
-
-    reg.addEventListener('updatefound', () => {
-      const newWorker = reg.installing;
-      newWorker.addEventListener('statechange', () => {
-        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          showUpdateMessage(reg);
-        }
-      });
-    });
-
-  });
-
-  // رفرش بعد از فعال شدن SW جدید
-  let refreshing = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (!refreshing) {
-      window.location.reload();
-      refreshing = true;
-    }
-  });
-}
-
-
-
-</script>
 
 
 </body>
 </html>
+
 
 
 
