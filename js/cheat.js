@@ -1,4 +1,5 @@
-(function () {
+document.addEventListener("DOMContentLoaded", () => {
+  (function () {
   "use strict";
 
   const CHEAT = { infiniteShield: false };
@@ -118,3 +119,4 @@
   addEventListener("touchstart", e => handleInput(e), { passive: false });
   addEventListener("mousedown", e => handleInput(e));
 })();
+});
