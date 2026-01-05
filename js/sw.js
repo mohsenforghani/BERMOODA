@@ -1,4 +1,4 @@
-const CACHE_NAME = "bermooda-cache-v2"; // هر نسخه جدید، شماره نسخه را تغییر دهید
+const CACHE_NAME = "bermooda-cache-v3"; // هر نسخه جدید، شماره نسخه را تغییر دهید
 const ASSETS = [
 "/BERMOODA/",
 
@@ -112,7 +112,7 @@ self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
-  // self.skipWaiting(); <-- این خط حذف شد
+
 });
 
 // فعال‌سازی و حذف کش‌های قدیمی
@@ -140,4 +140,5 @@ self.addEventListener("message", event => {
     self.skipWaiting();
   }
 });
+
 
