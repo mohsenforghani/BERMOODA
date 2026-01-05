@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="manifest" href="manifest.json">
+<link rel="manifest" href="js/manifest.json">
 <meta name="theme-color" content="#000000">
 <title>Bermooda - Mohsen Forghani</title>
 <style>
@@ -911,7 +911,7 @@ position: absolute;
 
 
 <canvas id="gameCanvas"></canvas>
-<script src="setting.js"></script>
+<script src="js/setting.js"></script>
 <script src="js/cheat.js"></script>
 <script src="js/tunnel.js"></script>
 <script src="js/boss.js"></script>
@@ -960,7 +960,7 @@ position: absolute;
      max-height:100vh;
 
      /* ---- بک‌گراند جدید تصویری با opacity 70% ---- */
-     background: rgba(255,255,255,0.7) url('chatBackground1.png');
+     background: rgba(255,255,255,0.7) url('images/chatBackground1.png');
      background-size: cover;
      background-position: center;
 
@@ -1024,7 +1024,7 @@ position: absolute;
 
 <!-- نمونه‌ی HTML (اگر نداریش) -->
 <div id="shoot" role="button" aria-label="shoot">
-<img class="shoot-img" src="shootPic.png" alt="">
+<img class="shoot-img" src="images/shootPic.png" alt="">
   <span class="shoot-icon">●</span>
 </div>
 
@@ -1050,7 +1050,7 @@ position: absolute;
 
 
  <div id="loadingScreen">
- <img id="loadingImage" src="mehradGames2.png" alt="Bermooda" />
+ <img id="loadingImage" src="images/mehradGames2.png" alt="Bermooda" />
 <div id="logoText">BERMOODA</div>
 <div id="subLogoText">A GAME BY MOHSEN</div>
     <div id="loadingText">Loading...</div>
@@ -1141,15 +1141,15 @@ display: none;
   </h3>
 
   <div id="airplaneArc">
-    <div class="plane" data-plane="30"><img src="plane30.png" alt="صاعقه"></div>
-    <div class="plane" data-plane="31"><img src="plane31.png" alt="آذرخش"></div>
-    <div class="plane" data-plane="32"><img src="plane32.png" alt="عقاب"></div>
-    <div class="plane" data-plane="33"><img src="plane33.png" alt="اژدر"></div>
-    <div class="plane" data-plane="34"><img src="plane34.png" alt="طوفان"></div>
-    <div class="plane" data-plane="35"><img src="plane35.png" alt="ققنوس"></div>
-    <div class="plane" data-plane="36"><img src="plane36.png" alt="رعد"></div>
-    <div class="plane" data-plane="37"><img src="plane37.png" alt="برق"></div>
-    <div class="plane" data-plane="38"><img src="plane38.png" alt="صاعقه ۲"></div>
+    <div class="plane" data-plane="30"><img src="images/plane30.png" alt="صاعقه"></div>
+    <div class="plane" data-plane="31"><img src="images/plane31.png" alt="آذرخش"></div>
+    <div class="plane" data-plane="32"><img src="images/plane32.png" alt="عقاب"></div>
+    <div class="plane" data-plane="33"><img src="images/plane33.png" alt="اژدر"></div>
+    <div class="plane" data-plane="34"><img src="images/plane34.png" alt="طوفان"></div>
+    <div class="plane" data-plane="35"><img src="images/plane35.png" alt="ققنوس"></div>
+    <div class="plane" data-plane="36"><img src="images/plane36.png" alt="رعد"></div>
+    <div class="plane" data-plane="37"><img src="images/plane37.png" alt="برق"></div>
+    <div class="plane" data-plane="38"><img src="images/plane38.png" alt="صاعقه ۲"></div>
   </div>
 </div>
 
@@ -1292,7 +1292,7 @@ gameOverMusic.volume = 0.7;
 
 
 const heartImage = new Image();
-heartImage.src = "joon.png";
+heartImage.src = "images/joon.png";
 const heartParticleImage = heartImage;
 const heartDrops = [];
 
@@ -1300,7 +1300,7 @@ const heartDrops = [];
 
 //==============separ=============
 const separImage = new Image();
-separImage .src = "separ.png";
+separImage .src = "images/separ.png";
 const separParticleImage = separImage;
 const separDrops = [];
 //===============================
@@ -2493,7 +2493,7 @@ const meteorImages = [];
 const meteorCount = 5;
 for (let i = 1; i <= meteorCount; i++) {
   const img = new Image();
-  img.src = `sang${i}.png`;
+  img.src = `images/sang${i}.png`;
   meteorImages.push(img);
 }
 
@@ -2510,7 +2510,7 @@ function spawnMeteor() {
 // Non-security random value used only for gameplay visuals
 
  // اگر شهاب‌سنگ sang5.png است، اندازه ثابت 120 باشد
-  if (img === "sang5.png") {
+  if (img === "images/sang5.png") {
     size = Math.random() * 80 + 140;
   } else {
     size = Math.random() * 60 + 50; // اندازه تصادفی بین 50 تا 110
@@ -2552,8 +2552,8 @@ function showHelpImages() {
     const gameContainer = document.getElementById("game-container") || document.body;
 
     const images = [
-        { src: "help.png", duration: 3000, bottom: "110px", right: "70px" }, // تصویر اول
-        { src: "help2.png", duration: 3000, bottom: "110px", left: "60px" }  // تصویر دوم
+        { src: "images/help.png", duration: 3000, bottom: "110px", right: "70px" }, // تصویر اول
+        { src: "images/help2.png", duration: 3000, bottom: "110px", left: "60px" }  // تصویر دوم
     ];
 
     let delay = 0;
@@ -2921,22 +2921,22 @@ let refueling = false; // آیا سوختگیری در حال انجام است�
 const explosionFrames = [];
 for (let i = 1; i <= 9; i++) {
   const img = new Image();
-  img.src = `ex/ex${i}.png`;
+  img.src = `images/ex/ex${i}.png`;
   explosionFrames.push(img);
 }
 
 
 const fuelImg = new Image();
-fuelImg.src = "fuel.png"; // مسیر تصویر پمپ بنزینت
+fuelImg.src = "images/fuel.png"; // مسیر تصویر پمپ بنزینت
   
 
 // قبل از شروع بازی (global یا init)
 const bossImage1 = new Image();
-bossImage1.src = "boss1.png";
+bossImage1.src = "images/boss1.png";
 const bossImage2 = new Image();
-bossImage2.src = "boss2.png";
+bossImage2.src = "images/boss2.png";
 const bossImage3 = new Image();
-bossImage3.src = "boss3.png";
+bossImage3.src = "images/boss3.png";
 
 const bossImages = [bossImage1, bossImage2, bossImage3];
 
@@ -2968,8 +2968,8 @@ function updateBulletGrade(score) {
 
 
    const missileImages = [
-  "mooshak.png",
-  "mooshak2.png",
+  "images/mooshak.png",
+  "images/mooshak2.png",
   ].map(src => {
   const img = new Image();
   img.src = src;
@@ -2986,17 +2986,17 @@ let missileBtn = document.getElementById("missileBtn");
 // ✅ لیست تمام تصاویر
   
 window.imageSources = [
-  "airplane.png", "boss1.png", "boss2.png", "boss3.png",
-  "fuel.png",
-  "mooshak.png", 
-  "mooshak2.png", 
-  "plane1.png", "plane2.png", "plane3.png", "plane4.png",
-  "plane6.png", "plane8.png", "plane10.png", "plane12.png",
-  "plane30.png","plane31.png","plane32.png","plane33.png","plane34.png",
-  "sang1.png","sang2.png","sang3.png","sang4.png","sang5.png",
-  "cloud1.png", "cloud2.png", "cloud3.png",
-  "Startbackground/a.png","Startbackground/b.png","Startbackground/c.png",
-  "Startbackground/d.png","Startbackground/e.png","shootPic.png","joon.png"
+  "images/airplane.png", "images/boss1.png", "images/boss2.png", "images/boss3.png",
+  "images/fuel.png",
+  "images/mooshak.png", 
+  "images/mooshak2.png", 
+  "images/plane1.png", "images/plane2.png", "images/plane3.png", "images/plane4.png",
+  "images/plane6.png", "images/plane8.png", "images/plane10.png", "images/plane12.png",
+  "images/plane30.png","images/plane31.png","images/plane32.png","images/plane33.png","images/plane34.png",
+  "images/sang1.png","images/sang2.png","images/sang3.png","images/sang4.png","images/sang5.png",
+  "images/cloud1.png", "images/cloud2.png", "images/cloud3.png",
+  "images/Startbackground/a.png","images/Startbackground/b.png","images/Startbackground/c.png",
+  "images/Startbackground/d.png","images/Startbackground/e.png","images/shootPic.png","images/joon.png"
 ];
 
 
@@ -3018,17 +3018,17 @@ const loadingImage = document.getElementById("loadingImage");
 
 
 const airplaneImg = new Image();
-airplaneImg.src = "airplane.png";
+airplaneImg.src = "images/airplane.png";
 // ✈️ تصاویر دشمن‌ها
 const enemyImages = [
-  "plane1.png",
-  "plane2.png",
-  "plane3.png",
-  "plane4.png",
-  "plane6.png",
-  "plane8.png",
-  "plane10.png",
-  "plane12.png",
+  "images/plane1.png",
+  "images/plane2.png",
+  "images/plane3.png",
+  "images/plane4.png",
+  "images/plane6.png",
+  "images/plane8.png",
+  "images/plane10.png",
+  "images/plane12.png",
   ].map(src => {
   const img = new Image();
   img.src = src;
@@ -3056,7 +3056,7 @@ const shootBtn = document.getElementById("shoot");
 
   // 🎨 پس‌زمینه متحرک آسمان
   let clouds = [];
-  const cloudImages = ["cloud1.png", "cloud2.png", "cloud3.png"].map(src => {
+  const cloudImages = ["images/cloud1.png", "images/cloud2.png", "images/cloud3.png"].map(src => {
   const img = new Image();
   img.src = src;
   return img;
@@ -3111,17 +3111,17 @@ function preloadImages(callback) {
 
   // اضافه‌کردن فریم‌های انفجار اما فقط در صورتی که قبلاً اضافه نشده باشند
   for (let i = 1; i <= 9; i++) {
-    const path = `ex/ex${i}.png`;
+    const path = `images/ex/ex${i}.png`;
     if (!window.imageSources.includes(path)) window.imageSources.push(path);
   }
 
   // اضافه کردن 5 بک‌گراند اگر هنوز اضافه نشده‌اند (اسامی ثابت نگه داشته شدند)
   const bgPaths = [
-    "Startbackground/a.png",
-    "Startbackground/b.png",
-    "Startbackground/c.png",
-    "Startbackground/d.png",
-    "Startbackground/e.png"
+    "images/Startbackground/a.png",
+    "images/Startbackground/b.png",
+    "images/Startbackground/c.png",
+    "images/Startbackground/d.png",
+    "images/Startbackground/e.png"
   ];
   bgPaths.forEach(p => { if (!window.imageSources.includes(p)) window.imageSources.push(p); });
 
@@ -3151,7 +3151,7 @@ function preloadImages(callback) {
       // ساخت explosionFrames ایمن (فقط موارد لود شده را اضافه کن)
       window.explosionFrames = [];
       for (let i = 1; i <= 9; i++) {
-        const p = `ex/ex${i}.png`;
+        const p = `images/ex/ex${i}.png`;
         if (window.loadedImages[p]) window.explosionFrames.push(window.loadedImages[p]);
       }
 
@@ -3248,11 +3248,11 @@ preloadImages(() => {
     document.getElementById("gameTitle").style.display = "block";
 (function(){
     const bgPaths = [
-        "Startbackground/a.png",
-        "Startbackground/b.png",
-        "Startbackground/c.png",
-        "Startbackground/d.png",
-       "Startbackground/e.png"
+        "images/Startbackground/a.png",
+        "images/Startbackground/b.png",
+        "images/Startbackground/c.png",
+        "images/Startbackground/d.png",
+       "images/Startbackground/e.png"
     ];
 
     const chosen = bgPaths[Math.floor(Math.random() * bgPaths.length)];
@@ -3425,7 +3425,7 @@ if (airplaneContainer) {
   // فقط یکبار تعریف شود، مثلاً در ابتدای صفحه
 var waImg = document.createElement("img"); // از var یا let استفاده شود
 waImg.id = "whatsappContact";
-waImg.src = "whatsapp.png";
+waImg.src = "images/whatsapp.png";
 waImg.alt = "تماس با سازنده";
 waImg.style.width = "120px";
 waImg.style.cursor = "pointer";
@@ -5071,10 +5071,10 @@ function launchMissile() {
   let missileW = 15;
   let missileH = 30;
 
-  if (missileImage.src.includes("mooshak.png")) {
+  if (missileImage.src.includes("images/mooshak.png")) {
     missileW = 20;
     missileH = 20;
-  } else if (missileImage.src.includes("mooshak2.png")) {
+  } else if (missileImage.src.includes("images/mooshak2.png")) {
     missileW = 14;
     missileH = 27;
   }
@@ -5168,7 +5168,7 @@ updateHeatBar();
   airplane.x = canvas.width / 2 - (airplane.w)/2;
   airplane.y = canvas.height - 200;
  // ✅ اینجا تصویر هواپیمای بازیکن تعیین می‌شود
-  airplaneImg.src = selectedPlaneImg || "plane30.png";
+  airplaneImg.src = selectedPlaneImg || "images/plane30.png";
   enemies = [];
   bullets = [];
   fuels = []; // پاک کردن سوخت‌های باقی‌مانده
@@ -6273,7 +6273,7 @@ function triggerRecoilAnimation() {
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/BERMOODA/sw.js")
+    navigator.serviceWorker.register("/BERMOODA/js/sw.js")
       .then(() => console.log("Service Worker Registered"))
       .catch(err => console.error("SW error", err));
   });
