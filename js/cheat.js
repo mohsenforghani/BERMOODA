@@ -1,23 +1,15 @@
 (function () {
   "use strict";
 
-  // ===============================
-  // Cheat State (کاملاً ایزوله)
-  // ===============================
   const CHEAT = {
     infiniteShield: false
   };
 
-  // فقط این آبجکت به بیرون اکسپورت می‌شود
   Object.defineProperty(window, "CHEAT_STATE", {
     value: CHEAT,
-    writable: false,
-    configurable: false
+    writable: false
   });
 
-  // ===============================
-  // توالی ضربه‌ها
-  // ===============================
   const SEQUENCE = [
     { zone: "right", count: 20 },
     { zone: "left", count: 20 },
@@ -29,8 +21,18 @@
   let lastTapTime = 0;
   const TIMEOUT = 2000;
 
-  function getZone(x) {
-    const w = innerWidth;
+  function getCanvas() {
+    return document.querySelector("canvas");
+  }
+
+  function getZoneFromEvent(e) {
+    const canvas = getCanvas();
+    if (!canvas) return null;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const w = rect.width;
+
     if (x > w * 0.66) return "right";
     if (x < w * 0.33) return "left";
     return "center";
@@ -41,17 +43,17 @@
     hits = 0;
   }
 
-  function handleTap(x) {
+  function handleInput(e) {
     if (CHEAT.infiniteShield) return;
 
     const now = performance.now();
     if (now - lastTapTime > TIMEOUT) reset();
     lastTapTime = now;
 
+    const zone = getZoneFromEvent(e);
     const need = SEQUENCE[stage];
-    if (!need) return;
 
-    if (getZone(x) !== need.zone) {
+    if (!zone || !need || zone !== need.zone) {
       reset();
       return;
     }
@@ -71,13 +73,9 @@
     }
   }
 
-  // ===============================
-  // Listenerها (بدون وابستگی)
-  // ===============================
   addEventListener("touchstart", e => {
-    if (e.touches[0]) handleTap(e.touches[0].clientX);
+    if (e.touches[0]) handleInput(e.touches[0]);
   }, { passive: true });
 
-  addEventListener("mousedown", e => handleTap(e.clientX));
-
+  addEventListener("mousedown", e => handleInput(e));
 })();
