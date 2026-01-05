@@ -1,6 +1,7 @@
 const CACHE_NAME = "bermooda-cache-v1";
+
 const ASSETS = [
-  "/BERMOODA/",
+"/BERMOODA/",
 
 "/BERMOODA/images/ex/ex1.png", 
 "/BERMOODA/images/ex/ex2.png", 
@@ -113,25 +114,10 @@ const ASSETS = [
 
   "/BERMOODA/images/whatsapp.png",
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
- 
   "/BERMOODA/index.html"
 ];
 
-// نصب Service Worker
+// نصب Service Worker و کش کردن فایل‌ها
 self.addEventListener("install", event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
@@ -139,21 +125,21 @@ self.addEventListener("install", event => {
   self.skipWaiting();
 });
 
-// فعال‌سازی
+// فعال‌سازی و حذف کش‌های قدیمی
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
       )
     )
   );
   self.clients.claim();
 });
 
-// fetch
+// fetch کردن فایل‌ها از کش یا شبکه
 self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request).then(res => res || fetch(event.request))
+    caches.match(event.request).then(cached => cached || fetch(event.request))
   );
 });
