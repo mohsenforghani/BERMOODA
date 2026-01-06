@@ -1,4 +1,5 @@
 
+
 (function () {
   "use strict";
 
@@ -40,7 +41,7 @@
 
     // ==== به‌روزرسانی شمارنده و لیبل‌ها ====
     totalClicks++;
-    updateUI(zone);
+    
 
     // ==== منطق چیت ====
     if (CHEAT.infiniteShield) return;
@@ -69,30 +70,4 @@
   // ==== بخش UI اضافه شده ====
   let totalClicks = 0;
 
-  const uiDiv = document.createElement("div");
-  uiDiv.style.position = "fixed";
-  uiDiv.style.top = "10px";
-  uiDiv.style.left = "50%";
-  uiDiv.style.transform = "translateX(-50%)";
-  uiDiv.style.background = "rgba(0,0,0,0.6)";
-  uiDiv.style.color = "#fff";
-  uiDiv.style.padding = "10px 20px";
-  uiDiv.style.borderRadius = "8px";
-  uiDiv.style.fontFamily = "sans-serif";
-  uiDiv.style.fontSize = "16px";
-  uiDiv.style.zIndex = "9999";
-  document.body.appendChild(uiDiv);
-
-  function updateUI(zone) {
-    uiDiv.innerHTML = `
-      <div>Clicked Zone: <b>${zone}</b></div>
-      <div>Total Clicks: <b>${totalClicks}</b></div>
-      <div style="margin-top:5px;">
-        Zones: 
-        <span style="color:red">LEFT</span> | 
-        <span style="color:green">CENTER</span> | 
-        <span style="color:blue">RIGHT</span>
-      </div>
-    `;
-  }
-})();
+  
