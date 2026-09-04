@@ -35,7 +35,7 @@
   background: transparent;
   box-sizing: border-box;
   border: 3px solid transparent;
-  background-clip: padding-box; /* تا حاشیه از پس‌زمینه جدا باشد */
+  background-clip: padding-box; /*حاشیه از پس‌زمینه جدا  */
   display: none;
 }
 
@@ -85,11 +85,11 @@
   color: white;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* محتوا از بالا شروع شود */
+  justify-content: flex-start; /* محتوا از بالا شروع بشه  */
   align-items: center;
   font-family: sans-serif;
   z-index: 1000;
-padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گیرند */
+padding-top:10vh; /* محتویات کمی پایین‌تر قرار بگیرن  */
 }
 
 
@@ -105,7 +105,7 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
   #loadingText {
     font-size: 11px;
     margin-top: 10px; 
-    text-align: center; /* وسط‌چین */
+    text-align: center; /* وسط‌ چین */
   }
 
   #progressBar {
@@ -188,7 +188,7 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
   cursor: pointer;
   box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
   transition: all 0.3s ease;
-  display: none; /* اول بازی مخفی باشد */
+  display: none; /* اول بازی مخفی باشه */
   z-index: 999;
 }
 
@@ -211,7 +211,7 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
   cursor: pointer;
   box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
   transition: all 0.3s ease;
-  display: none; /* اول بازی مخفی باشد */
+  display: none; /* اول بازی مخفی باشه */
   z-index: 999;
 }
  #exitBtn {
@@ -232,7 +232,7 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
   cursor: pointer;
   box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
   transition: all 0.3s ease;
-  display: none; /* اول بازی مخفی باشد */
+  display: none; /* اول بازی مخفی باشه */
   z-index: 999;
 }
  #continueBtn {
@@ -253,7 +253,7 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
   cursor: pointer;
   box-shadow: 0 0 20px rgba(0, 114, 255, 0.6);
   transition: all 0.3s ease;
-  display: none; /* اول بازی مخفی باشد */
+  display: none; /* اول بازی مخفی باشه */
   z-index: 999;
  }
 #startBtn:hover {
@@ -312,7 +312,7 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
   }
 
 
-/* جوی‌استیک */
+/*  کنترل جوی استیک صفحه */
 #joystick {
   position: fixed;
   bottom: 30px;
@@ -328,7 +328,7 @@ padding-top:10vh; /* محتویات کمی پایین‌تر قرار می‌گ�
   align-items: center;
 }
 
-/* خطوط جهت‌نما */
+/* خطوط جهات جوی استیک */
 #joystick::before,
 #joystick::after {
   content: "";
@@ -404,7 +404,7 @@ position: absolute;
   text-shadow: 0 0 6px #00ffff, 0 0 10px #00ffff;
   font-size: 18px;
   text-align: right;
-  user-select: none; /* تا قابل انتخاب نباشد */
+  user-select: none; /* تا قابل انتخاب نباشه */
 }
 
 #scoreLabel {
@@ -427,7 +427,7 @@ position: absolute;
   border-radius: 50%;
   border: 3px solid rgba(255,255,255,0.4);
   background: radial-gradient(circle at center, #0ff, #00f);
-  color: #001122; /* تیره‌تر برای خوانایی بهتر */
+  color: #001122; /* تیره‌تر باشه که بشه بخونمش */
   font-weight: bold;
   font-size: 16px;
   justify-content: center; /* افقی در مرکز */
@@ -471,7 +471,7 @@ position: absolute;
   user-select: none;
 }
 
-/* آرک */
+/* قوص انتخاب */
 #airplaneArc {
   position: relative;
   width: 100%;
@@ -520,12 +520,6 @@ position: absolute;
 }
 
 
-
-
-
-
-
-
 #shoot {
     position: fixed;
     bottom: 30px;
@@ -540,7 +534,7 @@ position: absolute;
     cursor: pointer;
     user-select: none;
 
-    /* تم آتشی و هیجانی */
+    /* تم آتشی  */
     background: radial-gradient(circle at 30% 30%,
         rgba(255,120,70,0.9),
         rgba(200,0,0,0.9),
@@ -551,11 +545,11 @@ position: absolute;
         0 0 50px rgba(255,0,0,0.55),
         0 0 80px rgba(255,90,40,0.35);
 
-    /* شیشه‌ای + بلور */
+    /* شیشه‌ای و بلور */
     backdrop-filter: blur(6px) saturate(180%);
     -webkit-backdrop-filter: blur(6px) saturate(180%);
 
-    /* لرزش خفیف هیجانی */
+    /* لرزش کم  */
     animation: shootPulse 1.8s infinite ease-in-out;
     transition: transform .15s ease, box-shadow .15s ease;
 }
@@ -567,7 +561,7 @@ position: absolute;
     100% { transform: scale(1);   box-shadow: 0 0 20px rgba(255,80,40,0.9); }
 }
 
-/* افکت هنگام هاور */
+/* افکت هنگام هاور  */
 #shoot:hover {
     transform: scale(1.12);
     box-shadow:
@@ -575,7 +569,7 @@ position: absolute;
         0 0 80px rgba(255,0,0,0.8);
 }
 
-/* افکت کلیک انفجاری */
+/*افکت کلیک انفجار */
 #shoot:active {
     transform: scale(0.92);
     box-shadow:
@@ -588,14 +582,14 @@ position: absolute;
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 40px;   /* یا هر اندازه دلخواه */
+    width: 40px;  
     height: 40px;
     border-radius: 50%;
     object-fit: cover;
     z-index: 3;
     pointer-events: none;
 
-    transform: translate(-50%, -50%); /* مرکز کردن دقیق */
+    transform: translate(-50%, -50%); /* مرکز  */
     transition: transform .12s ease, filter .12s ease;
 }
 
@@ -648,7 +642,7 @@ position: absolute;
 
 
 
-/* اضافه کن به CSS موجودت — ripple لازم بود که توی CSS قبلی نبود */
+
 #shoot .ripple{
   position: absolute;
   border-radius: 50%;
@@ -704,7 +698,7 @@ position: absolute;
   -ms-user-select: none;
   user-select: none;
   pointer-events: none;
-  top: calc(3% + 15px); /* یعنی ۲۰ پیکسل پایین‌تر از نام بازیکن */
+  top: calc(3% + 15px); 
   left: 10px;
   color: black;
 }
@@ -729,7 +723,7 @@ position: absolute;
 }
 
 
-/* ---- استایل‌های چت مدل واتساپ - حبابی ---- */
+/*  استایل‌های چت واتساپ - حبابی  */
 .chat-messages, {
   box-sizing: border-box;
   font-family: Tahoma, "Segoe UI", sans-serif;
@@ -749,7 +743,7 @@ position: absolute;
   align-items: flex-end;
 }
 
-/* پیام‌های من (local sender) => سمت راست، حباب سبز */
+/* پیام‌های من  سمت راست، حباب سبز */
 .chat-row.me {
   justify-content: flex-end;
 }
@@ -764,7 +758,7 @@ position: absolute;
   box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 
-/* پیام‌های دیگر => سمت چپ، حباب صورتی */
+/* پیام‌های دیگر سمت چپ، حباب صورتی */
 .chat-row.other {
   justify-content: flex-start;
 }
@@ -792,10 +786,10 @@ position: absolute;
   opacity:0.8;
   margin-top:6px;
   text-align: right;
-  direction: ltr; /* زمان معمولاً LTR */
+  direction: ltr; 
 }
 
-/* استایل برای avatar یا نام (اختیاری) */
+/* استایل برای نام  */
 .chat-row .meta {
   font-size:12px;
   color:rgba(255,255,255,0.6);
@@ -817,7 +811,7 @@ position: absolute;
 
 
 
-/* وقتی حباب طولانی است، نوشتار خط‌خور باشد */
+/* وقتی حباب طولانی است، نوشته خط‌ خور باشد */
 .bubble { word-break: break-word; }
 
 /* در حالت موبایل کوچک‌تر */
@@ -832,7 +826,7 @@ position: absolute;
   background-position: center;
   opacity: 0;
   transition: opacity 0.5s ease-in-out;
-  z-index: 0;   /* ← این باید 0 باشد */
+  z-index: 0;  
 }
 
 #gameBackground.fadeOutBg {
@@ -843,7 +837,7 @@ position: absolute;
 
 
 
-/* پنجره‌ی اصلی چت - تمام صفحه واقعی */
+/* پنجره‌ی اصلی چت - تمام صفحه  */
 #chatOverlay {
   position: fixed;
   inset: 0;                 /* جایگزین width/height و top/left */
@@ -858,7 +852,7 @@ position: absolute;
 
 #chatComposer {
   position: absolute;
-  inset: 0;                 /* کل صفحه را بگیرد */
+  inset: 0;                 /* کل صفحه را بگیره */
   width: 100%;
   height: 100%;
   background: rgba(0,0,0,0.85);
@@ -987,7 +981,7 @@ position: absolute;
       <button id="closeChatBtn" aria-label="بستن چت" style="background:transparent;border:0;color:#fff;font-size:18px;cursor:pointer;">✕</button>
     </div>
 
-    <!-- لیست پیام‌ها (اسکرول پذیر) -->
+    <!-- لیست پیام‌ها (با اسکرول ) -->
     <div id="chatList" style="flex:1; overflow-y:auto; padding:10px; box-sizing:border-box; display:flex; flex-direction:column; gap:8px;" ></div>
 
     <!-- composer پایین -->
@@ -998,7 +992,7 @@ position: absolute;
          padding:8px 12px; 
          border-radius:20px; 
          border:1px solid rgba(0,0,0,0.25); 
-         background:rgba(0,0,0,0.25);   /* 🔥 تیره‌تر از پنجره چت */
+         background:rgba(0,0,0,0.25);   /* تیره‌تر از پنجره چت */
          color:#fff; 
          outline:none;
          text-align:right;
@@ -1010,7 +1004,7 @@ position: absolute;
 </div>
 
 
-<!-- 🎮 کنترل‌ها -->
+<!--  کنترل‌ها -->
 <div id="joystick">
   <span class="up"></span>
   <span class="down"></span>
@@ -1022,7 +1016,7 @@ position: absolute;
 
 
 
-<!-- نمونه‌ی HTML (اگر نداریش) -->
+<!--  HTML  -->
 <div id="shoot" role="button" aria-label="shoot">
 <img class="shoot-img" src="images/shootPic.png" alt="">
   <span class="shoot-icon">●</span>
@@ -1063,7 +1057,7 @@ position: absolute;
 
 
 
-<!-- 🔥 نوار محدودیت شلیک (گرافیکی + لرزش استرس) -->
+<!--  نوار محدودیت شلیک  -->
 <div id="heatBarContainer" style="
   position: fixed;
   top: 5px;
@@ -1307,17 +1301,6 @@ const separDrops = [];
 
   
 
-
-
-
-
-
-
-  
-
-  
-
-
 let lastOverheatTime = 0;
 const heatBar = document.getElementById("heatBar");
 if (!heatBar) console.warn('heatBar not found');
@@ -1379,18 +1362,12 @@ function sendPresence(isOnline) {
       method: 'POST',
       body: params,
       credentials: 'omit',
-      keepalive: true // helpful during unload
+      keepalive: true 
     }).catch(e => console.warn("presence fetch failed:", e));
   } catch (e) {
     console.warn("presence final fallback failed:", e);
   }
 }
-
-
-
-
-
-
 
 //=======================================توابع مربوط به پیامهای خوانده نشده===============================
 
@@ -1428,7 +1405,6 @@ function renderUnreadPopup(data, playerId) {
   if (totalUnread === 0 || listArr.length === 0) {
     return; // هیچ چیز نساز، خارج شو
   }
-
 
   // اضافه‌کردن استایل‌ها یک‌بار
   if (!document.getElementById('unread-styles')) {
